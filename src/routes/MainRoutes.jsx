@@ -7,12 +7,6 @@ import PrivateRoute from './PrivateRoute';
 // dashboard routing
 const DashboardDefault = Loadable(lazy(() => import('views/dashboard/Default')));
 
-// Sales routing
-const SalesOrdersList = Loadable(lazy(() => import('views/sales-order/SalesOrdersList')));
-const SalesOrdersCreate = Loadable(lazy(() => import('views/sales-order/SalesOrdersCreate')));
-const SalesOrdersView = Loadable(lazy(() => import('views/sales-order/SalesOrderView')));
-const SalesOrdersEdit = Loadable(lazy(() => import('views/sales-order/SalesOrdersEdit')));
-
 // Material Request routing
 const MaterialRequestsList   = Loadable(lazy(() => import('views/material-request/MaterialRequestsList')));
 const MaterialRequestCreate  = Loadable(lazy(() => import('views/material-request/MaterialRequestCreate')));
@@ -55,27 +49,7 @@ const MainRoutes = {
         }
       ]
     },
-    {
-      path: 'sales-orders',
-      children: [
-        {
-          path: 'list',
-          element: <SalesOrdersList />
-        },
-        {
-          path: 'create',
-          element: <SalesOrdersCreate />
-        },
-        {
-          path: 'view/:id',
-          element: <SalesOrdersView />
-        },
-        {
-          path: 'edit/:id',
-          element: <SalesOrdersEdit />
-        }
-      ]
-    },
+    
     {
       path: 'material-requests',
       children: [
