@@ -16,13 +16,9 @@ export default function LookupProviderRenderer() {
   const { lookupConfig, closeLookup } = useLookup();
   const dispatch = useDispatch();
 
-  const config = lookupConfig
-    ? LOOKUP_CONFIGS[lookupConfig.type]
-    : null;
+  const config = lookupConfig ? LOOKUP_CONFIGS[lookupConfig.type] : null;
 
-  const { data, loading, error } = useSelector(
-    config?.selector || emptySelector
-  );
+  const { data, loading, error } = useSelector(config?.selector || emptySelector);
 
   useEffect(() => {
     if (!lookupConfig?.open || !config) return;

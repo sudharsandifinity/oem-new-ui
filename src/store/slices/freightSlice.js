@@ -1,19 +1,14 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import api from '../../api/axios';
 
-export const getFreights = createAsyncThunk(
-  'freight/getFreights',
-  async (_, thunkAPI) => {
-    try {
-      const response = await api.get('/sap/others/freights');
-      return response?.data?.value;
-    } catch (error) {
-      return thunkAPI.rejectWithValue(
-        error?.response?.data?.message || 'Failed to fetch freights'
-      );
-    }
+export const getFreights = createAsyncThunk('freight/getFreights', async (_, thunkAPI) => {
+  try {
+    const response = await api.get('/sap/others/freights');
+    return response?.data?.value;
+  } catch (error) {
+    return thunkAPI.rejectWithValue(error?.response?.data?.message || 'Failed to fetch freights');
   }
-);
+});
 
 const freightSlice = createSlice({
   name: 'freight',

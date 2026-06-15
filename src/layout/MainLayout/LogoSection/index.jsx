@@ -12,7 +12,7 @@ import Logo from '../../../assets/images/logo.png';
 export default function LogoSection() {
   return (
     <Link component={RouterLink} to={DASHBOARD_PATH} aria-label="theme-logo">
-      <img src={Logo} alt="logo" height={46}/>
+      <img src={Logo} alt="logo" height={46} />
     </Link>
   );
 }

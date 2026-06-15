@@ -18,10 +18,10 @@ export default function App() {
   return (
     <ThemeCustomization>
       <NavigationScroll>
-          <LookupProvider>
-            <RouterProvider router={router} />
-            <LookupProviderRenderer />
-          </LookupProvider>
+        <LookupProvider>
+          <RouterProvider router={router} />
+          <LookupProviderRenderer />
+        </LookupProvider>
       </NavigationScroll>
     </ThemeCustomization>
   );

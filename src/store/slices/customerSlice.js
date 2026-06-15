@@ -1,7 +1,4 @@
-import {
-  createSlice,
-  createAsyncThunk
-} from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import API from 'api/axios';
 
 const initialState = {
@@ -18,10 +15,7 @@ export const getCustomers = createAsyncThunk(
       const response = await API.get('/sap/business-partners/customers');
       return response.data.value;
     } catch (error) {
-      return thunkAPI.rejectWithValue(
-        error.response?.data?.message ||
-        'Failed to load customers'
-      );
+      return thunkAPI.rejectWithValue(error.response?.data?.message || 'Failed to load customers');
     }
   }
 );
@@ -36,7 +30,6 @@ const customerSlice = createSlice({
   },
 
   extraReducers: (builder) => {
-
     builder
       .addCase(getCustomers.pending, (state) => {
         state.loading = true;
@@ -53,8 +46,6 @@ const customerSlice = createSlice({
   }
 });
 
-export const {
-  resetCustomerState
-} = customerSlice.actions;
+export const { resetCustomerState } = customerSlice.actions;
 
 export default customerSlice.reducer;

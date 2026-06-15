@@ -1,14 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import {
-  Box,
-  Breadcrumbs,
-  IconButton,
-  Paper,
-  Stack,
-  TextField,
-  Typography
-} from '@mui/material';
+import { Box, Breadcrumbs, IconButton, Paper, Stack, TextField, Typography } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 
 import HomeIcon from '@mui/icons-material/Home';
@@ -30,21 +22,28 @@ export default function PurchaseRequestsList() {
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 25 });
 
   useEffect(() => {
-    dispatch(getPRList({
-      top:  paginationModel.pageSize,
-      skip: paginationModel.page * paginationModel.pageSize
-    }));
+    dispatch(
+      getPRList({
+        top: paginationModel.pageSize,
+        skip: paginationModel.page * paginationModel.pageSize
+      })
+    );
   }, [paginationModel, dispatch]);
 
   const clearFilters = () => setFilters({ DocEntry: '', MRNo: '', ProjectCode: '', ProjectName: '', DocDate: '' });
 
   const columns = [
-    { field: 'DocEntry',   headerName: 'Doc Entry',    flex: 1,   minWidth: 120 },
-    { field: 'U_MRNo',     headerName: 'MR No',        flex: 1,   minWidth: 120 },
-    { field: 'U_PrjCode',  headerName: 'Project Code', flex: 1,   minWidth: 150 },
-    { field: 'U_PrjDesc',  headerName: 'Project Name', flex: 1.5, minWidth: 200 },
-    { field: 'DocDate',    headerName: 'Posting Date', flex: 1,   minWidth: 140,
-      valueFormatter: (value) => value ? value.substring(0, 10) : '' },
+    { field: 'DocEntry', headerName: 'Doc Entry', flex: 1, minWidth: 120 },
+    { field: 'U_MRNo', headerName: 'MR No', flex: 1, minWidth: 120 },
+    { field: 'U_PrjCode', headerName: 'Project Code', flex: 1, minWidth: 150 },
+    { field: 'U_PrjDesc', headerName: 'Project Name', flex: 1.5, minWidth: 200 },
+    {
+      field: 'DocDate',
+      headerName: 'Posting Date',
+      flex: 1,
+      minWidth: 140,
+      valueFormatter: (value) => (value ? value.substring(0, 10) : '')
+    },
     {
       field: 'action',
       headerName: 'Action',
@@ -53,11 +52,7 @@ export default function PurchaseRequestsList() {
       minWidth: 80,
       renderCell: (params) => (
         <Stack direction="row" height="100%" spacing={1}>
-          <IconButton
-            size="small"
-            color="primary"
-            onClick={() => navigate(`/purchase-requests/view/${params.row.DocEntry}`)}
-          >
+          <IconButton size="small" color="primary" onClick={() => navigate(`/purchase-requests/view/${params.row.DocEntry}`)}>
             <VisibilityIcon fontSize="small" />
           </IconButton>
         </Stack>
@@ -67,11 +62,11 @@ export default function PurchaseRequestsList() {
 
   return (
     <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', height: 'calc(100vh - 176px)' }}>
-      {/* Header */}
       <MainCard content={false} sx={{ mb: 3, flexShrink: 0 }}>
         <Box
           sx={{
-            px: 3, py: 2.5,
+            px: 3,
+            py: 2.5,
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: { xs: 'flex-start', md: 'center' },
@@ -85,7 +80,9 @@ export default function PurchaseRequestsList() {
               <HomeIcon sx={{ fontSize: 18, color: 'secondary.main' }} />
             </Box>
             <Typography variant="body2">Purchase Request</Typography>
-            <Typography variant="body2" color="secondary" fontWeight={600}>List</Typography>
+            <Typography variant="body2" color="secondary" fontWeight={600}>
+              List
+            </Typography>
           </Breadcrumbs>
         </Box>
       </MainCard>

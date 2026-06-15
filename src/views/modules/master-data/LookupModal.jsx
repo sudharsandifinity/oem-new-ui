@@ -13,7 +13,7 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  TextField,
+  TextField
 } from '@mui/material';
 
 import CloseIcon from '@mui/icons-material/Close';
@@ -77,12 +77,7 @@ const CONFIG = {
 
 // ================= COMPONENT ================= //
 
-export default function LookupModal({
-  open,
-  onClose,
-  type,
-  onSelect
-}) {
+export default function LookupModal({ open, onClose, type, onSelect }) {
   const [filters, setFilters] = useState({});
 
   const config = CONFIG[type];
@@ -99,10 +94,7 @@ export default function LookupModal({
     return data.filter((row) => {
       return config.filterKeys.every((key) => {
         if (!filters[key]) return true;
-        return row[key]
-          .toString()
-          .toLowerCase()
-          .includes(filters[key].toLowerCase());
+        return row[key].toString().toLowerCase().includes(filters[key].toLowerCase());
       });
     });
   }, [filters, type]);
@@ -171,12 +163,7 @@ export default function LookupModal({
 
             <TableBody>
               {filteredData.map((row) => (
-                <TableRow
-                  key={row.id}
-                  hover
-                  onClick={() => handleSelect(row)}
-                  sx={{ cursor: 'pointer' }}
-                >
+                <TableRow key={row.id} hover onClick={() => handleSelect(row)} sx={{ cursor: 'pointer' }}>
                   {config.fields.map((f) => (
                     <TableCell key={f}>{row[f]}</TableCell>
                   ))}

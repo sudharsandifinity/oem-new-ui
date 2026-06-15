@@ -25,16 +25,10 @@ import {
 import CloseIcon from '@mui/icons-material/Close';
 import { getFreights } from '../../../store/slices/freightSlice';
 
-export default function FreightLookupModal({
-  open,
-  onClose,
-  onSelectFreight
-}) {
+export default function FreightLookupModal({ open, onClose, onSelectFreight }) {
   const dispatch = useDispatch();
 
-  const { freights = [], loading, error } = useSelector(
-    (state) => state.freight
-  );
+  const { freights = [], loading, error } = useSelector((state) => state.freight);
 
   const [filters, setFilters] = useState({
     name: ''
@@ -52,12 +46,7 @@ export default function FreightLookupModal({
 
   const filteredData = useMemo(() => {
     return (freights || []).filter((f) => {
-      return (
-        !filters.name ||
-        (f.Name || '')
-          .toLowerCase()
-          .includes(filters.name.toLowerCase())
-      );
+      return !filters.name || (f.Name || '').toLowerCase().includes(filters.name.toLowerCase());
     });
   }, [freights, filters]);
 
@@ -80,7 +69,6 @@ export default function FreightLookupModal({
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
-      
       {/* ================= HEADER ================= */}
       <DialogTitle
         sx={{
@@ -90,9 +78,7 @@ export default function FreightLookupModal({
           py: 1.5
         }}
       >
-        <Typography variant="h6">
-          Freight Selection
-        </Typography>
+        <Typography variant="h6">Freight Selection</Typography>
 
         <IconButton onClick={onClose}>
           <CloseIcon />
@@ -101,12 +87,8 @@ export default function FreightLookupModal({
 
       {/* ================= BODY ================= */}
       <DialogContent sx={{ p: 2 }}>
-
         {/* ================= FILTER ================= */}
-        <Paper
-          variant="outlined"
-          sx={{ p: 2, mb: 2, borderRadius: 2 }}
-        >
+        <Paper variant="outlined" sx={{ p: 2, mb: 2, borderRadius: 2 }}>
           <Grid container spacing={2}>
             <Grid item xs={12}>
               <TextField
@@ -114,20 +96,13 @@ export default function FreightLookupModal({
                 size="small"
                 label="Search Freight Name"
                 value={filters.name}
-                onChange={(e) =>
-                  setFilters({ name: e.target.value })
-                }
+                onChange={(e) => setFilters({ name: e.target.value })}
               />
             </Grid>
 
             <Grid item xs={12}>
               <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                <Button
-                  size="small"
-                  variant="outlined"
-                  color="error"
-                  onClick={clearFilters}
-                >
+                <Button size="small" variant="outlined" color="error" onClick={clearFilters}>
                   Clear
                 </Button>
               </Box>
@@ -152,16 +127,13 @@ export default function FreightLookupModal({
           }}
         >
           <Table stickyHeader size="small">
-
             {/* HEADER */}
             <TableHead>
               <TableRow>
                 <TableCell width={70} sx={{ fontWeight: 700 }}>
                   S.No
                 </TableCell>
-                <TableCell sx={{ fontWeight: 700 }}>
-                  Freight Name
-                </TableCell>
+                <TableCell sx={{ fontWeight: 700 }}>Freight Name</TableCell>
               </TableRow>
             </TableHead>
 
@@ -196,10 +168,8 @@ export default function FreightLookupModal({
                 ))
               )}
             </TableBody>
-
           </Table>
         </TableContainer>
-
       </DialogContent>
     </Dialog>
   );

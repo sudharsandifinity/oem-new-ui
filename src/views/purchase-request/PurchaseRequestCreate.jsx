@@ -2,18 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 
-import {
-  Alert,
-  Box,
-  Breadcrumbs,
-  Button,
-  CircularProgress,
-  Divider,
-  Snackbar,
-  Tab,
-  Tabs,
-  Typography
-} from '@mui/material';
+import { Alert, Box, Breadcrumbs, Button, CircularProgress, Divider, Snackbar, Tab, Tabs, Typography } from '@mui/material';
 
 import HomeIcon from '@mui/icons-material/Home';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
@@ -27,8 +16,8 @@ import { buildPRPayload, mrLineToPRRow } from './prHelpers';
 const today = new Date().toISOString().split('T')[0];
 
 export default function PurchaseRequestCreate() {
-  const navigate  = useNavigate();
-  const dispatch  = useDispatch();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
   const { state } = useLocation();
 
   const { createLoading, saveSuccess, error } = useSelector((s) => s.purchaseRequest);
@@ -36,25 +25,22 @@ export default function PurchaseRequestCreate() {
   const [tabValue, setTabValue] = useState(0);
   const [snackbar, setSnackbar] = useState({ open: false, severity: 'success', message: '' });
 
-  // Pre-fill from MR state passed via navigate
   const [form, setForm] = useState(() => ({
-    MRNo:               state?.mrNo               ?? '',
-    MRDocEntry:         state?.mrDocEntry          ?? null,
-    ProjectCode:        state?.projectCode         ?? '',
-    ProjectName:        state?.projectName         ?? '',
-    DocDate:            today,
-    RequiredDate:       '',
-    ReqCode:            state?.reqCode             ?? '',
-    ReqType:            state?.reqType             ?? null,
-    RequestorTypeLabel: state?.requestorTypeLabel  ?? '',
-    RequestorName:      state?.requestorName       ?? '',
-    Department:         state?.department          ?? '',
-    Comments:           '',
+    MRNo: state?.mrNo ?? '',
+    MRDocEntry: state?.mrDocEntry ?? null,
+    ProjectCode: state?.projectCode ?? '',
+    ProjectName: state?.projectName ?? '',
+    DocDate: today,
+    RequiredDate: '',
+    ReqCode: state?.reqCode ?? '',
+    ReqType: state?.reqType ?? null,
+    RequestorTypeLabel: state?.requestorTypeLabel ?? '',
+    RequestorName: state?.requestorName ?? '',
+    Department: state?.department ?? '',
+    Comments: ''
   }));
 
-  const [lines, setLines] = useState(() =>
-    (state?.selectedLines ?? []).map(mrLineToPRRow)
-  );
+  const [lines, setLines] = useState(() => (state?.selectedLines ?? []).map(mrLineToPRRow));
 
   useEffect(() => {
     if (saveSuccess) {
@@ -74,11 +60,11 @@ export default function PurchaseRequestCreate() {
 
   return (
     <Box>
-      {/* HEADER */}
       <MainCard content={false} sx={{ mb: 3 }}>
         <Box
           sx={{
-            px: 3, py: 2.5,
+            px: 3,
+            py: 2.5,
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: { xs: 'flex-start', md: 'center' },
@@ -91,13 +77,16 @@ export default function PurchaseRequestCreate() {
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <HomeIcon sx={{ fontSize: 18, color: 'secondary.main' }} />
             </Box>
-            <Typography variant="body2" color="text.primary">Purchase Request</Typography>
-            <Typography variant="body2" color="secondary" fontWeight={600}>Create</Typography>
+            <Typography variant="body2" color="text.primary">
+              Purchase Request
+            </Typography>
+            <Typography variant="body2" color="secondary" fontWeight={600}>
+              Create
+            </Typography>
           </Breadcrumbs>
         </Box>
       </MainCard>
 
-      {/* CONTENT */}
       <MainCard content={false}>
         <Box sx={{ borderBottom: 1, borderColor: 'divider', px: 3, pt: 1 }}>
           <Tabs value={tabValue} onChange={(_, v) => setTabValue(v)}>

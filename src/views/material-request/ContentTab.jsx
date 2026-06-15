@@ -25,27 +25,32 @@ import { useLookup } from '../../context/LookupContext';
 import RequestorSelectModal from './RequestorSelectModal';
 
 const TABLE_COLUMNS = [
-  { key: 'seq',             label: '#',            width: 50  },
-  { key: 'BOMLineNum',      label: 'BOM Line',     width: 90  },
-  { key: 'ItemCode',        label: 'Item Code',    width: 130 },
-  { key: 'ItemDescription', label: 'Description',  width: 180 },
-  { key: 'FullDescription', label: 'Full Desc',    width: 180 },
-  { key: 'Quantity',        label: 'Quantity',     width: 100 },
-  { key: 'UoMCode',         label: 'UOM',          width: 100 },
-  { key: 'BOMQty',          label: 'BOM Qty',      width: 100 },
-  { key: 'BOMOpenQty',      label: 'BOM Open Qty', width: 120 },
-  { key: 'MROpenQty',       label: 'MR Open Qty',  width: 120 },
-  { key: 'WarehouseCode',   label: 'Warehouse',    width: 130 },
-  { key: 'ProjectCode',     label: 'Project',      width: 130 },
-  { key: 'IssuedQty',       label: 'Issued Qty',   width: 100 },
-  { key: 'InStock',         label: 'In Stock',     width: 100 },
-  { key: 'Remark',          label: 'Remark',       width: 160 },
+  { key: 'seq', label: '#', width: 50 },
+  { key: 'BOMLineNum', label: 'BOM Line', width: 90 },
+  { key: 'ItemCode', label: 'Item Code', width: 130 },
+  { key: 'ItemDescription', label: 'Description', width: 180 },
+  { key: 'FullDescription', label: 'Full Desc', width: 180 },
+  { key: 'Quantity', label: 'Quantity', width: 100 },
+  { key: 'UoMCode', label: 'UOM', width: 100 },
+  { key: 'BOMQty', label: 'BOM Qty', width: 100 },
+  { key: 'BOMOpenQty', label: 'BOM Open Qty', width: 120 },
+  { key: 'MROpenQty', label: 'MR Open Qty', width: 120 },
+  { key: 'WarehouseCode', label: 'Warehouse', width: 130 },
+  { key: 'ProjectCode', label: 'Project', width: 130 },
+  { key: 'IssuedQty', label: 'Issued Qty', width: 100 },
+  { key: 'InStock', label: 'In Stock', width: 100 },
+  { key: 'Remark', label: 'Remark', width: 160 }
 ];
 
-// Always read-only regardless of mode
 const DISABLED_COLS = new Set([
-  'BOMLineNum', 'FullDescription', 'BOMQty', 'BOMOpenQty',
-  'MROpenQty', 'ProjectCode', 'IssuedQty', 'InStock'
+  'BOMLineNum',
+  'FullDescription',
+  'BOMQty',
+  'BOMOpenQty',
+  'MROpenQty',
+  'ProjectCode',
+  'IssuedQty',
+  'InStock'
 ]);
 
 export default function MRContentTab({ data, setData, rows, setRows, readOnly = false }) {
@@ -112,11 +117,7 @@ export default function MRContentTab({ data, setData, rows, setRows, readOnly = 
             readOnly: true,
             endAdornment: (
               <InputAdornment position="end">
-                <IconButton
-                  size="small"
-                  disabled={isDisabled}
-                  onClick={() => handleOpenItemLookup(row.id)}
-                >
+                <IconButton size="small" disabled={isDisabled} onClick={() => handleOpenItemLookup(row.id)}>
                   <SearchIcon sx={{ fontSize: 16, color: isDisabled ? 'text.disabled' : '#2196f3' }} />
                 </IconButton>
               </InputAdornment>
@@ -138,11 +139,7 @@ export default function MRContentTab({ data, setData, rows, setRows, readOnly = 
             readOnly: true,
             endAdornment: (
               <InputAdornment position="end">
-                <IconButton
-                  size="small"
-                  disabled={readOnly}
-                  onClick={() => handleOpenWarehouseLookup(row.id)}
-                >
+                <IconButton size="small" disabled={readOnly} onClick={() => handleOpenWarehouseLookup(row.id)}>
                   <SearchIcon sx={{ fontSize: 16, color: readOnly ? 'text.disabled' : '#2196f3' }} />
                 </IconButton>
               </InputAdornment>
@@ -215,11 +212,7 @@ export default function MRContentTab({ data, setData, rows, setRows, readOnly = 
                   {col.label}
                 </TableCell>
               ))}
-              {!readOnly && (
-                <TableCell sx={{ minWidth: 80, backgroundColor: 'grey.100', fontWeight: 700 }}>
-                  Remove
-                </TableCell>
-              )}
+              {!readOnly && <TableCell sx={{ minWidth: 80, backgroundColor: 'grey.100', fontWeight: 700 }}>Remove</TableCell>}
             </TableRow>
           </TableHead>
 
@@ -243,82 +236,61 @@ export default function MRContentTab({ data, setData, rows, setRows, readOnly = 
         </Table>
       </TableContainer>
 
-      {/* Bottom row: Requestor Details + Remark side by side */}
       <Box sx={{ mt: 3, display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'stretch' }}>
-
-        {/* Requestor section — 40% width */}
         <Box sx={{ flex: '0 0 40%', minWidth: 260 }}>
-        <Paper variant="outlined" sx={{ p: 3, borderRadius: 2, height: '100%' }}>
-          <Typography variant="h5" sx={{ mb: 2.5 }}>
-            Requestor Details
-          </Typography>
+          <Paper variant="outlined" sx={{ p: 3, borderRadius: 2, height: '100%' }}>
+            <Typography variant="h5" sx={{ mb: 2.5 }}>
+              Requestor Details
+            </Typography>
 
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            {/* Row 1: type + requestor code */}
-            <Box sx={{ display: 'flex', gap: 2 }}>
-              <FormControl size="small" sx={{ minWidth: 150 }} disabled={readOnly}>
-                <InputLabel>Requestor Type</InputLabel>
-                <Select
-                  label="Requestor Type"
-                  value={data?.RequestorType || 'User'}
-                  onChange={(e) =>
-                    setData((prev) => ({
-                      ...prev,
-                      RequestorType: e.target.value,
-                      ReqCode: '',
-                      RequestorName: '',
-                      Department: ''
-                    }))
-                  }
-                >
-                  <MenuItem value="User">User</MenuItem>
-                  <MenuItem value="Employee">Employee</MenuItem>
-                </Select>
-              </FormControl>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <Box sx={{ display: 'flex', gap: 2 }}>
+                <FormControl size="small" sx={{ minWidth: 150 }} disabled={readOnly}>
+                  <InputLabel>Requestor Type</InputLabel>
+                  <Select
+                    label="Requestor Type"
+                    value={data?.RequestorType || 'User'}
+                    onChange={(e) =>
+                      setData((prev) => ({
+                        ...prev,
+                        RequestorType: e.target.value,
+                        ReqCode: '',
+                        RequestorName: '',
+                        Department: ''
+                      }))
+                    }
+                  >
+                    <MenuItem value="User">User</MenuItem>
+                    <MenuItem value="Employee">Employee</MenuItem>
+                  </Select>
+                </FormControl>
 
-              <TextField
-                size="small"
-                label="Requestor Code"
-                value={data?.ReqCode || ''}
-                disabled={readOnly}
-                sx={{ flex: 1 }}
-                InputProps={{
-                  readOnly: true,
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton
-                        size="small"
-                        disabled={readOnly}
-                        onClick={() => setRequestorModalOpen(true)}
-                      >
-                        <PersonSearchIcon sx={{ fontSize: 18, color: readOnly ? 'text.disabled' : '#2196f3' }} />
-                      </IconButton>
-                    </InputAdornment>
-                  )
-                }}
-              />
+                <TextField
+                  size="small"
+                  label="Requestor Code"
+                  value={data?.ReqCode || ''}
+                  disabled={readOnly}
+                  sx={{ flex: 1 }}
+                  InputProps={{
+                    readOnly: true,
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton size="small" disabled={readOnly} onClick={() => setRequestorModalOpen(true)}>
+                          <PersonSearchIcon sx={{ fontSize: 18, color: readOnly ? 'text.disabled' : '#2196f3' }} />
+                        </IconButton>
+                      </InputAdornment>
+                    )
+                  }}
+                />
+              </Box>
+
+              <TextField size="small" fullWidth label="Requestor Name" value={data?.RequestorName || ''} disabled />
+
+              <TextField size="small" fullWidth label="Department" value={data?.Department || ''} disabled />
             </Box>
-
-            <TextField
-              size="small"
-              fullWidth
-              label="Requestor Name"
-              value={data?.RequestorName || ''}
-              disabled
-            />
-
-            <TextField
-              size="small"
-              fullWidth
-              label="Department"
-              value={data?.Department || ''}
-              disabled
-            />
-          </Box>
-        </Paper>
+          </Paper>
         </Box>
 
-        {/* Remark section — fills remaining space */}
         <Box sx={{ flex: 1, minWidth: 200 }}>
           <Paper variant="outlined" sx={{ p: 3, borderRadius: 2, height: '100%' }}>
             <Typography variant="h5" sx={{ mb: 2.5 }}>
@@ -336,8 +308,7 @@ export default function MRContentTab({ data, setData, rows, setRows, readOnly = 
             />
           </Paper>
         </Box>
-
-      </Box>{/* end bottom row */}
+      </Box>
 
       <RequestorSelectModal
         open={requestorModalOpen}
@@ -365,5 +336,5 @@ export const emptyRow = () => ({
   ProjectCode: '',
   IssuedQty: '',
   InStock: '',
-  Remark: '',
+  Remark: ''
 });

@@ -1,8 +1,4 @@
-import {
-  useMemo,
-  useState,
-  useEffect
-} from 'react';
+import { useMemo, useState, useEffect } from 'react';
 
 import {
   Box,
@@ -27,41 +23,22 @@ import CloseIcon from '@mui/icons-material/Close';
 import Alert from '@mui/material/Alert';
 import CircularProgress from '@mui/material/CircularProgress';
 
-import {
-  useDispatch,
-  useSelector
-} from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
-import {
-  getWarehouses
-} from '../../../store/slices/warehouseSlice';
+import { getWarehouses } from '../../../store/slices/warehouseSlice';
 
-export default function WarehouseSelectPopup({
-  open,
-  onClose,
-  onSelectWarehouse
-}) {
+export default function WarehouseSelectPopup({ open, onClose, onSelectWarehouse }) {
   const dispatch = useDispatch();
 
-  const {
-    warehouses,
-    loading,
-    error
-  } = useSelector(
-    (state) => state.warehouse
-  );
+  const { warehouses, loading, error } = useSelector((state) => state.warehouse);
 
-  const [filters, setFilters] =
-    useState({
-      warehouseCode: '',
-      warehouseName: ''
-    });
+  const [filters, setFilters] = useState({
+    warehouseCode: '',
+    warehouseName: ''
+  });
 
   useEffect(() => {
-    if (
-      open &&
-      warehouses.length === 0
-    ) {
+    if (open && warehouses.length === 0) {
       dispatch(getWarehouses());
     }
 
@@ -74,26 +51,10 @@ export default function WarehouseSelectPopup({
   }, [open]);
 
   const filteredData = useMemo(() => {
-    return (
-      warehouses || []
-    ).filter((w) => {
+    return (warehouses || []).filter((w) => {
       return (
-        (!filters.warehouseCode ||
-          (
-            w.WarehouseCode || ''
-          )
-            .toLowerCase()
-            .includes(
-              filters.warehouseCode.toLowerCase()
-            )) &&
-        (!filters.warehouseName ||
-          (
-            w.WarehouseName || ''
-          )
-            .toLowerCase()
-            .includes(
-              filters.warehouseName.toLowerCase()
-            ))
+        (!filters.warehouseCode || (w.WarehouseCode || '').toLowerCase().includes(filters.warehouseCode.toLowerCase())) &&
+        (!filters.warehouseName || (w.WarehouseName || '').toLowerCase().includes(filters.warehouseName.toLowerCase()))
       );
     });
   }, [filters, warehouses]);
@@ -105,44 +66,29 @@ export default function WarehouseSelectPopup({
     });
   };
 
-  const handleSelect = (
-    row
-  ) => {
+  const handleSelect = (row) => {
     onSelectWarehouse({
-      warehouseCode:
-        row.WarehouseCode,
-      warehouseName:
-        row.WarehouseName
+      warehouseCode: row.WarehouseCode,
+      warehouseName: row.WarehouseName
     });
 
     onClose();
   };
 
   return (
-    <Dialog
-      open={open}
-      onClose={onClose}
-      fullWidth
-      maxWidth="md"
-    >
-
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
       <DialogTitle
         sx={{
           display: 'flex',
-          justifyContent:'space-between',
+          justifyContent: 'space-between',
           alignItems: 'center'
         }}
       >
-        <Typography
-          variant="h5"
-          component="div"
-        >
+        <Typography variant="h5" component="div">
           Warehouse Selection
         </Typography>
 
-        <IconButton
-          onClick={onClose}
-        >
+        <IconButton onClick={onClose}>
           <CloseIcon />
         </IconButton>
       </DialogTitle>
@@ -156,36 +102,23 @@ export default function WarehouseSelectPopup({
             borderRadius: 2
           }}
         >
-          <Typography
-            variant="h6"
-            sx={{ mb: 2 }}
-          >
+          <Typography variant="h6" sx={{ mb: 2 }}>
             Filters
           </Typography>
 
-          <Grid
-            container
-            spacing={2}
-          >
+          <Grid container spacing={2}>
             {/* WAREHOUSE CODE */}
 
-            <Grid
-              item
-              xs={12}
-              md={4}
-            >
+            <Grid item xs={12} md={4}>
               <TextField
                 fullWidth
                 size="small"
                 label="Warehouse Code"
-                value={
-                  filters.warehouseCode
-                }
+                value={filters.warehouseCode}
                 onChange={(e) =>
                   setFilters({
                     ...filters,
-                    warehouseCode:
-                      e.target.value
+                    warehouseCode: e.target.value
                   })
                 }
               />
@@ -193,23 +126,16 @@ export default function WarehouseSelectPopup({
 
             {/* WAREHOUSE NAME */}
 
-            <Grid
-              item
-              xs={12}
-              md={4}
-            >
+            <Grid item xs={12} md={4}>
               <TextField
                 fullWidth
                 size="small"
                 label="Warehouse Name"
-                value={
-                  filters.warehouseName
-                }
+                value={filters.warehouseName}
                 onChange={(e) =>
                   setFilters({
                     ...filters,
-                    warehouseName:
-                      e.target.value
+                    warehouseName: e.target.value
                   })
                 }
               />
@@ -221,17 +147,10 @@ export default function WarehouseSelectPopup({
               <Box
                 sx={{
                   display: 'flex',
-                  justifyContent:
-                    'flex-end'
+                  justifyContent: 'flex-end'
                 }}
               >
-                <Button
-                  variant="outlined"
-                  color="error"
-                  onClick={
-                    clearFilters
-                  }
-                >
+                <Button variant="outlined" color="error" onClick={clearFilters}>
                   Clear
                 </Button>
               </Box>
@@ -242,33 +161,22 @@ export default function WarehouseSelectPopup({
         {/* ================= ERROR ================= */}
 
         {error && (
-          <Alert
-            severity="error"
-            sx={{ mb: 2 }}
-          >
+          <Alert severity="error" sx={{ mb: 2 }}>
             {error}
           </Alert>
         )}
 
         {/* ================= TABLE ================= */}
 
-        <TableContainer
-          component={Paper}
-          variant="outlined"
-        >
+        <TableContainer component={Paper} variant="outlined">
           <Table size="small">
             <TableHead>
               <TableRow
                 sx={{
-                  backgroundColor:
-                    'grey.100'
+                  backgroundColor: 'grey.100'
                 }}
               >
-                {[
-                  'S.No',
-                  'Warehouse Code',
-                  'Warehouse Name'
-                ].map((h) => (
+                {['S.No', 'Warehouse Code', 'Warehouse Name'].map((h) => (
                   <TableCell
                     key={h}
                     sx={{
@@ -284,80 +192,48 @@ export default function WarehouseSelectPopup({
             <TableBody>
               {/* ================= LOADER ================= */}
 
-              {loading &&
-                warehouses.length ===
-                  0 && (
-                  <TableRow>
-                    <TableCell
-                      colSpan={3}
-                      align="center"
-                      sx={{
-                        py: 5
-                      }}
-                    >
-                      <CircularProgress
-                        color="secondary"
-                        size={32}
-                      />
-                    </TableCell>
-                  </TableRow>
-                )}
+              {loading && warehouses.length === 0 && (
+                <TableRow>
+                  <TableCell
+                    colSpan={3}
+                    align="center"
+                    sx={{
+                      py: 5
+                    }}
+                  >
+                    <CircularProgress color="secondary" size={32} />
+                  </TableCell>
+                </TableRow>
+              )}
 
               {/* ================= DATA ================= */}
 
-              {filteredData.map(
-                (
-                  row,
-                  index
-                ) => (
-                  <TableRow
-                    key={
-                      row.WarehouseCode
-                    }
-                    hover
-                    onClick={() =>
-                      handleSelect(
-                        row
-                      )
-                    }
-                    sx={{
-                      cursor:
-                        'pointer'
-                    }}
-                  >
-                    <TableCell>
-                      {index + 1}
-                    </TableCell>
+              {filteredData.map((row, index) => (
+                <TableRow
+                  key={row.WarehouseCode}
+                  hover
+                  onClick={() => handleSelect(row)}
+                  sx={{
+                    cursor: 'pointer'
+                  }}
+                >
+                  <TableCell>{index + 1}</TableCell>
 
-                    <TableCell>
-                      {
-                        row.WarehouseCode
-                      }
-                    </TableCell>
+                  <TableCell>{row.WarehouseCode}</TableCell>
 
-                    <TableCell>
-                      {
-                        row.WarehouseName
-                      }
-                    </TableCell>
-                  </TableRow>
-                )
-              )}
+                  <TableCell>{row.WarehouseName}</TableCell>
+                </TableRow>
+              ))}
 
               {/* ================= EMPTY ================= */}
 
-              {!loading &&
-                filteredData.length ===
-                  0 && (
-                  <TableRow>
-                    <TableCell
-                      colSpan={3}
-                      align="center"
-                    >
-                      No Data Found
-                    </TableCell>
-                  </TableRow>
-                )}
+              {!loading && filteredData.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={3} align="center">
+                    No Data Found
+                  </TableCell>
+                </TableRow>
+              )}
             </TableBody>
           </Table>
         </TableContainer>

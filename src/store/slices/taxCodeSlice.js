@@ -1,7 +1,4 @@
-import {
-  createSlice,
-  createAsyncThunk
-} from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
 import API from 'api/axios';
 
@@ -16,16 +13,10 @@ export const getTaxCodes = createAsyncThunk(
 
   async (_, thunkAPI) => {
     try {
-      const response = await API.get(
-        '/sap/tax-code/sales-order'
-      );
+      const response = await API.get('/sap/tax-code/sales-order');
       return response.data?.value || [];
     } catch (error) {
-
-      return thunkAPI.rejectWithValue(
-        error.response?.data?.message ||
-        'Failed to load tax codes'
-      );
+      return thunkAPI.rejectWithValue(error.response?.data?.message || 'Failed to load tax codes');
     }
   }
 );
@@ -35,7 +26,6 @@ const taxCodeSlice = createSlice({
   initialState,
   reducers: {},
   extraReducers: (builder) => {
-
     builder
       .addCase(getTaxCodes.pending, (state) => {
         state.loading = true;

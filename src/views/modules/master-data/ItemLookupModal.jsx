@@ -26,18 +26,10 @@ import { getItems } from '../../../store/slices/itemSlice';
 
 // ================= COMPONENT ================= //
 
-export default function ItemSelectPopup({
-  open,
-  onClose,
-  onSelectItem
-}) {
+export default function ItemSelectPopup({ open, onClose, onSelectItem }) {
   const dispatch = useDispatch();
 
-  const {
-    items,
-    loading,
-    error
-  } = useSelector((state) => state.item);
+  const { items, loading, error } = useSelector((state) => state.item);
 
   useEffect(() => {
     if (open && items.length === 0) {
@@ -60,10 +52,7 @@ export default function ItemSelectPopup({
       const fCode = (filters.ItemCode || '').toLowerCase();
       const fName = (filters.ItemName || '').toLowerCase();
 
-      return (
-        (!fCode || code.includes(fCode)) &&
-        (!fName || name.includes(fName))
-      );
+      return (!fCode || code.includes(fCode)) && (!fName || name.includes(fName));
     });
   }, [filters, items]);
 
@@ -96,12 +85,7 @@ export default function ItemSelectPopup({
   };
 
   return (
-    <Dialog
-      open={open}
-      onClose={onClose}
-      fullWidth
-      maxWidth="md"
-    >
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
       {/* ================= HEADER ================= */}
 
       <DialogTitle
@@ -111,9 +95,7 @@ export default function ItemSelectPopup({
           alignItems: 'center'
         }}
       >
-        <Typography variant="h4">
-          Item Selection
-        </Typography>
+        <Typography variant="h4">Item Selection</Typography>
 
         <IconButton onClick={onClose}>
           <CloseIcon />
@@ -133,10 +115,7 @@ export default function ItemSelectPopup({
             borderRadius: 2
           }}
         >
-          <Typography
-            variant="h6"
-            sx={{ mb: 2 }}
-          >
+          <Typography variant="h6" sx={{ mb: 2 }}>
             Filters
           </Typography>
 
@@ -184,11 +163,7 @@ export default function ItemSelectPopup({
                   justifyContent: 'flex-end'
                 }}
               >
-                <Button
-                  variant="outlined"
-                  color="error"
-                  onClick={clearFilters}
-                >
+                <Button variant="outlined" color="error" onClick={clearFilters}>
                   Clear
                 </Button>
               </Box>
@@ -197,20 +172,14 @@ export default function ItemSelectPopup({
         </Paper>
 
         {error && (
-          <Alert
-            severity="error"
-            sx={{ mb: 2 }}
-          >
+          <Alert severity="error" sx={{ mb: 2 }}>
             {error}
           </Alert>
         )}
 
         {/* ================= TABLE ================= */}
 
-        <TableContainer
-          component={Paper}
-          variant="outlined"
-        >
+        <TableContainer component={Paper} variant="outlined">
           <Table size="small">
             <TableHead>
               <TableRow
@@ -218,11 +187,7 @@ export default function ItemSelectPopup({
                   backgroundColor: 'grey.100'
                 }}
               >
-                {[
-                  'S.No',
-                  'Item Code',
-                  'Item Name'
-                ].map((header) => (
+                {['S.No', 'Item Code', 'Item Name'].map((header) => (
                   <TableCell
                     key={header}
                     sx={{
@@ -239,51 +204,31 @@ export default function ItemSelectPopup({
             <TableBody>
               {loading && items.length === 0 && (
                 <TableRow>
-                  <TableCell
-                    colSpan={4}
-                    align="center"
-                    sx={{ py: 5 }}
-                  >
-                    <CircularProgress
-                      color="secondary"
-                      size={32}
-                    />
+                  <TableCell colSpan={4} align="center" sx={{ py: 5 }}>
+                    <CircularProgress color="secondary" size={32} />
                   </TableCell>
                 </TableRow>
               )}
-              {filteredData.map(
-                (row, index) => (
-                  <TableRow
-                    key={row.ItemCode}
-                    hover
-                    onClick={() =>
-                      handleSelect(row)
-                    }
-                    sx={{
-                      cursor: 'pointer'
-                    }}
-                  >
-                    <TableCell>
-                      {index + 1}
-                    </TableCell>
+              {filteredData.map((row, index) => (
+                <TableRow
+                  key={row.ItemCode}
+                  hover
+                  onClick={() => handleSelect(row)}
+                  sx={{
+                    cursor: 'pointer'
+                  }}
+                >
+                  <TableCell>{index + 1}</TableCell>
 
-                    <TableCell>
-                      {row.ItemCode}
-                    </TableCell>
+                  <TableCell>{row.ItemCode}</TableCell>
 
-                    <TableCell>
-                      {row.ItemName}
-                    </TableCell>
-                  </TableRow>
-                )
-              )}
+                  <TableCell>{row.ItemName}</TableCell>
+                </TableRow>
+              ))}
 
               {!loading && filteredData.length === 0 && (
                 <TableRow>
-                  <TableCell
-                    colSpan={4}
-                    align="center"
-                  >
+                  <TableCell colSpan={4} align="center">
                     No Data Found
                   </TableCell>
                 </TableRow>

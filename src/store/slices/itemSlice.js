@@ -1,7 +1,4 @@
-import {
-  createSlice,
-  createAsyncThunk
-} from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
 import API from 'api/axios';
 
@@ -11,22 +8,14 @@ const initialState = {
   error: null
 };
 
-export const getItems = createAsyncThunk(
-  'item/getItems',
-  async (_, thunkAPI) => {
-    try {
-      const response = await API.get(
-        '/sap/items'
-      );
-      return response.data?.value || [];
-    } catch (error) {
-      return thunkAPI.rejectWithValue(
-        error.response?.data?.message ||
-        'Failed to load items'
-      );
-    }
+export const getItems = createAsyncThunk('item/getItems', async (_, thunkAPI) => {
+  try {
+    const response = await API.get('/sap/items');
+    return response.data?.value || [];
+  } catch (error) {
+    return thunkAPI.rejectWithValue(error.response?.data?.message || 'Failed to load items');
   }
-);
+});
 
 const itemSlice = createSlice({
   name: 'item',

@@ -18,19 +18,14 @@ export const loginUser = createAsyncThunk(
 
   async (credentials, thunkAPI) => {
     try {
-      const response = await API.post(
-        '/auth/login',
-        credentials
-      );
+      const response = await API.post('/auth/login', credentials);
 
       const data = response.data;
       localStorage.setItem('token', data.token);
 
       return data;
     } catch (error) {
-      return thunkAPI.rejectWithValue(
-        error.response?.data?.message || 'Login failed'
-      );
+      return thunkAPI.rejectWithValue(error.response?.data?.message || 'Login failed');
     }
   }
 );
@@ -40,12 +35,12 @@ const authSlice = createSlice({
   initialState,
   reducers: {
     logout: (state) => {
-        state.user = null;
-        state.token = null;
-        state.isAuthenticated = false;
+      state.user = null;
+      state.token = null;
+      state.isAuthenticated = false;
 
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
     }
   },
 

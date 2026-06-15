@@ -1,16 +1,10 @@
-import {
-  createContext,
-  useContext,
-  useState
-} from 'react';
+import { createContext, useContext, useState } from 'react';
 
 const LookupContext = createContext(null);
 
-export function LookupProvider({
-  children
-}) {
+export function LookupProvider({ children }) {
   const [lookupConfig, setLookupConfig] = useState(null);
-  
+
   const openLookup = (config) => {
     setLookupConfig({
       ...config,
@@ -36,13 +30,10 @@ export function LookupProvider({
 }
 
 export const useLookup = () => {
-  const context =
-    useContext(LookupContext);
+  const context = useContext(LookupContext);
 
   if (!context) {
-    throw new Error(
-      'useLookup must be used inside LookupProvider'
-    );
+    throw new Error('useLookup must be used inside LookupProvider');
   }
 
   return context;

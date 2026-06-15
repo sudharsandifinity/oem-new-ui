@@ -23,11 +23,10 @@ import {
 import CloseIcon from '@mui/icons-material/Close';
 import { getUsers, getEmployees, getDepartments } from '../../store/slices/commonSlice';
 
-// Column config per type
-const USER_COLS   = ['UserCode', 'UserName', 'Email'];
-const EMP_COLS    = ['EmployeeID', 'FirstName', 'LastName', 'Email'];
+const USER_COLS = ['UserCode', 'UserName', 'Email'];
+const EMP_COLS = ['EmployeeID', 'FirstName', 'LastName', 'Email'];
 const USER_LABELS = { UserCode: 'User Code', UserName: 'Username', Email: 'Email' };
-const EMP_LABELS  = { EmployeeID: 'Employee ID', FirstName: 'First Name', LastName: 'Last Name', Email: 'Email' };
+const EMP_LABELS = { EmployeeID: 'Employee ID', FirstName: 'First Name', LastName: 'Last Name', Email: 'Email' };
 
 export default function RequestorSelectModal({ open, onClose, onSelect, requestorType = 'User' }) {
   const dispatch = useDispatch();
@@ -37,10 +36,10 @@ export default function RequestorSelectModal({ open, onClose, onSelect, requesto
   const [filters, setFilters] = useState({});
 
   const isEmployee = requestorType === 'Employee';
-  const source   = isEmployee ? employees  : users;
-  const loading  = isEmployee ? employeesLoading : usersLoading;
-  const cols     = isEmployee ? EMP_COLS   : USER_COLS;
-  const labels   = isEmployee ? EMP_LABELS : USER_LABELS;
+  const source = isEmployee ? employees : users;
+  const loading = isEmployee ? employeesLoading : usersLoading;
+  const cols = isEmployee ? EMP_COLS : USER_COLS;
+  const labels = isEmployee ? EMP_LABELS : USER_LABELS;
 
   useEffect(() => {
     if (!open) return;
@@ -61,7 +60,12 @@ export default function RequestorSelectModal({ open, onClose, onSelect, requesto
     return source.filter((row) =>
       cols.every((key) => {
         const f = filters[key] || '';
-        return !f || String(row[key] ?? '').toLowerCase().includes(f.toLowerCase());
+        return (
+          !f ||
+          String(row[key] ?? '')
+            .toLowerCase()
+            .includes(f.toLowerCase())
+        );
       })
     );
   }, [source, cols, filters]);
@@ -70,11 +74,9 @@ export default function RequestorSelectModal({ open, onClose, onSelect, requesto
 
   const resolveDept = (deptKey) => {
     if (!deptKey) return { deptId: '', deptName: '' };
-    const dept = departments.find(
-      (d) => String(d.Code ?? d.DeptCode ?? d.Id ?? '') === String(deptKey)
-    );
+    const dept = departments.find((d) => String(d.Code ?? d.DeptCode ?? d.Id ?? '') === String(deptKey));
     return {
-      deptId:   String(deptKey),
+      deptId: String(deptKey),
       deptName: dept?.Name ?? dept?.DeptName ?? dept?.Description ?? String(deptKey)
     };
   };
@@ -87,7 +89,7 @@ export default function RequestorSelectModal({ open, onClose, onSelect, requesto
     onSelect(
       isEmployee
         ? { code: row.EmployeeID, name: `${row.FirstName ?? ''} ${row.LastName ?? ''}`.trim(), deptId, deptName }
-        : { code: row.UserCode,   name: row.UserName ?? row.Username ?? '', deptId, deptName }
+        : { code: row.UserCode, name: row.UserName ?? row.Username ?? '', deptId, deptName }
     );
     handleClose();
   };
@@ -101,8 +103,12 @@ export default function RequestorSelectModal({ open, onClose, onSelect, requesto
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
       <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Typography variant="h5" component="div">Select Requestor — {requestorType}</Typography>
-        <IconButton onClick={handleClose}><CloseIcon /></IconButton>
+        <Typography variant="h5" component="div">
+          Select Requestor — {requestorType}
+        </Typography>
+        <IconButton onClick={handleClose}>
+          <CloseIcon />
+        </IconButton>
       </DialogTitle>
 
       <DialogContent sx={{ p: 3 }}>
@@ -123,7 +129,9 @@ export default function RequestorSelectModal({ open, onClose, onSelect, requesto
             ))}
             <Grid item xs={12}>
               <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                <Button variant="outlined" color="error" onClick={clearFilters}>Clear</Button>
+                <Button variant="outlined" color="error" onClick={clearFilters}>
+                  Clear
+                </Button>
               </Box>
             </Grid>
           </Grid>
@@ -152,20 +160,23 @@ export default function RequestorSelectModal({ open, onClose, onSelect, requesto
                 </TableRow>
               )}
 
-              {!loading && filtered.map((row, index) => (
-                <TableRow
-                  key={rowId(row)}
-                  hover
-                  selected={selectedId === rowId(row)}
-                  onClick={() => setSelectedId(rowId(row))}
-                  sx={{ cursor: 'pointer' }}
-                >
-                  <TableCell>{index + 1}</TableCell>
-                  {cols.map((key) => (
-                    <TableCell key={key} sx={{ whiteSpace: 'nowrap' }}>{row[key]}</TableCell>
-                  ))}
-                </TableRow>
-              ))}
+              {!loading &&
+                filtered.map((row, index) => (
+                  <TableRow
+                    key={rowId(row)}
+                    hover
+                    selected={selectedId === rowId(row)}
+                    onClick={() => setSelectedId(rowId(row))}
+                    sx={{ cursor: 'pointer' }}
+                  >
+                    <TableCell>{index + 1}</TableCell>
+                    {cols.map((key) => (
+                      <TableCell key={key} sx={{ whiteSpace: 'nowrap' }}>
+                        {row[key]}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))}
 
               {!loading && filtered.length === 0 && (
                 <TableRow>
@@ -180,7 +191,9 @@ export default function RequestorSelectModal({ open, onClose, onSelect, requesto
       </DialogContent>
 
       <DialogActions sx={{ px: 3, pb: 2, gap: 1 }}>
-        <Button variant="outlined" onClick={handleClose}>Close</Button>
+        <Button variant="outlined" onClick={handleClose}>
+          Close
+        </Button>
         <Button variant="contained" color="secondary" disabled={!selectedId} onClick={handleChoose}>
           Choose
         </Button>

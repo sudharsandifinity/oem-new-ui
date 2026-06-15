@@ -24,11 +24,11 @@ import CloseIcon from '@mui/icons-material/Close';
 import { getBOQList, clearBOQList } from '../../store/slices/materialRequestSlice';
 
 const COLUMNS = [
-  { key: 'DocEntry',    label: 'Doc Entry'     },
-  { key: 'U_BPCode',   label: 'Customer Code' },
-  { key: 'U_BPName',   label: 'Customer Name' },
-  { key: 'U_PrjCode',  label: 'Project Code'  },
-  { key: 'U_PrjName',  label: 'Project Name'  },
+  { key: 'DocEntry', label: 'Doc Entry' },
+  { key: 'U_BPCode', label: 'Customer Code' },
+  { key: 'U_BPName', label: 'Customer Name' },
+  { key: 'U_PrjCode', label: 'Project Code' },
+  { key: 'U_PrjName', label: 'Project Name' }
 ];
 
 const emptyFilters = () => ({ DocEntry: '', U_BPCode: '', U_BPName: '', U_PrjCode: '', U_PrjName: '' });
@@ -56,12 +56,13 @@ export default function BOMSelectModal({ open, onClose, onSelect, cardCode = '',
 
   const filtered = useMemo(() => {
     const f = filters;
-    return boqList.filter((b) =>
-      (!f.DocEntry   || String(b.DocEntry).includes(f.DocEntry)) &&
-      (!f.U_BPCode   || b.U_BPCode?.toLowerCase().includes(f.U_BPCode.toLowerCase())) &&
-      (!f.U_BPName   || b.U_BPName?.toLowerCase().includes(f.U_BPName.toLowerCase())) &&
-      (!f.U_PrjCode  || b.U_PrjCode?.toLowerCase().includes(f.U_PrjCode.toLowerCase())) &&
-      (!f.U_PrjName  || b.U_PrjName?.toLowerCase().includes(f.U_PrjName.toLowerCase()))
+    return boqList.filter(
+      (b) =>
+        (!f.DocEntry || String(b.DocEntry).includes(f.DocEntry)) &&
+        (!f.U_BPCode || b.U_BPCode?.toLowerCase().includes(f.U_BPCode.toLowerCase())) &&
+        (!f.U_BPName || b.U_BPName?.toLowerCase().includes(f.U_BPName.toLowerCase())) &&
+        (!f.U_PrjCode || b.U_PrjCode?.toLowerCase().includes(f.U_PrjCode.toLowerCase())) &&
+        (!f.U_PrjName || b.U_PrjName?.toLowerCase().includes(f.U_PrjName.toLowerCase()))
     );
   }, [boqList, filters]);
 
@@ -82,8 +83,12 @@ export default function BOMSelectModal({ open, onClose, onSelect, cardCode = '',
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="lg" fullWidth>
       <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Typography variant="h5" component="div">Select BOM / BOQ</Typography>
-        <IconButton onClick={handleClose}><CloseIcon /></IconButton>
+        <Typography variant="h5" component="div">
+          Select BOM / BOQ
+        </Typography>
+        <IconButton onClick={handleClose}>
+          <CloseIcon />
+        </IconButton>
       </DialogTitle>
 
       <DialogContent sx={{ p: 3 }}>
@@ -104,7 +109,9 @@ export default function BOMSelectModal({ open, onClose, onSelect, cardCode = '',
             ))}
             <Grid item xs={12}>
               <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                <Button variant="outlined" color="error" onClick={clearFilters}>Clear</Button>
+                <Button variant="outlined" color="error" onClick={clearFilters}>
+                  Clear
+                </Button>
               </Box>
             </Grid>
           </Grid>
@@ -133,22 +140,23 @@ export default function BOMSelectModal({ open, onClose, onSelect, cardCode = '',
                 </TableRow>
               )}
 
-              {!boqLoading && filtered.map((row, index) => (
-                <TableRow
-                  key={row.DocEntry}
-                  hover
-                  selected={selectedId === row.DocEntry}
-                  onClick={() => setSelectedId(row.DocEntry)}
-                  sx={{ cursor: 'pointer' }}
-                >
-                  <TableCell>{index + 1}</TableCell>
-                  {COLUMNS.map((col) => (
-                    <TableCell key={col.key} sx={{ whiteSpace: 'nowrap' }}>
-                      {row[col.key]}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))}
+              {!boqLoading &&
+                filtered.map((row, index) => (
+                  <TableRow
+                    key={row.DocEntry}
+                    hover
+                    selected={selectedId === row.DocEntry}
+                    onClick={() => setSelectedId(row.DocEntry)}
+                    sx={{ cursor: 'pointer' }}
+                  >
+                    <TableCell>{index + 1}</TableCell>
+                    {COLUMNS.map((col) => (
+                      <TableCell key={col.key} sx={{ whiteSpace: 'nowrap' }}>
+                        {row[col.key]}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))}
 
               {!boqLoading && filtered.length === 0 && (
                 <TableRow>
@@ -163,7 +171,9 @@ export default function BOMSelectModal({ open, onClose, onSelect, cardCode = '',
       </DialogContent>
 
       <DialogActions sx={{ px: 3, pb: 2, gap: 1 }}>
-        <Button variant="outlined" onClick={handleClose}>Cancel</Button>
+        <Button variant="outlined" onClick={handleClose}>
+          Cancel
+        </Button>
         <Button variant="contained" color="secondary" disabled={!selectedId} onClick={handleChoose}>
           Choose
         </Button>

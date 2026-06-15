@@ -42,7 +42,7 @@ const purchase = {
       url: '/purchase-orders/requisition',
       icon: icons.IconDashboard,
       breadcrumbs: false
-    },
+    }
   ]
 };
 

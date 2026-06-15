@@ -1,8 +1,4 @@
-import {
-  useEffect,
-  useMemo,
-  useState
-} from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import {
   Alert,
@@ -38,8 +34,7 @@ export default function GenericLookupModal({
   columns = [],
   onSelect
 }) {
-  const [filterValues, setFilterValues] =
-    useState({});
+  const [filterValues, setFilterValues] = useState({});
 
   // ================= LOAD DATA =================
 
@@ -57,31 +52,18 @@ export default function GenericLookupModal({
   // ================= FILTER DATA =================
 
   const filteredData = useMemo(() => {
-    return (data || []).filter(
-      (row) =>
-        filters.every((filter) => {
-          const filterValue =
-            filterValues[filter.key];
+    return (data || []).filter((row) =>
+      filters.every((filter) => {
+        const filterValue = filterValues[filter.key];
 
-          if (!filterValue)
-            return true;
+        if (!filterValue) return true;
 
-          return String(
-            row[
-              filter.dataKey
-            ] ?? ''
-          )
-            .toLowerCase()
-            .includes(
-              filterValue.toLowerCase()
-            );
-        })
+        return String(row[filter.dataKey] ?? '')
+          .toLowerCase()
+          .includes(filterValue.toLowerCase());
+      })
     );
-  }, [
-    data,
-    filters,
-    filterValues
-  ]);
+  }, [data, filters, filterValues]);
 
   // ================= CLEAR FILTERS =================
 
@@ -96,19 +78,13 @@ export default function GenericLookupModal({
   };
 
   return (
-    <Dialog
-      open={open}
-      onClose={onClose}
-      fullWidth
-      maxWidth="md"
-    >
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
       {/* HEADER */}
 
       <DialogTitle
         sx={{
           display: 'flex',
-          justifyContent:
-            'space-between',
+          justifyContent: 'space-between',
           alignItems: 'center'
         }}
       >
@@ -116,9 +92,7 @@ export default function GenericLookupModal({
           {title}
         </Typography>
 
-        <IconButton
-          onClick={onClose}
-        >
+        <IconButton onClick={onClose}>
           <CloseIcon />
         </IconButton>
       </DialogTitle>
@@ -133,72 +107,34 @@ export default function GenericLookupModal({
             mb: 3
           }}
         >
-          <Typography
-            sx={{ mb: 2 }}
-          >
-            Filters
-          </Typography>
+          <Typography sx={{ mb: 2 }}>Filters</Typography>
 
-          <Grid
-            container
-            spacing={2}
-          >
-            {filters.map(
-              (filter) => (
-                <Grid
-                  item
-                  xs={12}
-                  md={4}
-                  key={
-                    filter.key
+          <Grid container spacing={2}>
+            {filters.map((filter) => (
+              <Grid item xs={12} md={4} key={filter.key}>
+                <TextField
+                  fullWidth
+                  size="small"
+                  label={filter.label}
+                  value={filterValues[filter.key] || ''}
+                  onChange={(e) =>
+                    setFilterValues((prev) => ({
+                      ...prev,
+                      [filter.key]: e.target.value
+                    }))
                   }
-                >
-                  <TextField
-                    fullWidth
-                    size="small"
-                    label={
-                      filter.label
-                    }
-                    value={
-                      filterValues[
-                        filter.key
-                      ] || ''
-                    }
-                    onChange={(
-                      e
-                    ) =>
-                      setFilterValues(
-                        (
-                          prev
-                        ) => ({
-                          ...prev,
-                          [filter.key]:
-                            e
-                              .target
-                              .value
-                        })
-                      )
-                    }
-                  />
-                </Grid>
-              )
-            )}
+                />
+              </Grid>
+            ))}
 
             <Grid item xs={12}>
               <Box
                 sx={{
                   display: 'flex',
-                  justifyContent:
-                    'flex-end'
+                  justifyContent: 'flex-end'
                 }}
               >
-                <Button
-                  variant="outlined"
-                  color="error"
-                  onClick={
-                    clearFilters
-                  }
-                >
+                <Button variant="outlined" color="error" onClick={clearFilters}>
                   Clear
                 </Button>
               </Box>
@@ -209,26 +145,19 @@ export default function GenericLookupModal({
         {/* ERROR */}
 
         {error && (
-          <Alert
-            severity="error"
-            sx={{ mb: 2 }}
-          >
+          <Alert severity="error" sx={{ mb: 2 }}>
             {error}
           </Alert>
         )}
 
         {/* TABLE */}
 
-        <TableContainer
-          component={Paper}
-          variant="outlined"
-        >
+        <TableContainer component={Paper} variant="outlined">
           <Table size="small">
             <TableHead>
               <TableRow
                 sx={{
-                  backgroundColor:
-                    'grey.100'
+                  backgroundColor: 'grey.100'
                 }}
               >
                 <TableCell
@@ -239,117 +168,68 @@ export default function GenericLookupModal({
                   S.No
                 </TableCell>
 
-                {columns.map(
-                  (
-                    column
-                  ) => (
-                    <TableCell
-                      key={
-                        column.field
-                      }
-                      sx={{
-                        fontWeight: 700
-                      }}
-                    >
-                      {
-                        column.label
-                      }
-                    </TableCell>
-                  )
-                )}
+                {columns.map((column) => (
+                  <TableCell
+                    key={column.field}
+                    sx={{
+                      fontWeight: 700
+                    }}
+                  >
+                    {column.label}
+                  </TableCell>
+                ))}
               </TableRow>
             </TableHead>
 
             <TableBody>
               {/* LOADING */}
 
-              {loading &&
-                data.length ===
-                  0 && (
-                  <TableRow>
-                    <TableCell
-                      colSpan={
-                        columns.length +
-                        1
-                      }
-                      align="center"
-                      sx={{
-                        py: 5
-                      }}
-                    >
-                      <CircularProgress />
-                    </TableCell>
-                  </TableRow>
-                )}
+              {loading && data.length === 0 && (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length + 1}
+                    align="center"
+                    sx={{
+                      py: 5
+                    }}
+                  >
+                    <CircularProgress />
+                  </TableCell>
+                </TableRow>
+              )}
 
               {/* DATA */}
 
-              {filteredData.map(
-                (
-                  row,
-                  index
-                ) => (
-                  <TableRow
-                    hover
-                    key={
-                      row.id ||
-                      index
-                    }
-                    sx={{
-                      cursor:
-                        'pointer'
-                    }}
-                    onClick={() => {
-                      onSelect?.(
-                        row
-                      );
+              {filteredData.map((row, index) => (
+                <TableRow
+                  hover
+                  key={row.id || index}
+                  sx={{
+                    cursor: 'pointer'
+                  }}
+                  onClick={() => {
+                    onSelect?.(row);
 
-                      onClose?.();
-                    }}
-                  >
-                    <TableCell>
-                      {index + 1}
-                    </TableCell>
+                    onClose?.();
+                  }}
+                >
+                  <TableCell>{index + 1}</TableCell>
 
-                    {columns.map(
-                      (
-                        column
-                      ) => (
-                        <TableCell
-                          key={
-                            column.field
-                          }
-                        >
-                          {
-                            row[
-                              column
-                                .field
-                            ]
-                          }
-                        </TableCell>
-                      )
-                    )}
-                  </TableRow>
-                )
-              )}
+                  {columns.map((column) => (
+                    <TableCell key={column.field}>{row[column.field]}</TableCell>
+                  ))}
+                </TableRow>
+              ))}
 
               {/* EMPTY */}
 
-              {!loading &&
-                filteredData.length ===
-                  0 && (
-                  <TableRow>
-                    <TableCell
-                      colSpan={
-                        columns.length +
-                        1
-                      }
-                      align="center"
-                    >
-                      No Data Found
-                    </TableCell>
-                  </TableRow>
-                )}
+              {!loading && filteredData.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={columns.length + 1} align="center">
+                    No Data Found
+                  </TableCell>
+                </TableRow>
+              )}
             </TableBody>
           </Table>
         </TableContainer>

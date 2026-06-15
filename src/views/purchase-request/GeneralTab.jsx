@@ -9,10 +9,7 @@ export default function PRGeneralTab({ data, setData, readOnly = false }) {
 
   return (
     <Box sx={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
-
-      {/* LEFT — Requestor details */}
       <Box sx={{ flex: 1, minWidth: 350, display: 'flex', flexDirection: 'column', gap: 3 }}>
-        {/* Requestor Type + Requestor Code in same row */}
         <Box sx={{ display: 'flex', gap: 2 }}>
           <FormControl fullWidth size="medium" disabled>
             <InputLabel>Requestor Type</InputLabel>
@@ -23,60 +20,22 @@ export default function PRGeneralTab({ data, setData, readOnly = false }) {
             </Select>
           </FormControl>
 
-          <TextField
-            fullWidth
-            label="Requestor Code"
-            value={data?.ReqCode || ''}
-            disabled
-          />
+          <TextField fullWidth label="Requestor Code" value={data?.ReqCode || ''} disabled />
         </Box>
 
-        <TextField
-          fullWidth
-          label="Requestor Name"
-          value={data?.RequestorName || ''}
-          disabled
-        />
+        <TextField fullWidth label="Requestor Name" value={data?.RequestorName || ''} disabled />
 
-        <TextField
-          fullWidth
-          label="Department"
-          value={data?.Department || ''}
-          disabled
-        />
+        <TextField fullWidth label="Department" value={data?.Department || ''} disabled />
 
-        <TextField
-          fullWidth
-          label="MR No"
-          value={data?.MRNo ?? ''}
-          disabled
-        />
+        <TextField fullWidth label="MR No" value={data?.MRNo ?? ''} disabled />
       </Box>
 
-      {/* RIGHT — Project, Dates */}
       <Box sx={{ flex: 1, minWidth: 350, display: 'flex', flexDirection: 'column', gap: 3 }}>
-        <TextField
-          fullWidth
-          label="Project Code"
-          value={data?.ProjectCode || ''}
-          disabled
-        />
+        <TextField fullWidth label="Project Code" value={data?.ProjectCode || ''} disabled />
 
-        <TextField
-          fullWidth
-          label="Project Name"
-          value={data?.ProjectName || ''}
-          disabled
-        />
+        <TextField fullWidth label="Project Name" value={data?.ProjectName || ''} disabled />
 
-        <TextField
-          fullWidth
-          type="date"
-          label="Posting Date"
-          value={data?.DocDate || today}
-          disabled
-          InputLabelProps={{ shrink: true }}
-        />
+        <TextField fullWidth type="date" label="Posting Date" value={data?.DocDate || today} disabled InputLabelProps={{ shrink: true }} />
 
         <TextField
           fullWidth

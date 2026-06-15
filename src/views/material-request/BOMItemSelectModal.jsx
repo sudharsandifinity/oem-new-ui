@@ -22,27 +22,29 @@ import {
 import CloseIcon from '@mui/icons-material/Close';
 
 const COLUMNS = [
-  { key: 'LineId',      label: 'BOM Line',   width: 90  },
-  { key: 'U_ItemCode',  label: 'Item Code',  width: 130 },
-  { key: 'U_Desc',      label: 'Description',width: 200 },
-  { key: 'U_Unit',      label: 'UOM',        width: 90  },
-  { key: 'U_PQty',      label: 'BOM Qty',    width: 100 },
+  { key: 'LineId', label: 'BOM Line', width: 90 },
+  { key: 'U_ItemCode', label: 'Item Code', width: 130 },
+  { key: 'U_Desc', label: 'Description', width: 200 },
+  { key: 'U_Unit', label: 'UOM', width: 90 },
+  { key: 'U_PQty', label: 'BOM Qty', width: 100 }
 ];
 
 export default function BOMItemSelectModal({ open, onClose, onConfirm, bomLines = [] }) {
   const [selected, setSelected] = useState(new Set());
-  const [filters, setFilters]   = useState({ U_ItemCode: '', U_Desc: '' });
+  const [filters, setFilters] = useState({ U_ItemCode: '', U_Desc: '' });
 
-  const filtered = useMemo(() =>
-    bomLines.filter((l) =>
-      (!filters.U_ItemCode || l.U_ItemCode?.toLowerCase().includes(filters.U_ItemCode.toLowerCase())) &&
-      (!filters.U_Desc     || l.U_Desc?.toLowerCase().includes(filters.U_Desc.toLowerCase()))
-    ),
+  const filtered = useMemo(
+    () =>
+      bomLines.filter(
+        (l) =>
+          (!filters.U_ItemCode || l.U_ItemCode?.toLowerCase().includes(filters.U_ItemCode.toLowerCase())) &&
+          (!filters.U_Desc || l.U_Desc?.toLowerCase().includes(filters.U_Desc.toLowerCase()))
+      ),
     [bomLines, filters]
   );
 
-  const allSelected   = filtered.length > 0 && filtered.every((l) => selected.has(l.LineId));
-  const someSelected  = filtered.some((l) => selected.has(l.LineId));
+  const allSelected = filtered.length > 0 && filtered.every((l) => selected.has(l.LineId));
+  const someSelected = filtered.some((l) => selected.has(l.LineId));
 
   const toggleRow = (lineId) => {
     setSelected((prev) => {
@@ -83,8 +85,12 @@ export default function BOMItemSelectModal({ open, onClose, onConfirm, bomLines 
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
       <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Typography variant="h5" component="div">Select Items from BOM</Typography>
-        <IconButton onClick={handleClose}><CloseIcon /></IconButton>
+        <Typography variant="h5" component="div">
+          Select Items from BOM
+        </Typography>
+        <IconButton onClick={handleClose}>
+          <CloseIcon />
+        </IconButton>
       </DialogTitle>
 
       <DialogContent sx={{ p: 3 }}>
@@ -94,22 +100,25 @@ export default function BOMItemSelectModal({ open, onClose, onConfirm, bomLines 
           <Grid container spacing={2}>
             <Grid item xs={12} md={4}>
               <TextField
-                fullWidth size="small" label="Item Code"
+                fullWidth
+                size="small"
+                label="Item Code"
                 value={filters.U_ItemCode}
                 onChange={(e) => setFilters((p) => ({ ...p, U_ItemCode: e.target.value }))}
               />
             </Grid>
             <Grid item xs={12} md={4}>
               <TextField
-                fullWidth size="small" label="Description"
+                fullWidth
+                size="small"
+                label="Description"
                 value={filters.U_Desc}
                 onChange={(e) => setFilters((p) => ({ ...p, U_Desc: e.target.value }))}
               />
             </Grid>
             <Grid item xs={12}>
               <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                <Button variant="outlined" color="error"
-                  onClick={() => setFilters({ U_ItemCode: '', U_Desc: '' })}>
+                <Button variant="outlined" color="error" onClick={() => setFilters({ U_ItemCode: '', U_Desc: '' })}>
                   Clear
                 </Button>
               </Box>
@@ -123,12 +132,7 @@ export default function BOMItemSelectModal({ open, onClose, onConfirm, bomLines 
             <TableHead>
               <TableRow sx={{ backgroundColor: 'grey.100' }}>
                 <TableCell padding="checkbox" sx={{ backgroundColor: 'grey.100' }}>
-                  <Checkbox
-                    size="small"
-                    checked={allSelected}
-                    indeterminate={someSelected && !allSelected}
-                    onChange={toggleAll}
-                  />
+                  <Checkbox size="small" checked={allSelected} indeterminate={someSelected && !allSelected} onChange={toggleAll} />
                 </TableCell>
                 <TableCell sx={{ fontWeight: 700, backgroundColor: 'grey.100' }}>S.No</TableCell>
                 {COLUMNS.map((col) => (
@@ -177,7 +181,9 @@ export default function BOMItemSelectModal({ open, onClose, onConfirm, bomLines 
       </DialogContent>
 
       <DialogActions sx={{ px: 3, pb: 2, gap: 1 }}>
-        <Button variant="outlined" onClick={handleClose}>Cancel</Button>
+        <Button variant="outlined" onClick={handleClose}>
+          Cancel
+        </Button>
         <Button variant="contained" color="secondary" disabled={selected.size === 0} onClick={handleConfirm}>
           Add Selected
         </Button>

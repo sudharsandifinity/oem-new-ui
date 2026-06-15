@@ -1,15 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import {
-  Box,
-  Breadcrumbs,
-  Button,
-  IconButton,
-  Paper,
-  Stack,
-  TextField,
-  Typography
-} from '@mui/material';
+import { Box, Breadcrumbs, Button, IconButton, Paper, Stack, TextField, Typography } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 
 import HomeIcon from '@mui/icons-material/Home';
@@ -24,28 +15,35 @@ import { useNavigate } from 'react-router-dom';
 import { getMRList } from '../../store/slices/materialRequestSlice';
 
 export default function MaterialRequestsList() {
-  const navigate  = useNavigate();
-  const dispatch  = useDispatch();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
   const { list, totalCount, listLoading } = useSelector((s) => s.materialRequest);
 
   const [filters, setFilters] = useState({ DocEntry: '', ProjectCode: '', RequisitionDate: '' });
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 25 });
 
   useEffect(() => {
-    dispatch(getMRList({
-      top:  paginationModel.pageSize,
-      skip: paginationModel.page * paginationModel.pageSize
-    }));
+    dispatch(
+      getMRList({
+        top: paginationModel.pageSize,
+        skip: paginationModel.page * paginationModel.pageSize
+      })
+    );
   }, [paginationModel, dispatch]);
 
   const clearFilters = () => setFilters({ DocEntry: '', ProjectCode: '', RequisitionDate: '' });
 
   const columns = [
-    { field: 'DocEntry',        headerName: 'Doc Entry',       flex: 1,   minWidth: 120 },
-    { field: 'U_PrjCode',       headerName: 'Project Code',    flex: 1,   minWidth: 150 },
-    { field: 'U_PrjDesc',       headerName: 'Project Name',    flex: 1.5, minWidth: 200 },
-    { field: 'U_DocDate',       headerName: 'Requisition Date', flex: 1,  minWidth: 150,
-      valueFormatter: (value) => value ? value.substring(0, 10) : '' },
+    { field: 'DocEntry', headerName: 'Doc Entry', flex: 1, minWidth: 120 },
+    { field: 'U_PrjCode', headerName: 'Project Code', flex: 1, minWidth: 150 },
+    { field: 'U_PrjDesc', headerName: 'Project Name', flex: 1.5, minWidth: 200 },
+    {
+      field: 'U_DocDate',
+      headerName: 'Requisition Date',
+      flex: 1,
+      minWidth: 150,
+      valueFormatter: (value) => (value ? value.substring(0, 10) : '')
+    },
     {
       field: 'action',
       headerName: 'Action',
@@ -86,14 +84,24 @@ export default function MaterialRequestsList() {
               <HomeIcon sx={{ fontSize: 18, color: 'secondary.main' }} />
             </Box>
             <Typography variant="body2">Material Request</Typography>
-            <Typography variant="body2" color="secondary" fontWeight={600}>List</Typography>
+            <Typography variant="body2" color="secondary" fontWeight={600}>
+              List
+            </Typography>
           </Breadcrumbs>
         </Box>
       </MainCard>
 
       {/* Filters */}
       <Paper variant="outlined" sx={{ p: 2, mb: 3, borderRadius: 2, flexShrink: 0 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: { xs: 'flex-start', md: 'center' }, flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: { xs: 'flex-start', md: 'center' },
+            flexDirection: { xs: 'column', md: 'row' },
+            gap: 2
+          }}
+        >
           <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', flex: 1 }}>
             <TextField
               size="small"

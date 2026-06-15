@@ -20,26 +20,20 @@ import {
 import CloseIcon from '@mui/icons-material/Close';
 
 const COLUMNS = [
-  { key: 'ItemCode',        label: 'Item Code'   },
+  { key: 'ItemCode', label: 'Item Code' },
   { key: 'ItemDescription', label: 'Description' },
-  { key: 'Quantity',        label: 'Quantity'    },
-  { key: 'InStock',         label: 'In Stock'    },
-  { key: 'UoMCode',         label: 'UOM'         },
-  { key: 'WarehouseCode',   label: 'Warehouse'   },
+  { key: 'Quantity', label: 'Quantity' },
+  { key: 'InStock', label: 'In Stock' },
+  { key: 'UoMCode', label: 'UOM' },
+  { key: 'WarehouseCode', label: 'Warehouse' }
 ];
 
 export default function PurchaseRequestModal({ open, onClose, onContinue, lines = [] }) {
   const [selected, setSelected] = useState(new Set());
 
-  // Only items where requested quantity exceeds in-stock quantity
-  const items = useMemo(
-    () => lines.filter(
-      (l) => l.ItemCode && parseFloat(l.InStock ?? 0) < parseFloat(l.Quantity ?? 0)
-    ),
-    [lines]
-  );
+  const items = useMemo(() => lines.filter((l) => l.ItemCode && parseFloat(l.InStock ?? 0) < parseFloat(l.Quantity ?? 0)), [lines]);
 
-  const allSelected  = items.length > 0 && items.every((l) => selected.has(l.id));
+  const allSelected = items.length > 0 && items.every((l) => selected.has(l.id));
   const someSelected = items.some((l) => selected.has(l.id));
 
   const toggleRow = (id) => {
@@ -80,8 +74,12 @@ export default function PurchaseRequestModal({ open, onClose, onContinue, lines 
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
       <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Typography variant="h5" component="div">Purchase Request — Items</Typography>
-        <IconButton onClick={handleClose}><CloseIcon /></IconButton>
+        <Typography variant="h5" component="div">
+          Purchase Request — Items
+        </Typography>
+        <IconButton onClick={handleClose}>
+          <CloseIcon />
+        </IconButton>
       </DialogTitle>
 
       <DialogContent sx={{ p: 3 }}>
@@ -90,12 +88,7 @@ export default function PurchaseRequestModal({ open, onClose, onContinue, lines 
             <TableHead>
               <TableRow sx={{ backgroundColor: 'grey.100' }}>
                 <TableCell padding="checkbox" sx={{ backgroundColor: 'grey.100' }}>
-                  <Checkbox
-                    size="small"
-                    checked={allSelected}
-                    indeterminate={someSelected && !allSelected}
-                    onChange={toggleAll}
-                  />
+                  <Checkbox size="small" checked={allSelected} indeterminate={someSelected && !allSelected} onChange={toggleAll} />
                 </TableCell>
                 <TableCell sx={{ fontWeight: 700, backgroundColor: 'grey.100' }}>S.No</TableCell>
                 {COLUMNS.map((col) => (
@@ -144,13 +137,10 @@ export default function PurchaseRequestModal({ open, onClose, onContinue, lines 
       </DialogContent>
 
       <DialogActions sx={{ px: 3, pb: 2, gap: 1 }}>
-        <Button variant="outlined" onClick={handleClose}>Close</Button>
-        <Button
-          variant="contained"
-          color="secondary"
-          disabled={selected.size === 0}
-          onClick={handleContinue}
-        >
+        <Button variant="outlined" onClick={handleClose}>
+          Close
+        </Button>
+        <Button variant="contained" color="secondary" disabled={selected.size === 0} onClick={handleContinue}>
           Continue
         </Button>
       </DialogActions>

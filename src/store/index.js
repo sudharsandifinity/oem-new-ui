@@ -25,7 +25,7 @@ export const store = configureStore({
     freight: freightReducer,
     materialRequest: materialRequestReducer,
     purchaseRequest: purchaseRequestReducer,
-    common: commonReducer,
+    common: commonReducer
   }
 });
 

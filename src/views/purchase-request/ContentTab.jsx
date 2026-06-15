@@ -15,20 +15,20 @@ import {
 import DeleteIcon from '@mui/icons-material/Delete';
 
 const TABLE_COLUMNS = [
-  { key: 'seq',             label: '#',             width: 50,  editable: false },
-  { key: 'MRLine',          label: 'MR Line',       width: 90,  editable: false },
-  { key: 'ItemCode',        label: 'Item Code',     width: 130, editable: false },
-  { key: 'ItemDescription', label: 'Description',   width: 180, editable: false },
-  { key: 'FullDescription', label: 'Full Desc',     width: 180, editable: false },
-  { key: 'Quantity',        label: 'Quantity',      width: 100, editable: true,  type: 'number' },
-  { key: 'UoMCode',         label: 'UOM',           width: 100, editable: false },
-  { key: 'BOMQty',          label: 'BOM Qty',       width: 100, editable: false },
-  { key: 'BOMOpenQty',      label: 'BOM Open Qty',  width: 120, editable: false },
-  { key: 'MROpenQty',       label: 'MR Open Qty',   width: 120, editable: false },
-  { key: 'PROpenQty',       label: 'PR Open Qty',   width: 120, editable: false },
-  { key: 'WarehouseCode',   label: 'Warehouse',     width: 130, editable: false },
-  { key: 'RequiredDate',    label: 'Required Date', width: 150, editable: true,  type: 'date' },
-  { key: 'Remark',          label: 'Remark',        width: 160, editable: true  },
+  { key: 'seq', label: '#', width: 50, editable: false },
+  { key: 'MRLine', label: 'MR Line', width: 90, editable: false },
+  { key: 'ItemCode', label: 'Item Code', width: 130, editable: false },
+  { key: 'ItemDescription', label: 'Description', width: 180, editable: false },
+  { key: 'FullDescription', label: 'Full Desc', width: 180, editable: false },
+  { key: 'Quantity', label: 'Quantity', width: 100, editable: true, type: 'number' },
+  { key: 'UoMCode', label: 'UOM', width: 100, editable: false },
+  { key: 'BOMQty', label: 'BOM Qty', width: 100, editable: false },
+  { key: 'BOMOpenQty', label: 'BOM Open Qty', width: 120, editable: false },
+  { key: 'MROpenQty', label: 'MR Open Qty', width: 120, editable: false },
+  { key: 'PROpenQty', label: 'PR Open Qty', width: 120, editable: false },
+  { key: 'WarehouseCode', label: 'Warehouse', width: 130, editable: false },
+  { key: 'RequiredDate', label: 'Required Date', width: 150, editable: true, type: 'date' },
+  { key: 'Remark', label: 'Remark', width: 160, editable: true }
 ];
 
 export default function PRContentTab({ data, setData, rows, setRows, readOnly = false }) {
@@ -41,7 +41,7 @@ export default function PRContentTab({ data, setData, rows, setRows, readOnly = 
   };
 
   const renderCell = (row, col) => {
-    if (col.key === 'seq') return null; // rendered inline in TableCell
+    if (col.key === 'seq') return null;
 
     const disabled = readOnly || !col.editable;
 
@@ -98,24 +98,16 @@ export default function PRContentTab({ data, setData, rows, setRows, readOnly = 
 
   return (
     <Box>
-      {/* Lines table */}
       <TableContainer component={Paper} variant="outlined" sx={{ maxHeight: 360, borderRadius: 2 }}>
         <Table stickyHeader size="small">
           <TableHead>
             <TableRow>
               {TABLE_COLUMNS.map((col) => (
-                <TableCell
-                  key={col.key}
-                  sx={{ minWidth: col.width, fontWeight: 700, whiteSpace: 'nowrap', backgroundColor: 'grey.100' }}
-                >
+                <TableCell key={col.key} sx={{ minWidth: col.width, fontWeight: 700, whiteSpace: 'nowrap', backgroundColor: 'grey.100' }}>
                   {col.label}
                 </TableCell>
               ))}
-              {!readOnly && (
-                <TableCell sx={{ minWidth: 80, backgroundColor: 'grey.100', fontWeight: 700 }}>
-                  Remove
-                </TableCell>
-              )}
+              {!readOnly && <TableCell sx={{ minWidth: 80, backgroundColor: 'grey.100', fontWeight: 700 }}>Remove</TableCell>}
             </TableRow>
           </TableHead>
 
@@ -123,9 +115,7 @@ export default function PRContentTab({ data, setData, rows, setRows, readOnly = 
             {rows.map((row, index) => (
               <TableRow key={row.id} hover>
                 {TABLE_COLUMNS.map((col) => (
-                  <TableCell key={col.key}>
-                    {col.key === 'seq' ? index + 1 : renderCell(row, col)}
-                  </TableCell>
+                  <TableCell key={col.key}>{col.key === 'seq' ? index + 1 : renderCell(row, col)}</TableCell>
                 ))}
                 {!readOnly && (
                   <TableCell align="center">
@@ -147,10 +137,11 @@ export default function PRContentTab({ data, setData, rows, setRows, readOnly = 
         </Table>
       </TableContainer>
 
-      {/* Additional section — 40% width */}
       <Box sx={{ mt: 3, display: 'flex' }}>
         <Paper variant="outlined" sx={{ p: 3, borderRadius: 2, width: '40%', minWidth: 280 }}>
-          <Typography variant="h5" sx={{ mb: 2.5 }}>Additional Information</Typography>
+          <Typography variant="h5" sx={{ mb: 2.5 }}>
+            Additional Information
+          </Typography>
           <TextField
             fullWidth
             multiline

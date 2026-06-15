@@ -27,15 +27,12 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 // ===============================|| JWT - LOGIN ||=============================== //
 
 export default function AuthLogin() {
-
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const { loading, error, isAuthenticated } = useSelector(
-    (state) => state.auth
-  );
+  const { loading, error, isAuthenticated } = useSelector((state) => state.auth);
 
-    // ==============================|| LOCAL STATE ||============================== //
+  // ==============================|| LOCAL STATE ||============================== //
 
   const [formData, setFormData] = useState({
     email: '',
@@ -45,7 +42,6 @@ export default function AuthLogin() {
   const [checked, setChecked] = useState(true);
 
   const [showPassword, setShowPassword] = useState(false);
-
 
   const handleChange = (e) => {
     setFormData({
@@ -113,17 +109,11 @@ export default function AuthLogin() {
 
       {/* ERROR */}
 
-      {
-        error && (
-          <Typography
-            color="error"
-            variant="body2"
-            sx={{ mt: 1 }}
-          >
-            {error}
-          </Typography>
-        )
-      }
+      {error && (
+        <Typography color="error" variant="body2" sx={{ mt: 1 }}>
+          {error}
+        </Typography>
+      )}
 
       {/* <Grid container sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
         <Grid>
@@ -141,11 +131,7 @@ export default function AuthLogin() {
       <Box sx={{ mt: 2 }}>
         <AnimateButton>
           <Button color="secondary" fullWidth disabled={loading} size="large" type="submit" variant="contained">
-            {
-              loading
-                ? 'Signing In...'
-                : 'Sign In'
-            }
+            {loading ? 'Signing In...' : 'Sign In'}
           </Button>
         </AnimateButton>
       </Box>

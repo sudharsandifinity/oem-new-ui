@@ -14,7 +14,7 @@ export const mapApiToForm = (mr) => ({
   RequestorName: mr.U_ReqName ?? '',
   Department: '',
   DeptId: mr.U_Dept != null ? String(mr.U_Dept) : '',
-  Remark: mr.U_Remark ?? '',
+  Remark: mr.U_Remark ?? ''
 });
 
 export const mapApiLineToRow = (line, index) => ({
@@ -33,7 +33,7 @@ export const mapApiLineToRow = (line, index) => ({
   ProjectCode: line.U_Project ?? '',
   IssuedQty: line.U_IssuedQty ?? '',
   InStock: line.U_InStock ?? '',
-  Remark: line.U_HLB_Rmarks ?? '',
+  Remark: line.U_HLB_Rmarks ?? ''
 });
 
 export const buildPayload = (form, lines) => ({
@@ -65,6 +65,6 @@ export const buildPayload = (form, lines) => ({
     U_MROpenQty: Number(r.MROpenQty) || 0,
     U_IssuedQty: Number(r.IssuedQty) || 0,
     U_InStock: Number(r.InStock) || 0,
-    U_HLB_Rmarks: r.Remark,
+    U_HLB_Rmarks: r.Remark
   }))
 });

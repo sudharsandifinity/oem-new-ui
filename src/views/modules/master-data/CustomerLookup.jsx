@@ -23,37 +23,21 @@ import {
   InputLabel
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import {
-  getCustomers
-} from '../../../store/slices/customerSlice';
+import { getCustomers } from '../../../store/slices/customerSlice';
 import Alert from '@mui/material/Alert';
 import CircularProgress from '@mui/material/CircularProgress';
 
 // ================= COMPONENT ================= //
 
-export default function CustomerSelectPopup({
-  open,
-  onClose,
-  onSelectCustomer
-}) {
-
+export default function CustomerSelectPopup({ open, onClose, onSelectCustomer }) {
   const dispatch = useDispatch();
-  const {
-    customers,
-    loading,
-    error
-  } = useSelector((state) => state.customer);
+  const { customers, loading, error } = useSelector((state) => state.customer);
 
-    useEffect(() => {
-
-      if (
-        open &&
-        customers.length === 0
-      ) {
-        dispatch(getCustomers());
-      }
-
-    }, [open]);
+  useEffect(() => {
+    if (open && customers.length === 0) {
+      dispatch(getCustomers());
+    }
+  }, [open]);
 
   const [filters, setFilters] = useState({
     CardCode: '',
@@ -67,18 +51,9 @@ export default function CustomerSelectPopup({
   const filteredData = useMemo(() => {
     return (customers || []).filter((c) => {
       return (
-        (!filters.CardCode ||
-          c.CardCode
-            .toLowerCase()
-            .includes(filters.CardCode.toLowerCase())) &&
-        (!filters.CardName ||
-          c.CardName
-            .toLowerCase()
-            .includes(filters.CardName.toLowerCase())) &&
-        (!filters.ContactPerson ||
-          c.ContactPerson
-            .toLowerCase()
-            .includes(filters.ContactPerson.toLowerCase())) &&
+        (!filters.CardCode || c.CardCode.toLowerCase().includes(filters.CardCode.toLowerCase())) &&
+        (!filters.CardName || c.CardName.toLowerCase().includes(filters.CardName.toLowerCase())) &&
+        (!filters.ContactPerson || c.ContactPerson.toLowerCase().includes(filters.ContactPerson.toLowerCase())) &&
         (!filters.type || c.type === filters.type)
       );
     });
@@ -108,12 +83,7 @@ export default function CustomerSelectPopup({
   };
 
   return (
-    <Dialog
-      open={open}
-      onClose={onClose}
-      fullWidth
-      maxWidth="md"
-    >
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
       {/* ================= HEADER ================= */}
 
       <DialogTitle
@@ -124,10 +94,7 @@ export default function CustomerSelectPopup({
         }}
       >
         Customer Selection
-
-        <IconButton
-          onClick={onClose}
-        >
+        <IconButton onClick={onClose}>
           <CloseIcon />
         </IconButton>
       </DialogTitle>
@@ -135,14 +102,8 @@ export default function CustomerSelectPopup({
       <DialogContent sx={{ p: 3 }}>
         {/* ================= FILTER CARD ================= */}
 
-        <Paper
-          variant="outlined"
-          sx={{ p: 2, mb: 3 }}
-        >
-          <Typography
-            variant="h6"
-            sx={{ mb: 2 }}
-          >
+        <Paper variant="outlined" sx={{ p: 2, mb: 3 }}>
+          <Typography variant="h6" sx={{ mb: 2 }}>
             Filters
           </Typography>
 
@@ -208,11 +169,7 @@ export default function CustomerSelectPopup({
                   gap: 2
                 }}
               >
-                <Button
-                  variant="outlined"
-                  color="error"
-                  onClick={clearFilters}
-                >
+                <Button variant="outlined" color="error" onClick={clearFilters}>
                   Clear
                 </Button>
               </Box>
@@ -221,33 +178,22 @@ export default function CustomerSelectPopup({
         </Paper>
 
         {error && (
-          <Alert
-            severity="error"
-            sx={{ mb: 2 }}
-          >
+          <Alert severity="error" sx={{ mb: 2 }}>
             {error}
           </Alert>
         )}
 
         {/* ================= TABLE ================= */}
 
-        <TableContainer
-          component={Paper}
-          variant="outlined"
-        >
+        <TableContainer component={Paper} variant="outlined">
           <Table size="small">
             <TableHead>
-                <TableRow
-                    sx={{
-                        backgroundColor: 'grey.100'
-                    }}
-                >
-                {[
-                  'S.No',
-                  'Card Code',
-                  'Card Name',
-                  'Contact Person'
-                ].map((h) => (
+              <TableRow
+                sx={{
+                  backgroundColor: 'grey.100'
+                }}
+              >
+                {['S.No', 'Card Code', 'Card Name', 'Contact Person'].map((h) => (
                   <TableCell
                     key={h}
                     sx={{
@@ -264,15 +210,8 @@ export default function CustomerSelectPopup({
             <TableBody>
               {loading && customers.length === 0 && (
                 <TableRow>
-                  <TableCell
-                    colSpan={4}
-                    align="center"
-                    sx={{ py: 5 }}
-                  >
-                    <CircularProgress
-                      color="secondary"
-                      size={30}
-                    />
+                  <TableCell colSpan={4} align="center" sx={{ py: 5 }}>
+                    <CircularProgress color="secondary" size={30} />
                   </TableCell>
                 </TableRow>
               )}
@@ -281,34 +220,21 @@ export default function CustomerSelectPopup({
                 <TableRow
                   key={row.CardCode}
                   hover
-                  onClick={() =>
-                    handleSelect(row)
-                  }
+                  onClick={() => handleSelect(row)}
                   sx={{
                     cursor: 'pointer'
                   }}
                 >
-                  <TableCell>
-                    {index + 1}
-                  </TableCell>
-                  <TableCell>
-                    {row.CardCode}
-                  </TableCell>
-                  <TableCell>
-                    {row.CardName}
-                  </TableCell>
-                  <TableCell>
-                    {row.ContactPerson}
-                  </TableCell>
+                  <TableCell>{index + 1}</TableCell>
+                  <TableCell>{row.CardCode}</TableCell>
+                  <TableCell>{row.CardName}</TableCell>
+                  <TableCell>{row.ContactPerson}</TableCell>
                 </TableRow>
               ))}
 
               {!loading && filteredData.length === 0 && (
                 <TableRow>
-                  <TableCell
-                    colSpan={4}
-                    align="center"
-                  >
+                  <TableCell colSpan={4} align="center">
                     No Data Found
                   </TableCell>
                 </TableRow>

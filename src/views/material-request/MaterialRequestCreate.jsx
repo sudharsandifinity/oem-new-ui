@@ -3,18 +3,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 
-import {
-  Alert,
-  Box,
-  Breadcrumbs,
-  Button,
-  CircularProgress,
-  Divider,
-  Snackbar,
-  Tab,
-  Tabs,
-  Typography
-} from '@mui/material';
+import { Alert, Box, Breadcrumbs, Button, CircularProgress, Divider, Snackbar, Tab, Tabs, Typography } from '@mui/material';
 
 import HomeIcon from '@mui/icons-material/Home';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
@@ -47,42 +36,41 @@ const initialForm = () => ({
   RequestorName: '',
   Department: '',
   DeptId: '',
-  Remark: '',
+  Remark: ''
 });
 
 const boqLineToRow = (line, projectCode) => ({
   ...emptyRow(),
-  BOMLineNum:      String(line.LineId ?? ''),
-  ItemCode:        line.U_ItemCode  ?? '',
-  ItemDescription: line.U_Desc      ?? '',
-  FullDescription: line.U_FullDesc  ?? '',
-  UoMCode:         line.U_Unit      ?? '',
-  BOMQty:          line.U_PQty      ?? 0,
-  BOMOpenQty:      line.U_QDiff     ?? 0,
-  IssuedQty:       line.U_AQty      ?? 0,
-  WarehouseCode:   line.U_Whs       || '03',
-  ProjectCode:     projectCode      ?? '',
-  Quantity:        line.U_PQty      ?? 0,
-  MROpenQty:       0,
-  InStock:         0,
+  BOMLineNum: String(line.LineId ?? ''),
+  ItemCode: line.U_ItemCode ?? '',
+  ItemDescription: line.U_Desc ?? '',
+  FullDescription: line.U_FullDesc ?? '',
+  UoMCode: line.U_Unit ?? '',
+  BOMQty: line.U_PQty ?? 0,
+  BOMOpenQty: line.U_QDiff ?? 0,
+  IssuedQty: line.U_AQty ?? 0,
+  WarehouseCode: line.U_Whs || '03',
+  ProjectCode: projectCode ?? '',
+  Quantity: line.U_PQty ?? 0,
+  MROpenQty: 0,
+  InStock: 0
 });
 
 export default function MaterialRequestCreate() {
-  const navigate  = useNavigate();
-  const dispatch  = useDispatch();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
   const { createLoading, saveSuccess, error } = useSelector((s) => s.materialRequest);
 
-  const [tabValue, setTabValue]         = useState(0);
-  const [form, setForm]                 = useState(initialForm());
-  const [lines, setLines]               = useState([emptyRow()]);
-  const [bomModalOpen, setBomModalOpen]         = useState(false);
+  const [tabValue, setTabValue] = useState(0);
+  const [form, setForm] = useState(initialForm());
+  const [lines, setLines] = useState([emptyRow()]);
+  const [bomModalOpen, setBomModalOpen] = useState(false);
   const [bomItemModalOpen, setBomItemModalOpen] = useState(false);
-  const [pendingBOM, setPendingBOM]             = useState(null);
-  const [snackbar, setSnackbar]         = useState({ open: false, severity: 'success', message: '' });
+  const [pendingBOM, setPendingBOM] = useState(null);
+  const [snackbar, setSnackbar] = useState({ open: false, severity: 'success', message: '' });
 
   const canCopyFromBOM = !!(form.CardCode?.trim() || form.ProjectCode?.trim());
 
-  // React to create success / error
   useEffect(() => {
     if (saveSuccess) {
       setSnackbar({ open: true, severity: 'success', message: 'Material Request created successfully!' });
@@ -95,25 +83,23 @@ export default function MaterialRequestCreate() {
     }
   }, [saveSuccess, error, dispatch, navigate]);
 
-  // Step 1: BOM chosen → open item selection modal
   const handleBOMSelect = (bom) => {
     setPendingBOM(bom);
     setBomItemModalOpen(true);
   };
 
-  // Step 2: Items confirmed → populate content tab
   const handleBOMItemsConfirm = (selectedLines) => {
     const projCode = pendingBOM.U_PrjCode || form.ProjectCode;
-    const mapped   = selectedLines.map((l) => boqLineToRow(l, projCode));
+    const mapped = selectedLines.map((l) => boqLineToRow(l, projCode));
     setLines(mapped.length ? mapped : [emptyRow()]);
     setForm((prev) => ({
       ...prev,
-      BOMNo:       pendingBOM.DocEntry,
+      BOMNo: pendingBOM.DocEntry,
       BOMDocEntry: pendingBOM.DocEntry,
-      CardCode:    pendingBOM.U_BPCode  || prev.CardCode,
-      CardName:    pendingBOM.U_BPName  || prev.CardName,
+      CardCode: pendingBOM.U_BPCode || prev.CardCode,
+      CardName: pendingBOM.U_BPName || prev.CardName,
       ProjectCode: pendingBOM.U_PrjCode || prev.ProjectCode,
-      ProjectName: pendingBOM.U_PrjName || prev.ProjectName,
+      ProjectName: pendingBOM.U_PrjName || prev.ProjectName
     }));
     setPendingBOM(null);
     setTabValue(1);
@@ -144,8 +130,12 @@ export default function MaterialRequestCreate() {
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <HomeIcon sx={{ fontSize: 18, color: 'secondary.main' }} />
             </Box>
-            <Typography variant="body2" color="text.primary">Material Request</Typography>
-            <Typography variant="body2" color="secondary" fontWeight={600}>Create</Typography>
+            <Typography variant="body2" color="text.primary">
+              Material Request
+            </Typography>
+            <Typography variant="body2" color="secondary" fontWeight={600}>
+              Create
+            </Typography>
           </Breadcrumbs>
         </Box>
       </MainCard>
@@ -160,7 +150,6 @@ export default function MaterialRequestCreate() {
         </Box>
 
         <Box sx={{ p: 3 }}>
-          {/* Always mounted — CSS show/hide avoids unmount errors on tab switch */}
           <Box sx={{ display: tabValue === 0 ? 'block' : 'none' }}>
             <MRGeneralTab data={form} setData={setForm} />
           </Box>
@@ -210,7 +199,10 @@ export default function MaterialRequestCreate() {
 
       <BOMItemSelectModal
         open={bomItemModalOpen}
-        onClose={() => { setBomItemModalOpen(false); setPendingBOM(null); }}
+        onClose={() => {
+          setBomItemModalOpen(false);
+          setPendingBOM(null);
+        }}
         onConfirm={handleBOMItemsConfirm}
         bomLines={(pendingBOM?.HLB_BOQT1Collection || []).filter((l) => l.U_ItemCode)}
       />

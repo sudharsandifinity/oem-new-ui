@@ -1,8 +1,4 @@
-import {
-  useMemo,
-  useState,
-  useEffect
-} from 'react';
+import { useMemo, useState, useEffect } from 'react';
 
 import {
   Box,
@@ -29,45 +25,26 @@ import Alert from '@mui/material/Alert';
 
 import CircularProgress from '@mui/material/CircularProgress';
 
-import {
-  useDispatch,
-  useSelector
-} from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
-import {
-  getProjects
-} from '../../../store/slices/projectSlice';
+import { getProjects } from '../../../store/slices/projectSlice';
 
 // ================= COMPONENT ================= //
 
-export default function ProjectLookupModal({
-  open,
-  onClose,
-  onSelectProject
-}) {
+export default function ProjectLookupModal({ open, onClose, onSelectProject }) {
   const dispatch = useDispatch();
 
-  const {
-    projects,
-    loading,
-    error
-  } = useSelector(
-    (state) => state.project
-  );
+  const { projects, loading, error } = useSelector((state) => state.project);
 
-  const [filters, setFilters] =
-    useState({
-      projectCode: '',
-      projectName: ''
-    });
+  const [filters, setFilters] = useState({
+    projectCode: '',
+    projectName: ''
+  });
 
   // ================= API ================= //
 
   useEffect(() => {
-    if (
-      open &&
-      projects.length === 0
-    ) {
+    if (open && projects.length === 0) {
       dispatch(getProjects());
     }
 
@@ -82,28 +59,12 @@ export default function ProjectLookupModal({
   // ================= FILTER ================= //
 
   const filteredData = useMemo(() => {
-    return (projects || []).filter(
-      (p) => {
-        return (
-          (!filters.projectCode ||
-            (
-              p.Code || ''
-            )
-              .toLowerCase()
-              .includes(
-                filters.projectCode.toLowerCase()
-              )) &&
-          (!filters.projectName ||
-            (
-              p.Name || ''
-            )
-              .toLowerCase()
-              .includes(
-                filters.projectName.toLowerCase()
-              ))
-        );
-      }
-    );
+    return (projects || []).filter((p) => {
+      return (
+        (!filters.projectCode || (p.Code || '').toLowerCase().includes(filters.projectCode.toLowerCase())) &&
+        (!filters.projectName || (p.Name || '').toLowerCase().includes(filters.projectName.toLowerCase()))
+      );
+    });
   }, [filters, projects]);
 
   // ================= CLEAR ================= //
@@ -117,9 +78,7 @@ export default function ProjectLookupModal({
 
   // ================= SELECT ================= //
 
-  const handleSelect = (
-    row
-  ) => {
+  const handleSelect = (row) => {
     onSelectProject({
       projectCode: row.Code,
       projectName: row.Name
@@ -129,32 +88,21 @@ export default function ProjectLookupModal({
   };
 
   return (
-    <Dialog
-      open={open}
-      onClose={onClose}
-      fullWidth
-      maxWidth="md"
-    >
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
       {/* ================= HEADER ================= */}
 
       <DialogTitle
         sx={{
           display: 'flex',
-          justifyContent:
-            'space-between',
+          justifyContent: 'space-between',
           alignItems: 'center'
         }}
       >
-        <Typography
-          variant="h5"
-          component="div"
-        >
+        <Typography variant="h5" component="div">
           Project Selection
         </Typography>
 
-        <IconButton
-          onClick={onClose}
-        >
+        <IconButton onClick={onClose}>
           <CloseIcon />
         </IconButton>
       </DialogTitle>
@@ -170,56 +118,36 @@ export default function ProjectLookupModal({
             borderRadius: 2
           }}
         >
-          <Typography
-            variant="h6"
-            sx={{ mb: 2 }}
-          >
+          <Typography variant="h6" sx={{ mb: 2 }}>
             Filters
           </Typography>
 
-          <Grid
-            container
-            spacing={2}
-          >
-            <Grid
-              item
-              xs={12}
-              md={4}
-            >
+          <Grid container spacing={2}>
+            <Grid item xs={12} md={4}>
               <TextField
                 fullWidth
                 size="small"
                 label="Project Code"
-                value={
-                  filters.projectCode
-                }
+                value={filters.projectCode}
                 onChange={(e) =>
                   setFilters({
                     ...filters,
-                    projectCode:
-                      e.target.value
+                    projectCode: e.target.value
                   })
                 }
               />
             </Grid>
 
-            <Grid
-              item
-              xs={12}
-              md={4}
-            >
+            <Grid item xs={12} md={4}>
               <TextField
                 fullWidth
                 size="small"
                 label="Project Name"
-                value={
-                  filters.projectName
-                }
+                value={filters.projectName}
                 onChange={(e) =>
                   setFilters({
                     ...filters,
-                    projectName:
-                      e.target.value
+                    projectName: e.target.value
                   })
                 }
               />
@@ -229,17 +157,10 @@ export default function ProjectLookupModal({
               <Box
                 sx={{
                   display: 'flex',
-                  justifyContent:
-                    'flex-end'
+                  justifyContent: 'flex-end'
                 }}
               >
-                <Button
-                  variant="outlined"
-                  color="error"
-                  onClick={
-                    clearFilters
-                  }
-                >
+                <Button variant="outlined" color="error" onClick={clearFilters}>
                   Clear
                 </Button>
               </Box>
@@ -248,33 +169,22 @@ export default function ProjectLookupModal({
         </Paper>
 
         {error && (
-          <Alert
-            severity="error"
-            sx={{ mb: 2 }}
-          >
+          <Alert severity="error" sx={{ mb: 2 }}>
             {error}
           </Alert>
         )}
 
         {/* ================= TABLE ================= */}
 
-        <TableContainer
-          component={Paper}
-          variant="outlined"
-        >
+        <TableContainer component={Paper} variant="outlined">
           <Table size="small">
             <TableHead>
               <TableRow
                 sx={{
-                  backgroundColor:
-                    'grey.100'
+                  backgroundColor: 'grey.100'
                 }}
               >
-                {[
-                  'S.No',
-                  'Project Code',
-                  'Project Name'
-                ].map((h) => (
+                {['S.No', 'Project Code', 'Project Name'].map((h) => (
                   <TableCell
                     key={h}
                     sx={{
@@ -288,70 +198,44 @@ export default function ProjectLookupModal({
             </TableHead>
 
             <TableBody>
-              {loading &&
-                projects.length ===
-                  0 && (
-                  <TableRow>
-                    <TableCell
-                      colSpan={3}
-                      align="center"
-                      sx={{
-                        py: 5
-                      }}
-                    >
-                      <CircularProgress
-                        color="secondary"
-                        size={32}
-                      />
-                    </TableCell>
-                  </TableRow>
-                )}
-
-              {filteredData.map(
-                (
-                  row,
-                  index
-                ) => (
-                  <TableRow
-                    key={row.Code}
-                    hover
-                    onClick={() =>
-                      handleSelect(
-                        row
-                      )
-                    }
+              {loading && projects.length === 0 && (
+                <TableRow>
+                  <TableCell
+                    colSpan={3}
+                    align="center"
                     sx={{
-                      cursor:
-                        'pointer'
+                      py: 5
                     }}
                   >
-                    <TableCell>
-                      {index + 1}
-                    </TableCell>
-
-                    <TableCell>
-                      {row.Code}
-                    </TableCell>
-
-                    <TableCell>
-                      {row.Name}
-                    </TableCell>
-                  </TableRow>
-                )
+                    <CircularProgress color="secondary" size={32} />
+                  </TableCell>
+                </TableRow>
               )}
 
-              {!loading &&
-                filteredData.length ===
-                  0 && (
-                  <TableRow>
-                    <TableCell
-                      colSpan={3}
-                      align="center"
-                    >
-                      No Data Found
-                    </TableCell>
-                  </TableRow>
-                )}
+              {filteredData.map((row, index) => (
+                <TableRow
+                  key={row.Code}
+                  hover
+                  onClick={() => handleSelect(row)}
+                  sx={{
+                    cursor: 'pointer'
+                  }}
+                >
+                  <TableCell>{index + 1}</TableCell>
+
+                  <TableCell>{row.Code}</TableCell>
+
+                  <TableCell>{row.Name}</TableCell>
+                </TableRow>
+              ))}
+
+              {!loading && filteredData.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={3} align="center">
+                    No Data Found
+                  </TableCell>
+                </TableRow>
+              )}
             </TableBody>
           </Table>
         </TableContainer>

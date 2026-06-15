@@ -19,25 +19,15 @@ import {
   Typography
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import {
-  getTaxCodes
-} from '../../../store/slices/taxCodeSlice';
+import { getTaxCodes } from '../../../store/slices/taxCodeSlice';
 import Alert from '@mui/material/Alert';
 import CircularProgress from '@mui/material/CircularProgress';
 
 // ================= COMPONENT ================= //
 
-export default function TaxSelectPopup({
-  open,
-  onClose,
-  onSelectTax
-}) {
+export default function TaxSelectPopup({ open, onClose, onSelectTax }) {
   const dispatch = useDispatch();
-  const {
-    taxCodes,
-    loading,
-    error
-  } = useSelector((state) => state.taxCode);
+  const { taxCodes, loading, error } = useSelector((state) => state.taxCode);
 
   const [filters, setFilters] = useState({
     taxCode: '',
@@ -49,18 +39,8 @@ export default function TaxSelectPopup({
   const filteredData = useMemo(() => {
     return (taxCodes || []).filter((tax) => {
       return (
-        (!filters.taxCode ||
-          tax.Code
-            .toLowerCase()
-            .includes(
-              filters.taxCode.toLowerCase()
-            )) &&
-        (!filters.taxName ||
-          tax.Name
-            .toLowerCase()
-            .includes(
-              filters.taxName.toLowerCase()
-            ))
+        (!filters.taxCode || tax.Code.toLowerCase().includes(filters.taxCode.toLowerCase())) &&
+        (!filters.taxName || tax.Name.toLowerCase().includes(filters.taxName.toLowerCase()))
       );
     });
   }, [filters, taxCodes]);
@@ -80,8 +60,7 @@ export default function TaxSelectPopup({
     onSelectTax({
       taxCode: row.Code,
       taxName: row.Name,
-      taxPercentage:
-        row.VatGroups_Lines?.[0]?.Rate || 0
+      taxPercentage: row.VatGroups_Lines?.[0]?.Rate || 0
     });
     onClose();
   };
@@ -97,12 +76,7 @@ export default function TaxSelectPopup({
   }, [open]);
 
   return (
-    <Dialog
-      open={open}
-      onClose={onClose}
-      fullWidth
-      maxWidth="md"
-    >
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
       {/* ================= HEADER ================= */}
 
       <DialogTitle
@@ -112,10 +86,7 @@ export default function TaxSelectPopup({
           alignItems: 'center'
         }}
       >
-        <Typography
-          variant="h5"
-          component="div"
-        >
+        <Typography variant="h5" component="div">
           Tax Selection
         </Typography>
 
@@ -137,10 +108,7 @@ export default function TaxSelectPopup({
             borderRadius: 2
           }}
         >
-          <Typography
-            variant="h6"
-            sx={{ mb: 2 }}
-          >
+          <Typography variant="h6" sx={{ mb: 2 }}>
             Filters
           </Typography>
 
@@ -156,8 +124,7 @@ export default function TaxSelectPopup({
                 onChange={(e) =>
                   setFilters({
                     ...filters,
-                    taxCode:
-                      e.target.value
+                    taxCode: e.target.value
                   })
                 }
               />
@@ -174,8 +141,7 @@ export default function TaxSelectPopup({
                 onChange={(e) =>
                   setFilters({
                     ...filters,
-                    taxName:
-                      e.target.value
+                    taxName: e.target.value
                   })
                 }
               />
@@ -187,15 +153,10 @@ export default function TaxSelectPopup({
               <Box
                 sx={{
                   display: 'flex',
-                  justifyContent:
-                    'flex-end'
+                  justifyContent: 'flex-end'
                 }}
               >
-                <Button
-                  variant="outlined"
-                  color="error"
-                  onClick={clearFilters}
-                >
+                <Button variant="outlined" color="error" onClick={clearFilters}>
                   Clear
                 </Button>
               </Box>
@@ -211,30 +172,20 @@ export default function TaxSelectPopup({
 
         {/* ================= TABLE ================= */}
 
-        <TableContainer
-          component={Paper}
-          variant="outlined"
-        >
+        <TableContainer component={Paper} variant="outlined">
           <Table size="small">
             <TableHead>
               <TableRow
                 sx={{
-                  backgroundColor:
-                    'grey.100'
+                  backgroundColor: 'grey.100'
                 }}
               >
-                {[
-                  'S.No',
-                  'Tax Code',
-                  'Tax Name',
-                  'Tax %'
-                ].map((header) => (
+                {['S.No', 'Tax Code', 'Tax Name', 'Tax %'].map((header) => (
                   <TableCell
                     key={header}
                     sx={{
                       fontWeight: 700,
-                      whiteSpace:
-                        'nowrap'
+                      whiteSpace: 'nowrap'
                     }}
                   >
                     {header}
@@ -246,57 +197,35 @@ export default function TaxSelectPopup({
             <TableBody>
               {loading && taxCodes.length === 0 && (
                 <TableRow>
-                  <TableCell
-                    colSpan={4}
-                    align="center"
-                    sx={{ py: 5 }}
-                  >
-                    <CircularProgress
-                      color="secondary"
-                      size={32}
-                    />
+                  <TableCell colSpan={4} align="center" sx={{ py: 5 }}>
+                    <CircularProgress color="secondary" size={32} />
                   </TableCell>
                 </TableRow>
               )}
-              {filteredData.map(
-                (row, index) => (
-                  <TableRow
-                    key={row.Code}
-                    hover
-                    onClick={() =>
-                      handleSelect(row)
-                    }
-                    sx={{
-                      cursor: 'pointer'
-                    }}
-                  >
-                    <TableCell>
-                      {index + 1}
-                    </TableCell>
+              {filteredData.map((row, index) => (
+                <TableRow
+                  key={row.Code}
+                  hover
+                  onClick={() => handleSelect(row)}
+                  sx={{
+                    cursor: 'pointer'
+                  }}
+                >
+                  <TableCell>{index + 1}</TableCell>
 
-                    <TableCell>
-                      {row.Code}
-                    </TableCell>
+                  <TableCell>{row.Code}</TableCell>
 
-                    <TableCell>
-                      {row.Name}
-                    </TableCell>
+                  <TableCell>{row.Name}</TableCell>
 
-                    <TableCell>
-                      {row.VatGroups_Lines?.[0]?.Rate || 0}%
-                    </TableCell>
-                  </TableRow>
-                )
-              )}
+                  <TableCell>{row.VatGroups_Lines?.[0]?.Rate || 0}%</TableCell>
+                </TableRow>
+              ))}
 
               {/* EMPTY */}
 
               {!loading && filteredData.length === 0 && (
                 <TableRow>
-                  <TableCell
-                    colSpan={4}
-                    align="center"
-                  >
+                  <TableCell colSpan={4} align="center">
                     No Data Found
                   </TableCell>
                 </TableRow>

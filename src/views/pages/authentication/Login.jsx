@@ -23,14 +23,19 @@ export default function Login() {
 
   return (
     <AuthWrapper1>
-      <Stack sx={{ justifyContent: 'flex-end', minHeight: '100vh', backgroundImage: `url(${bgImage})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat'
-      }}>
+      <Stack
+        sx={{
+          justifyContent: 'flex-end',
+          minHeight: '100vh',
+          backgroundImage: `url(${bgImage})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat'
+        }}
+      >
         <Stack sx={{ justifyContent: 'center', alignItems: 'center', minHeight: 'calc(100vh - 68px)' }}>
           <Box sx={{ m: { xs: 1, sm: 3 }, mb: 0 }}>
-            <AuthCardWrapper sx={{backgroundColor: 'rgba(255, 255, 255, 0.8)'}}>
+            <AuthCardWrapper sx={{ backgroundColor: 'rgba(255, 255, 255, 0.8)' }}>
               <Stack sx={{ alignItems: 'center', justifyContent: 'center', gap: 2 }}>
                 <Box sx={{ mb: 3 }}>
                   <Link to="#" aria-label="logo">
@@ -38,9 +43,7 @@ export default function Login() {
                   </Link>
                 </Box>
                 <Stack sx={{ alignItems: 'center', justifyContent: 'center', gap: 1 }}>
-                  <Typography variant={downMD ? 'h3' : 'h2'}>
-                    Hi, Welcome Back
-                  </Typography>
+                  <Typography variant={downMD ? 'h3' : 'h2'}>Hi, Welcome Back</Typography>
                   <Typography variant="caption" sx={{ fontSize: '16px', textAlign: { xs: 'center', md: 'inherit' } }}>
                     Enter your credentials to continue
                   </Typography>

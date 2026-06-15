@@ -198,8 +198,12 @@ export default function ProfileSection() {
           <DialogContentText>Are you sure you want to logout?</DialogContentText>
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2 }}>
-          <Button variant="outlined" onClick={() => setLogoutDialogOpen(false)}>Cancel</Button>
-          <Button variant="contained" color="error" onClick={handleLogout}>Logout</Button>
+          <Button variant="outlined" onClick={() => setLogoutDialogOpen(false)}>
+            Cancel
+          </Button>
+          <Button variant="contained" color="error" onClick={handleLogout}>
+            Logout
+          </Button>
         </DialogActions>
       </Dialog>
     </>

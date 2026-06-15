@@ -1,7 +1,4 @@
-import {
-  createSlice,
-  createAsyncThunk
-} from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
 import API from 'api/axios';
 
@@ -14,98 +11,62 @@ const initialState = {
   saveSuccess: false
 };
 
-export const getSalesOrders = createAsyncThunk(
-  'salesOrder/getAll',
-  async ({ top = 25, skip = 0 } = {}, thunkAPI) => {
-    try {
-      const response = await API.get('/sap/orders', { params: { top, skip } });
-      return {
-        orders: response.data.value,
-        totalCount: response.data['odata.count'] || 0
-      };
-    } catch (error) {
-      return thunkAPI.rejectWithValue(
-        error.response?.data?.message ||
-        'Failed to fetch sales orders'
-      );
-    }
+export const getSalesOrders = createAsyncThunk('salesOrder/getAll', async ({ top = 25, skip = 0 } = {}, thunkAPI) => {
+  try {
+    const response = await API.get('/sap/orders', { params: { top, skip } });
+    return {
+      orders: response.data.value,
+      totalCount: response.data['odata.count'] || 0
+    };
+  } catch (error) {
+    return thunkAPI.rejectWithValue(error.response?.data?.message || 'Failed to fetch sales orders');
   }
-);
+});
 
-export const createSalesOrder = createAsyncThunk(
-  'salesOrder/create',
-  async (formData, thunkAPI) => {
-    try {
-      const response = await API.post(
-        '/sap/orders',
-        formData,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data'
-          }
-        }
-      );
-      return response.data;
-    } catch (error) {
-      const responseData = error.response?.data;
+export const createSalesOrder = createAsyncThunk('salesOrder/create', async (formData, thunkAPI) => {
+  try {
+    const response = await API.post('/sap/orders', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    });
+    return response.data;
+  } catch (error) {
+    const responseData = error.response?.data;
 
-      return thunkAPI.rejectWithValue({
-        status: error.response?.status,
+    return thunkAPI.rejectWithValue({
+      status: error.response?.status,
 
-        message:
-          responseData?.error?.error?.message
-            ?.value ||
-          responseData?.message ||
-          'Sales Order Create Failed',
+      message: responseData?.error?.error?.message?.value || responseData?.message || 'Sales Order Create Failed',
 
-        sapCode:
-          responseData?.error?.error?.code
-      });
-    }
+      sapCode: responseData?.error?.error?.code
+    });
   }
-);
+});
 
-export const updateSalesOrder = createAsyncThunk(
-  'salesOrder/update',
-  async ({ docEntry, formData }, thunkAPI) => {
-    try {
-      const response = await API.patch(
-        `/sap/orders/${docEntry}`,
-        formData,
-        { headers: { 'Content-Type': 'multipart/form-data' } }
-      );
-      return response.data;
-    } catch (error) {
-      const responseData = error.response?.data;
-      return thunkAPI.rejectWithValue({
-        status: error.response?.status,
-        message:
-          responseData?.error?.error?.message?.value ||
-          responseData?.message ||
-          'Sales Order Update Failed',
-        sapCode: responseData?.error?.error?.code
-      });
-    }
+export const updateSalesOrder = createAsyncThunk('salesOrder/update', async ({ docEntry, formData }, thunkAPI) => {
+  try {
+    const response = await API.patch(`/sap/orders/${docEntry}`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+    return response.data;
+  } catch (error) {
+    const responseData = error.response?.data;
+    return thunkAPI.rejectWithValue({
+      status: error.response?.status,
+      message: responseData?.error?.error?.message?.value || responseData?.message || 'Sales Order Update Failed',
+      sapCode: responseData?.error?.error?.code
+    });
   }
-);
+});
 
-export const getSalesOrderById = createAsyncThunk(
-  'salesOrder/getById',
-  async (docEntry, thunkAPI) => {
-    try {
-      const response = await API.get(
-        `/sap/orders/${docEntry}`
-      );
+export const getSalesOrderById = createAsyncThunk('salesOrder/getById', async (docEntry, thunkAPI) => {
+  try {
+    const response = await API.get(`/sap/orders/${docEntry}`);
 
-      return response.data;
-    } catch (error) {
-      return thunkAPI.rejectWithValue(
-        error.response?.data?.message ||
-        'Failed to fetch sales order'
-      );
-    }
+    return response.data;
+  } catch (error) {
+    return thunkAPI.rejectWithValue(error.response?.data?.message || 'Failed to fetch sales order');
   }
-);
+});
 
 const salesOrderSlice = createSlice({
   name: 'salesOrder',
@@ -181,13 +142,12 @@ const salesOrderSlice = createSlice({
         state.loading = false;
         state.currentOrder = action.payload;
         console.log('ccccc', state.currentOrder);
-        
       })
 
       .addCase(getSalesOrderById.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
-      })
+      });
   }
 });
 

@@ -5,19 +5,7 @@ import { getMRById, updateMR, resetMRState } from '../../store/slices/materialRe
 import { getItems } from '../../store/slices/itemSlice';
 import { mapApiToForm, mapApiLineToRow, buildPayload } from './mrHelpers';
 
-import {
-  Alert,
-  Box,
-  Breadcrumbs,
-  Button,
-  CircularProgress,
-  Divider,
-  Skeleton,
-  Snackbar,
-  Tab,
-  Tabs,
-  Typography
-} from '@mui/material';
+import { Alert, Box, Breadcrumbs, Button, CircularProgress, Divider, Skeleton, Snackbar, Tab, Tabs, Typography } from '@mui/material';
 
 import HomeIcon from '@mui/icons-material/Home';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
@@ -34,10 +22,14 @@ function ContentSkeleton() {
     <Box>
       <Box sx={{ display: 'flex', gap: 4 }}>
         <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
-          {[1, 2, 3, 4, 5].map((i) => <Skeleton key={i} variant="rounded" height={40} />)}
+          {[1, 2, 3, 4, 5].map((i) => (
+            <Skeleton key={i} variant="rounded" height={40} />
+          ))}
         </Box>
         <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
-          {[1, 2, 3, 4].map((i) => <Skeleton key={i} variant="rounded" height={40} />)}
+          {[1, 2, 3, 4].map((i) => (
+            <Skeleton key={i} variant="rounded" height={40} />
+          ))}
         </Box>
       </Box>
       <Skeleton variant="rounded" height={180} sx={{ mt: 4 }} />
@@ -46,34 +38,32 @@ function ContentSkeleton() {
 }
 
 export default function MaterialRequestEdit() {
-  const { id }   = useParams();
+  const { id } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const { currentMR, currentMRLoading, currentMRError, updateLoading, saveSuccess, error } =
-    useSelector((s) => s.materialRequest);
+  const { currentMR, currentMRLoading, currentMRError, updateLoading, saveSuccess, error } = useSelector((s) => s.materialRequest);
 
-  const [tabValue, setTabValue]       = useState(0);
-  const [form, setForm]               = useState(null);
-  const [lines, setLines]             = useState([]);
+  const [tabValue, setTabValue] = useState(0);
+  const [form, setForm] = useState(null);
+  const [lines, setLines] = useState([]);
   const [prModalOpen, setPrModalOpen] = useState(false);
   const [stockLoading, setStockLoading] = useState(false);
-  const [snackbar, setSnackbar]       = useState({ open: false, severity: 'success', message: '' });
+  const [snackbar, setSnackbar] = useState({ open: false, severity: 'success', message: '' });
 
-  // Fetch on mount
   useEffect(() => {
     if (id) dispatch(getMRById(id));
-    return () => { dispatch(resetMRState()); };
+    return () => {
+      dispatch(resetMRState());
+    };
   }, [dispatch, id]);
 
-  // Seed form whenever currentMR changes (initial load only in practice)
   useEffect(() => {
     if (!currentMR) return;
     setForm(mapApiToForm(currentMR));
     setLines((currentMR.HLB_MRQ1Collection || []).map(mapApiLineToRow));
   }, [currentMR]);
 
-  // Handle save result
   useEffect(() => {
     if (saveSuccess) {
       setSnackbar({ open: true, severity: 'success', message: 'Material Request updated successfully!' });
@@ -97,12 +87,10 @@ export default function MaterialRequestEdit() {
         prev.map((line) => {
           if (!line.ItemCode) return line;
           const itemCode = String(line.ItemCode).trim();
-          const whsCode  = String(line.WarehouseCode ?? '').trim();
+          const whsCode = String(line.WarehouseCode ?? '').trim();
           const item = items.find((i) => String(i.ItemCode).trim() === itemCode);
           if (!item) return line;
-          const whs = (item.ItemWarehouseInfoCollection || []).find(
-            (w) => String(w.WarehouseCode).trim() === whsCode
-          );
+          const whs = (item.ItemWarehouseInfoCollection || []).find((w) => String(w.WarehouseCode).trim() === whsCode);
           return { ...line, InStock: whs != null ? whs.InStock : line.InStock };
         })
       );
@@ -122,16 +110,16 @@ export default function MaterialRequestEdit() {
     setPrModalOpen(false);
     navigate('/purchase-requests/create', {
       state: {
-        mrDocEntry:         id,
-        mrNo:               id,
-        projectCode:        form.ProjectCode,
-        projectName:        form.ProjectName,
-        reqCode:            form.ReqCode,
-        reqType:            null,
+        mrDocEntry: id,
+        mrNo: id,
+        projectCode: form.ProjectCode,
+        projectName: form.ProjectName,
+        reqCode: form.ReqCode,
+        reqType: null,
         requestorTypeLabel: form.RequestorType,
-        requestorName:      form.RequestorName,
-        department:         form.DeptId,
-        selectedLines,
+        requestorName: form.RequestorName,
+        department: form.DeptId,
+        selectedLines
       }
     });
   };
@@ -140,11 +128,11 @@ export default function MaterialRequestEdit() {
 
   return (
     <Box>
-      {/* HEADER — always visible */}
       <MainCard content={false} sx={{ mb: 3 }}>
         <Box
           sx={{
-            px: 3, py: 2.5,
+            px: 3,
+            py: 2.5,
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: { xs: 'flex-start', md: 'center' },
@@ -157,8 +145,12 @@ export default function MaterialRequestEdit() {
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <HomeIcon sx={{ fontSize: 18, color: 'secondary.main' }} />
             </Box>
-            <Typography variant="body2" color="text.primary">Material Request</Typography>
-            <Typography variant="body2" color="secondary" fontWeight={600}>Edit</Typography>
+            <Typography variant="body2" color="text.primary">
+              Material Request
+            </Typography>
+            <Typography variant="body2" color="secondary" fontWeight={600}>
+              Edit
+            </Typography>
           </Breadcrumbs>
         </Box>
       </MainCard>
@@ -175,14 +167,17 @@ export default function MaterialRequestEdit() {
         <Box sx={{ p: 3 }}>
           {currentMRError ? (
             <Box sx={{ py: 6, textAlign: 'center' }}>
-              <Typography color="error" variant="h5">Failed to load Material Request</Typography>
-              <Typography color="text.secondary" sx={{ mt: 1 }}>{currentMRError}</Typography>
+              <Typography color="error" variant="h5">
+                Failed to load Material Request
+              </Typography>
+              <Typography color="text.secondary" sx={{ mt: 1 }}>
+                {currentMRError}
+              </Typography>
             </Box>
           ) : loading ? (
             <ContentSkeleton />
           ) : (
             <>
-              {/* Always mounted — CSS show/hide avoids unmount errors on tab switch */}
               <Box sx={{ display: tabValue === 0 ? 'block' : 'none' }}>
                 <MRGeneralTab data={form} setData={setForm} lockCustomerProject />
               </Box>
@@ -194,7 +189,6 @@ export default function MaterialRequestEdit() {
 
           <Divider sx={{ my: 4 }} />
 
-          {/* Footer — always visible */}
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
             <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap' }}>
               <Button
@@ -236,12 +230,7 @@ export default function MaterialRequestEdit() {
         </Box>
       </MainCard>
 
-      <PurchaseRequestModal
-        open={prModalOpen}
-        onClose={() => setPrModalOpen(false)}
-        onContinue={handlePRContinue}
-        lines={lines}
-      />
+      <PurchaseRequestModal open={prModalOpen} onClose={() => setPrModalOpen(false)} onContinue={handlePRContinue} lines={lines} />
 
       <Snackbar
         open={snackbar.open}

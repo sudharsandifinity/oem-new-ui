@@ -4,16 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { getPRById, resetPRState } from '../../store/slices/purchaseRequestSlice';
 import { mapApiToForm, mapApiLineToRow } from './prHelpers';
 
-import {
-  Box,
-  Breadcrumbs,
-  Button,
-  Divider,
-  Skeleton,
-  Tab,
-  Tabs,
-  Typography
-} from '@mui/material';
+import { Box, Breadcrumbs, Button, Divider, Skeleton, Tab, Tabs, Typography } from '@mui/material';
 
 import HomeIcon from '@mui/icons-material/Home';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
@@ -29,10 +20,14 @@ function ContentSkeleton() {
     <Box>
       <Box sx={{ display: 'flex', gap: 4 }}>
         <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
-          {[1, 2, 3, 4].map((i) => <Skeleton key={i} variant="rounded" height={40} />)}
+          {[1, 2, 3, 4].map((i) => (
+            <Skeleton key={i} variant="rounded" height={40} />
+          ))}
         </Box>
         <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
-          {[1, 2].map((i) => <Skeleton key={i} variant="rounded" height={40} />)}
+          {[1, 2].map((i) => (
+            <Skeleton key={i} variant="rounded" height={40} />
+          ))}
         </Box>
       </Box>
       <Skeleton variant="rounded" height={180} sx={{ mt: 4 }} />
@@ -41,19 +36,21 @@ function ContentSkeleton() {
 }
 
 export default function PurchaseRequestView() {
-  const { id }   = useParams();
+  const { id } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const { currentPR, currentPRLoading, currentPRError } = useSelector((s) => s.purchaseRequest);
 
   const [tabValue, setTabValue] = useState(0);
-  const [form, setForm]         = useState(null);
-  const [lines, setLines]       = useState([]);
+  const [form, setForm] = useState(null);
+  const [lines, setLines] = useState([]);
 
   useEffect(() => {
     if (id) dispatch(getPRById(id));
-    return () => { dispatch(resetPRState()); };
+    return () => {
+      dispatch(resetPRState());
+    };
   }, [dispatch, id]);
 
   useEffect(() => {
@@ -70,7 +67,8 @@ export default function PurchaseRequestView() {
       <MainCard content={false} sx={{ mb: 3 }}>
         <Box
           sx={{
-            px: 3, py: 2.5,
+            px: 3,
+            py: 2.5,
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: { xs: 'flex-start', md: 'center' },
@@ -83,8 +81,12 @@ export default function PurchaseRequestView() {
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <HomeIcon sx={{ fontSize: 18, color: 'secondary.main' }} />
             </Box>
-            <Typography variant="body2" color="text.primary">Purchase Request</Typography>
-            <Typography variant="body2" color="secondary" fontWeight={600}>View</Typography>
+            <Typography variant="body2" color="text.primary">
+              Purchase Request
+            </Typography>
+            <Typography variant="body2" color="secondary" fontWeight={600}>
+              View
+            </Typography>
           </Breadcrumbs>
         </Box>
       </MainCard>
@@ -101,8 +103,12 @@ export default function PurchaseRequestView() {
         <Box sx={{ p: 3 }}>
           {currentPRError ? (
             <Box sx={{ py: 6, textAlign: 'center' }}>
-              <Typography color="error" variant="h5">Failed to load Purchase Request</Typography>
-              <Typography color="text.secondary" sx={{ mt: 1 }}>{currentPRError}</Typography>
+              <Typography color="error" variant="h5">
+                Failed to load Purchase Request
+              </Typography>
+              <Typography color="text.secondary" sx={{ mt: 1 }}>
+                {currentPRError}
+              </Typography>
             </Box>
           ) : loading ? (
             <ContentSkeleton />
@@ -120,7 +126,9 @@ export default function PurchaseRequestView() {
           <Divider sx={{ my: 4 }} />
 
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
-            <Button variant="outlined" onClick={() => navigate(-1)}>Back</Button>
+            <Button variant="outlined" onClick={() => navigate(-1)}>
+              Back
+            </Button>
           </Box>
         </Box>
       </MainCard>
