@@ -1,13 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../../../../store/slices/authSlice';
 import { useNavigate } from 'react-router-dom';
 
-// material-ui
 import { useTheme } from '@mui/material/styles';
 import Avatar from '@mui/material/Avatar';
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
 import Chip from '@mui/material/Chip';
 import ClickAwayListener from '@mui/material/ClickAwayListener';
 import Dialog from '@mui/material/Dialog';
@@ -16,31 +13,22 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import Divider from '@mui/material/Divider';
-import InputAdornment from '@mui/material/InputAdornment';
 import List from '@mui/material/List';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import OutlinedInput from '@mui/material/OutlinedInput';
 import Paper from '@mui/material/Paper';
 import Popper from '@mui/material/Popper';
 import Stack from '@mui/material/Stack';
-import Switch from '@mui/material/Switch';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 
-// project imports
-import UpgradePlanCard from './UpgradePlanCard';
 import MainCard from 'ui-component/cards/MainCard';
 import Transitions from 'ui-component/extended/Transitions';
 import useConfig from 'hooks/useConfig';
 
-// assets
-import User1 from 'assets/images/users/user-round.svg';
-import { IconLogout, IconSearch, IconSettings, IconUser } from '@tabler/icons-react';
-
-// ==============================|| PROFILE MENU ||============================== //
+import { IconLogout, IconSettings } from '@tabler/icons-react';
 
 export default function ProfileSection() {
   const theme = useTheme();
@@ -50,35 +38,25 @@ export default function ProfileSection() {
     state: { borderRadius }
   } = useConfig();
 
-  const [sdm, setSdm] = useState(true);
-  const [value, setValue] = useState('');
-  const [notification, setNotification] = useState(false);
+  const { user } = useSelector((s) => s.auth);
+  const fullName = [user?.first_name, user?.last_name].filter(Boolean).join(' ') || 'User';
+  const roleName = user?.Roles?.[0]?.name || '';
+  const initials = [user?.first_name?.[0], user?.last_name?.[0]].filter(Boolean).join('').toUpperCase() || 'U';
+
   const [open, setOpen] = useState(false);
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
-
-  /**
-   * anchorRef is used on different components and specifying one type leads to other components throwing an error
-   * */
   const anchorRef = useRef(null);
 
-  const handleToggle = () => {
-    setOpen((prevOpen) => !prevOpen);
-  };
+  const handleToggle = () => setOpen((prev) => !prev);
 
   const handleClose = (event) => {
-    if (anchorRef.current && anchorRef.current.contains(event.target)) {
-      return;
-    }
-
+    if (anchorRef.current && anchorRef.current.contains(event.target)) return;
     setOpen(false);
   };
 
   const prevOpen = useRef(open);
   useEffect(() => {
-    if (prevOpen.current === true && open === false) {
-      anchorRef.current.focus();
-    }
-
+    if (prevOpen.current === true && open === false) anchorRef.current.focus();
     prevOpen.current = open;
   }, [open]);
 
@@ -96,19 +74,8 @@ export default function ProfileSection() {
     <>
       <Chip
         slotProps={{ label: { sx: { lineHeight: 0 } } }}
-        sx={{ ml: 2, height: '48px', alignItems: 'center', borderRadius: '27px' }}
-        icon={
-          <Avatar
-            src={User1}
-            alt="user-images"
-            sx={{ typography: 'mediumAvatar', margin: '8px 0 8px 8px !important', cursor: 'pointer' }}
-            ref={anchorRef}
-            aria-controls={open ? 'menu-list-grow' : undefined}
-            aria-haspopup="true"
-            color="inherit"
-          />
-        }
-        label={<IconSettings stroke={1.5} size="24px" />}
+        sx={{ ml: 2, height: '28px', alignItems: 'center', borderRadius: '27px' }}
+        label={<IconSettings stroke={1.5} size="16px" />}
         ref={anchorRef}
         aria-controls={open ? 'menu-list-grow' : undefined}
         aria-haspopup="true"
@@ -116,75 +83,59 @@ export default function ProfileSection() {
         color="primary"
         aria-label="user-account"
       />
+
       <Popper
-        placement="bottom"
+        placement="bottom-end"
         open={open}
         anchorEl={anchorRef.current}
         role={undefined}
         transition
         disablePortal
-        modifiers={[
-          {
-            name: 'offset',
-            options: {
-              offset: [0, 14]
-            }
-          }
-        ]}
+        modifiers={[{ name: 'offset', options: { offset: [0, 10] } }]}
       >
         {({ TransitionProps }) => (
           <ClickAwayListener onClickAway={handleClose}>
             <Transitions in={open} {...TransitionProps}>
-              <Paper>
+              <Paper elevation={8} sx={{ borderRadius: 2, minWidth: 260, overflow: 'hidden' }}>
                 {open && (
-                  <MainCard border={false} elevation={16} content={false} boxShadow shadow={theme.shadows[16]}>
-                    <Box sx={{ p: 2, pb: 0 }}>
-                      <Stack>
-                        <Stack direction="row" sx={{ alignItems: 'center', gap: 0.5 }}>
-                          <Typography component="span" variant="h4" sx={{ fontWeight: 400 }}>
-                            Johne Doe
+                  <>
+                    {/* User header */}
+                    <Box sx={{ px: 2.5, py: 2 }}>
+                      <Stack direction="row" spacing={1.5} alignItems="center">
+                        <Avatar sx={{ width: 40, height: 40, bgcolor: 'grey.200', color: 'text.primary', fontSize: 15, fontWeight: 700 }}>
+                          {initials}
+                        </Avatar>
+                        <Box>
+                          <Typography variant="subtitle1" sx={{ fontWeight: 700, lineHeight: 1.2 }}>
+                            {fullName}
                           </Typography>
-                        </Stack>
-                        <Typography variant="subtitle2">Project Admin</Typography>
+                          {roleName && (
+                            <Typography variant="caption" color="text.secondary">
+                              {roleName}
+                            </Typography>
+                          )}
+                        </Box>
                       </Stack>
-                      <Divider />
                     </Box>
-                    <Box
-                      sx={{
-                        p: 2,
-                        py: 0,
-                        height: '100%',
-                        maxHeight: 'calc(100vh - 250px)',
-                        overflowX: 'hidden',
-                        '&::-webkit-scrollbar': { width: 5 }
-                      }}
-                    >
-                      <List
-                        component="nav"
-                        sx={{
-                          width: '100%',
-                          maxWidth: 350,
-                          minWidth: 300,
-                          borderRadius: `${borderRadius}px`,
-                          '& .MuiListItemButton-root': { mt: 0.5 }
-                        }}
-                      >
-                        <ListItemButton sx={{ borderRadius: `${borderRadius}px` }}>
-                          <ListItemIcon>
-                            <IconSettings stroke={1.5} size="20px" />
-                          </ListItemIcon>
-                          <ListItemText primary={<Typography variant="body2">Account Settings</Typography>} />
-                        </ListItemButton>
 
-                        <ListItemButton sx={{ borderRadius: `${borderRadius}px` }} onClick={handleLogoutClick}>
-                          <ListItemIcon>
-                            <IconLogout stroke={1.5} size="20px" />
-                          </ListItemIcon>
-                          <ListItemText primary={<Typography variant="body2">Logout</Typography>} />
-                        </ListItemButton>
-                      </List>
-                    </Box>
-                  </MainCard>
+                    <Divider />
+
+                    {/* Actions */}
+                    <List component="nav" sx={{ p: 1 }}>
+                      <ListItemButton sx={{ borderRadius: `${borderRadius}px`, py: 1 }} onClick={handleLogoutClick}>
+                        <ListItemIcon sx={{ minWidth: 36 }}>
+                          <IconLogout stroke={1.5} size="18px" color={theme.palette.error.main} />
+                        </ListItemIcon>
+                        <ListItemText
+                          primary={
+                            <Typography variant="body2" color="error">
+                              Logout
+                            </Typography>
+                          }
+                        />
+                      </ListItemButton>
+                    </List>
+                  </>
                 )}
               </Paper>
             </Transitions>

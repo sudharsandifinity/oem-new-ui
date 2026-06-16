@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import {
   Box,
   IconButton,
@@ -16,22 +17,31 @@ import DeleteIcon from '@mui/icons-material/Delete';
 
 const TABLE_COLUMNS = [
   { key: 'seq', label: '#', width: 50, editable: false },
-  { key: 'MRLine', label: 'MR Line', width: 90, editable: false },
   { key: 'ItemCode', label: 'Item Code', width: 130, editable: false },
-  { key: 'ItemDescription', label: 'Description', width: 180, editable: false },
+  { key: 'ItemDescription', label: 'Description', width: 180, editable: true },
   { key: 'FullDescription', label: 'Full Desc', width: 180, editable: false },
   { key: 'Quantity', label: 'Quantity', width: 100, editable: true, type: 'number' },
   { key: 'UoMCode', label: 'UOM', width: 100, editable: false },
-  { key: 'BOMQty', label: 'BOM Qty', width: 100, editable: false },
-  { key: 'BOMOpenQty', label: 'BOM Open Qty', width: 120, editable: false },
-  { key: 'MROpenQty', label: 'MR Open Qty', width: 120, editable: false },
-  { key: 'PROpenQty', label: 'PR Open Qty', width: 120, editable: false },
+  { key: 'POQty', label: 'PO Qty', width: 100, editable: false },
+  { key: 'POOpenQty', label: 'PO Open Qty', width: 120, editable: false },
   { key: 'WarehouseCode', label: 'Warehouse', width: 130, editable: false },
-  { key: 'RequiredDate', label: 'Required Date', width: 150, editable: true, type: 'date' },
+  { key: 'ProjectCode', label: 'Project', width: 130, editable: false },
+  { key: 'IssuedQty', label: 'Issued Qty', width: 100, editable: false },
+  { key: 'InStock', label: 'In Stock', width: 100, editable: false },
   { key: 'Remark', label: 'Remark', width: 160, editable: true }
 ];
 
-export default function PRContentTab({ data, setData, rows, setRows, readOnly = false }) {
+export default function GRPOContentTab({ data, setData, rows, setRows, readOnly = false }) {
+  useEffect(() => {
+    if (!rows.length) return;
+    setRows((prev) =>
+      prev.map((r) => ({
+        ...r,
+        ProjectCode: r.ProjectCode || data?.ProjectCode || ''
+      }))
+    );
+  }, [data?.ProjectCode]);
+
   const updateRow = (id, field, value) => {
     setRows((prev) => prev.map((r) => (r.id === id ? { ...r, [field]: value } : r)));
   };
@@ -41,7 +51,7 @@ export default function PRContentTab({ data, setData, rows, setRows, readOnly = 
   };
 
   const renderCell = (row, col) => {
-    if (col.key === 'seq') return null; // rendered inline in TableCell
+    if (col.key === 'seq') return null;
 
     const disabled = readOnly || !col.editable;
 
@@ -54,21 +64,6 @@ export default function PRContentTab({ data, setData, rows, setRows, readOnly = 
           value={row[col.key] ?? ''}
           disabled={disabled}
           onChange={(e) => updateRow(row.id, col.key, e.target.value)}
-          sx={{ minWidth: col.width - 20 }}
-        />
-      );
-    }
-
-    if (col.type === 'date') {
-      return (
-        <TextField
-          size="small"
-          fullWidth
-          type="date"
-          value={row[col.key] || ''}
-          disabled={disabled}
-          onChange={(e) => updateRow(row.id, col.key, e.target.value)}
-          InputLabelProps={{ shrink: true }}
           sx={{ minWidth: col.width - 20 }}
         />
       );
@@ -138,9 +133,9 @@ export default function PRContentTab({ data, setData, rows, setRows, readOnly = 
       </TableContainer>
 
       <Box sx={{ mt: 3, display: 'flex' }}>
-        <Paper variant="outlined" sx={{ p: 3, borderRadius: 2, width: '40%', minWidth: 280 }}>
+        <Paper variant="outlined" sx={{ p: 3, borderRadius: 2, width: '50%', minWidth: 280 }}>
           <Typography variant="h5" sx={{ mb: 2.5 }}>
-            Additional Information
+            Comments
           </Typography>
           <TextField
             fullWidth

@@ -23,6 +23,7 @@ import {
 import CloseIcon from '@mui/icons-material/Close';
 import { getUsers, getEmployees, getDepartments } from '../../store/slices/commonSlice';
 
+// Column config per type
 const USER_COLS = ['UserCode', 'UserName', 'Email'];
 const EMP_COLS = ['EmployeeID', 'FirstName', 'LastName', 'Email'];
 const USER_LABELS = { UserCode: 'User Code', UserName: 'Username', Email: 'Email' };
@@ -112,7 +113,6 @@ export default function RequestorSelectModal({ open, onClose, onSelect, requesto
       </DialogTitle>
 
       <DialogContent sx={{ p: 3 }}>
-        {/* Filters */}
         <Paper variant="outlined" sx={{ p: 2, mb: 3 }}>
           <Typography sx={{ mb: 2 }}>Filters</Typography>
           <Grid container spacing={2}>
@@ -137,7 +137,6 @@ export default function RequestorSelectModal({ open, onClose, onSelect, requesto
           </Grid>
         </Paper>
 
-        {/* Table */}
         <TableContainer component={Paper} variant="outlined" sx={{ maxHeight: 380 }}>
           <Table stickyHeader size="small">
             <TableHead>

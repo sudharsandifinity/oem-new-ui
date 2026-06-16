@@ -47,7 +47,7 @@ export default function Header() {
           }}
           onClick={() => handlerDrawerOpen(!drawerOpen)}
         >
-          <IconMenu2 stroke={1.5} size="20px" />
+          <IconMenu2 stroke={1.5} size="16px" />
         </Avatar>
       </Box>
 

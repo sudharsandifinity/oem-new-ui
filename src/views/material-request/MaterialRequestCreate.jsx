@@ -116,16 +116,16 @@ export default function MaterialRequestCreate() {
       <MainCard content={false} sx={{ mb: 3 }}>
         <Box
           sx={{
-            px: 3,
-            py: 2.5,
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: { xs: 'flex-start', md: 'center' },
             flexDirection: { xs: 'column', md: 'row' },
+            px: 3,
+            py: 1.5,
             gap: 2
           }}
         >
-          <Typography variant="h3">Material Request</Typography>
+          <Typography variant="h4">Material Request</Typography>
           <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />}>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <HomeIcon sx={{ fontSize: 18, color: 'secondary.main' }} />
@@ -150,6 +150,7 @@ export default function MaterialRequestCreate() {
         </Box>
 
         <Box sx={{ p: 3 }}>
+          {/* Always mounted — CSS show/hide avoids unmount errors on tab switch */}
           <Box sx={{ display: tabValue === 0 ? 'block' : 'none' }}>
             <MRGeneralTab data={form} setData={setForm} />
           </Box>

@@ -42,6 +42,7 @@ const TABLE_COLUMNS = [
   { key: 'Remark', label: 'Remark', width: 160 }
 ];
 
+// Always read-only regardless of mode
 const DISABLED_COLS = new Set([
   'BOMLineNum',
   'FullDescription',
@@ -235,9 +236,8 @@ export default function MRContentTab({ data, setData, rows, setRows, readOnly = 
           </TableBody>
         </Table>
       </TableContainer>
-
       <Box sx={{ mt: 3, display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'stretch' }}>
-        <Box sx={{ flex: '0 0 40%', minWidth: 260 }}>
+        <Box sx={{ flex: '0 0 50%', minWidth: 260 }}>
           <Paper variant="outlined" sx={{ p: 3, borderRadius: 2, height: '100%' }}>
             <Typography variant="h5" sx={{ mb: 2.5 }}>
               Requestor Details

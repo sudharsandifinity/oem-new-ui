@@ -12,14 +12,6 @@ const materialRequest = {
       url: '/material-requests/list',
       icon: IconClipboardList,
       breadcrumbs: false
-    },
-    {
-      id: 'mr-create',
-      title: 'Create Material Request',
-      type: 'item',
-      url: '/material-requests/create',
-      icon: IconClipboardList,
-      breadcrumbs: false
     }
   ]
 };

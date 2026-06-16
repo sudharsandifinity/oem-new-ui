@@ -18,6 +18,11 @@ const PurchaseRequestsList = Loadable(lazy(() => import('views/purchase-request/
 const PurchaseRequestCreate = Loadable(lazy(() => import('views/purchase-request/PurchaseRequestCreate')));
 const PurchaseRequestView = Loadable(lazy(() => import('views/purchase-request/PurchaseRequestView')));
 
+// Goods Receipt PO routing
+const GoodsReceiptPOList = Loadable(lazy(() => import('views/goods-receipt-po/GoodsReceiptPOList')));
+const GoodsReceiptPOCreate = Loadable(lazy(() => import('views/goods-receipt-po/GoodsReceiptPOCreate')));
+const GoodsReceiptPOView = Loadable(lazy(() => import('views/goods-receipt-po/GoodsReceiptPOView')));
+
 // utilities routing
 const UtilsTypography = Loadable(lazy(() => import('views/utilities/Typography')));
 const UtilsColor = Loadable(lazy(() => import('views/utilities/Color')));
@@ -42,14 +47,8 @@ const MainRoutes = {
     },
     {
       path: 'dashboard',
-      children: [
-        {
-          path: 'default',
-          element: <DashboardDefault />
-        }
-      ]
+      element: <DashboardDefault />
     },
-
     {
       path: 'material-requests',
       children: [
@@ -86,6 +85,14 @@ const MainRoutes = {
           path: 'view/:id',
           element: <PurchaseRequestView />
         }
+      ]
+    },
+    {
+      path: 'goods-receipt-po',
+      children: [
+        { path: 'list', element: <GoodsReceiptPOList /> },
+        { path: 'create', element: <GoodsReceiptPOCreate /> },
+        { path: 'view/:id', element: <GoodsReceiptPOView /> }
       ]
     },
     {

@@ -128,11 +128,12 @@ export default function MaterialRequestEdit() {
 
   return (
     <Box>
+      {/* HEADER — always visible */}
       <MainCard content={false} sx={{ mb: 3 }}>
         <Box
           sx={{
             px: 3,
-            py: 2.5,
+            py: 1.5,
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: { xs: 'flex-start', md: 'center' },
@@ -140,7 +141,7 @@ export default function MaterialRequestEdit() {
             gap: 2
           }}
         >
-          <Typography variant="h3">Material Request</Typography>
+          <Typography variant="h4">Material Request</Typography>
           <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />}>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <HomeIcon sx={{ fontSize: 18, color: 'secondary.main' }} />
@@ -178,6 +179,7 @@ export default function MaterialRequestEdit() {
             <ContentSkeleton />
           ) : (
             <>
+              {/* Always mounted — CSS show/hide avoids unmount errors on tab switch */}
               <Box sx={{ display: tabValue === 0 ? 'block' : 'none' }}>
                 <MRGeneralTab data={form} setData={setForm} lockCustomerProject />
               </Box>
@@ -189,6 +191,7 @@ export default function MaterialRequestEdit() {
 
           <Divider sx={{ my: 4 }} />
 
+          {/* Footer — always visible */}
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
             <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap' }}>
               <Button

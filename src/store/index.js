@@ -10,6 +10,8 @@ import currencyReducer from './slices/currencySlice';
 import freightReducer from './slices/freightSlice';
 import materialRequestReducer from './slices/materialRequestSlice';
 import purchaseRequestReducer from './slices/purchaseRequestSlice';
+import goodsReceiptPOReducer from './slices/goodsReceiptPOSlice';
+import purchaseOrderReducer from './slices/purchaseOrderSlice';
 import commonReducer from './slices/commonSlice';
 
 export const store = configureStore({
@@ -25,6 +27,8 @@ export const store = configureStore({
     freight: freightReducer,
     materialRequest: materialRequestReducer,
     purchaseRequest: purchaseRequestReducer,
+    goodsReceiptPO: goodsReceiptPOReducer,
+    purchaseOrder: purchaseOrderReducer,
     common: commonReducer
   }
 });

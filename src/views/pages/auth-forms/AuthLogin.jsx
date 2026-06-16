@@ -63,7 +63,7 @@ export default function AuthLogin() {
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate('/dashboard/default');
+      navigate('/dashboard');
     }
   }, [isAuthenticated]);
 

@@ -28,6 +28,15 @@ export const getDepartments = createAsyncThunk('common/getDepartments', async (_
   }
 });
 
+export const getVendors = createAsyncThunk('common/getVendors', async (_, thunkAPI) => {
+  try {
+    const response = await API.get('/sap/business-partners/vendors', { params: { top: 200 } });
+    return response.data.value ?? response.data;
+  } catch (error) {
+    return thunkAPI.rejectWithValue(error.response?.data?.message || 'Failed to fetch vendors');
+  }
+});
+
 const commonSlice = createSlice({
   name: 'common',
   initialState: {
@@ -38,7 +47,10 @@ const commonSlice = createSlice({
     employeesLoading: false,
 
     departments: [],
-    departmentsLoading: false
+    departmentsLoading: false,
+
+    vendors: [],
+    vendorsLoading: false
   },
   reducers: {},
   extraReducers: (builder) => {
@@ -74,6 +86,17 @@ const commonSlice = createSlice({
       })
       .addCase(getDepartments.rejected, (state) => {
         state.departmentsLoading = false;
+      })
+
+      .addCase(getVendors.pending, (state) => {
+        state.vendorsLoading = true;
+      })
+      .addCase(getVendors.fulfilled, (state, action) => {
+        state.vendorsLoading = false;
+        state.vendors = action.payload;
+      })
+      .addCase(getVendors.rejected, (state) => {
+        state.vendorsLoading = false;
       });
   }
 });

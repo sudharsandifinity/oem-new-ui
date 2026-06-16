@@ -47,7 +47,7 @@ export default function MainLayout() {
   return (
     <Box sx={{ display: 'flex' }}>
       {/* header */}
-      <AppBar enableColorOnDark position="fixed" color="inherit" elevation={0} sx={{ bgcolor: 'background.default' }}>
+      <AppBar enableColorOnDark position="fixed" color="inherit" elevation={0} sx={{ bgcolor: 'background.default', height: '48px' }}>
         <Toolbar sx={{ p: 2 }}>
           <Header />
         </Toolbar>
@@ -62,7 +62,7 @@ export default function MainLayout() {
           {/* breadcrumb */}
           <Breadcrumbs />
           <Outlet />
-          <Footer />
+          {/* <Footer /> */}
         </Box>
       </MainContentStyled>
       {/* <Customization /> */}

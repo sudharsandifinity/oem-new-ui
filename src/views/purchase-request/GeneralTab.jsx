@@ -9,7 +9,9 @@ export default function PRGeneralTab({ data, setData, readOnly = false }) {
 
   return (
     <Box sx={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+      {/* LEFT — Requestor details */}
       <Box sx={{ flex: 1, minWidth: 350, display: 'flex', flexDirection: 'column', gap: 3 }}>
+        {/* Requestor Type + Requestor Code in same row */}
         <Box sx={{ display: 'flex', gap: 2 }}>
           <FormControl fullWidth size="medium" disabled>
             <InputLabel>Requestor Type</InputLabel>

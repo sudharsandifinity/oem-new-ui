@@ -44,6 +44,7 @@ export default function MRGeneralTab({ data, setData, readOnly = false, lockCust
 
   return (
     <Box sx={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+      {/* ===== LEFT — Customer / Project / BOM ===== */}
       <Box sx={{ flex: 1, minWidth: 350, display: 'flex', flexDirection: 'column', gap: 3 }}>
         <TextField
           fullWidth
@@ -86,6 +87,7 @@ export default function MRGeneralTab({ data, setData, readOnly = false, lockCust
         <TextField fullWidth label="BOM No" value={data?.BOMNo || ''} disabled />
       </Box>
 
+      {/* ===== RIGHT — Requisition details ===== */}
       <Box sx={{ flex: 1, minWidth: 350, display: 'flex', flexDirection: 'column', gap: 3 }}>
         <TextField fullWidth label="Requisition Number" value={data?.RequisitionNo || ''} disabled />
 

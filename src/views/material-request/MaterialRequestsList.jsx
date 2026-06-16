@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Box, Breadcrumbs, Button, IconButton, Paper, Stack, TextField, Typography } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
@@ -14,12 +14,14 @@ import MainCard from 'ui-component/cards/MainCard';
 import { useNavigate } from 'react-router-dom';
 import { getMRList } from '../../store/slices/materialRequestSlice';
 
+const emptyFilters = () => ({ DocEntry: '', ProjectCode: '', ProjectName: '' });
+
 export default function MaterialRequestsList() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { list, totalCount, listLoading } = useSelector((s) => s.materialRequest);
 
-  const [filters, setFilters] = useState({ DocEntry: '', ProjectCode: '', RequisitionDate: '' });
+  const [filters, setFilters] = useState(emptyFilters());
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 25 });
 
   useEffect(() => {
@@ -31,7 +33,35 @@ export default function MaterialRequestsList() {
     );
   }, [paginationModel, dispatch]);
 
-  const clearFilters = () => setFilters({ DocEntry: '', ProjectCode: '', RequisitionDate: '' });
+  const filteredRows = useMemo(() => {
+    const { DocEntry, ProjectCode, ProjectName } = filters;
+    return list.filter((r) => {
+      if (
+        DocEntry &&
+        !String(r.DocEntry ?? '')
+          .toLowerCase()
+          .includes(DocEntry.toLowerCase())
+      )
+        return false;
+      if (
+        ProjectCode &&
+        !String(r.U_PrjCode ?? '')
+          .toLowerCase()
+          .includes(ProjectCode.toLowerCase())
+      )
+        return false;
+      if (
+        ProjectName &&
+        !String(r.U_PrjDesc ?? '')
+          .toLowerCase()
+          .includes(ProjectName.toLowerCase())
+      )
+        return false;
+      return true;
+    });
+  }, [list, filters]);
+
+  const clearFilters = () => setFilters(emptyFilters());
 
   const columns = [
     { field: 'DocEntry', headerName: 'Doc Entry', flex: 1, minWidth: 120 },
@@ -70,7 +100,7 @@ export default function MaterialRequestsList() {
         <Box
           sx={{
             px: 3,
-            py: 2.5,
+            py: 1.5,
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: { xs: 'flex-start', md: 'center' },
@@ -78,7 +108,7 @@ export default function MaterialRequestsList() {
             gap: 2
           }}
         >
-          <Typography variant="h3">Material Request</Typography>
+          <Typography variant="h4">Material Request</Typography>
           <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />}>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <HomeIcon sx={{ fontSize: 18, color: 'secondary.main' }} />
@@ -117,11 +147,9 @@ export default function MaterialRequestsList() {
             />
             <TextField
               size="small"
-              type="date"
-              label="Requisition Date"
-              value={filters.RequisitionDate}
-              InputLabelProps={{ shrink: true }}
-              onChange={(e) => setFilters((p) => ({ ...p, RequisitionDate: e.target.value }))}
+              label="Project Name"
+              value={filters.ProjectName}
+              onChange={(e) => setFilters((p) => ({ ...p, ProjectName: e.target.value }))}
             />
             <Button variant="outlined" color="error" startIcon={<ClearIcon />} onClick={clearFilters}>
               Clear
@@ -139,10 +167,9 @@ export default function MaterialRequestsList() {
         </Box>
       </Paper>
 
-      {/* DataGrid */}
       <Paper variant="outlined" sx={{ flex: 1, minHeight: 0, width: '100%', borderRadius: 2, overflow: 'hidden' }}>
         <DataGrid
-          rows={list}
+          rows={filteredRows}
           columns={columns}
           getRowId={(row) => row.DocEntry}
           loading={listLoading}

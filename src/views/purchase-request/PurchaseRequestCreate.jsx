@@ -60,11 +60,12 @@ export default function PurchaseRequestCreate() {
 
   return (
     <Box>
+      {/* HEADER */}
       <MainCard content={false} sx={{ mb: 3 }}>
         <Box
           sx={{
             px: 3,
-            py: 2.5,
+            py: 1.5,
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: { xs: 'flex-start', md: 'center' },
@@ -72,7 +73,7 @@ export default function PurchaseRequestCreate() {
             gap: 2
           }}
         >
-          <Typography variant="h3">Purchase Request</Typography>
+          <Typography variant="h4">Purchase Request</Typography>
           <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />}>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <HomeIcon sx={{ fontSize: 18, color: 'secondary.main' }} />
@@ -87,6 +88,7 @@ export default function PurchaseRequestCreate() {
         </Box>
       </MainCard>
 
+      {/* CONTENT */}
       <MainCard content={false}>
         <Box sx={{ borderBottom: 1, borderColor: 'divider', px: 3, pt: 1 }}>
           <Tabs value={tabValue} onChange={(_, v) => setTabValue(v)}>

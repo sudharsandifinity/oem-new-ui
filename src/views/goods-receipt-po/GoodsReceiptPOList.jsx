@@ -4,27 +4,28 @@ import { Box, Breadcrumbs, Button, IconButton, Paper, Stack, TextField, Typograp
 import { DataGrid } from '@mui/x-data-grid';
 
 import HomeIcon from '@mui/icons-material/Home';
+import AddIcon from '@mui/icons-material/Add';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import ClearIcon from '@mui/icons-material/Clear';
 
 import MainCard from 'ui-component/cards/MainCard';
 import { useNavigate } from 'react-router-dom';
-import { getPRList } from '../../store/slices/purchaseRequestSlice';
+import { getGRPOList } from '../../store/slices/goodsReceiptPOSlice';
 
-const emptyFilters = () => ({ DocEntry: '', MRNo: '', ProjectCode: '', ProjectName: '' });
+const emptyFilters = () => ({ DocEntry: '', CardCode: '', CardName: '', U_PrjCode: '', U_PrjDesc: '' });
 
-export default function PurchaseRequestsList() {
+export default function GoodsReceiptPOList() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { list, totalCount, listLoading } = useSelector((s) => s.purchaseRequest);
+  const { list, totalCount, listLoading } = useSelector((s) => s.goodsReceiptPO);
 
   const [filters, setFilters] = useState(emptyFilters());
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 25 });
 
   useEffect(() => {
     dispatch(
-      getPRList({
+      getGRPOList({
         top: paginationModel.pageSize,
         skip: paginationModel.page * paginationModel.pageSize
       })
@@ -32,7 +33,7 @@ export default function PurchaseRequestsList() {
   }, [paginationModel, dispatch]);
 
   const filteredRows = useMemo(() => {
-    const { DocEntry, MRNo, ProjectCode, ProjectName } = filters;
+    const { DocEntry, CardCode, CardName, U_PrjCode, U_PrjDesc } = filters;
     return list.filter((r) => {
       if (
         DocEntry &&
@@ -42,24 +43,31 @@ export default function PurchaseRequestsList() {
       )
         return false;
       if (
-        MRNo &&
-        !String(r.U_MRNo ?? '')
+        CardCode &&
+        !String(r.CardCode ?? '')
           .toLowerCase()
-          .includes(MRNo.toLowerCase())
+          .includes(CardCode.toLowerCase())
       )
         return false;
       if (
-        ProjectCode &&
+        CardName &&
+        !String(r.CardName ?? '')
+          .toLowerCase()
+          .includes(CardName.toLowerCase())
+      )
+        return false;
+      if (
+        U_PrjCode &&
         !String(r.U_PrjCode ?? '')
           .toLowerCase()
-          .includes(ProjectCode.toLowerCase())
+          .includes(U_PrjCode.toLowerCase())
       )
         return false;
       if (
-        ProjectName &&
+        U_PrjDesc &&
         !String(r.U_PrjDesc ?? '')
           .toLowerCase()
-          .includes(ProjectName.toLowerCase())
+          .includes(U_PrjDesc.toLowerCase())
       )
         return false;
       return true;
@@ -70,9 +78,10 @@ export default function PurchaseRequestsList() {
 
   const columns = [
     { field: 'DocEntry', headerName: 'Doc Entry', flex: 1, minWidth: 120 },
-    { field: 'U_MRNo', headerName: 'MR No', flex: 1, minWidth: 120 },
-    { field: 'U_PrjCode', headerName: 'Project Code', flex: 1, minWidth: 150 },
-    { field: 'U_PrjDesc', headerName: 'Project Name', flex: 1.5, minWidth: 200 },
+    { field: 'CardCode', headerName: 'Vendor Code', flex: 1, minWidth: 130 },
+    { field: 'CardName', headerName: 'Vendor Name', flex: 1.5, minWidth: 200 },
+    { field: 'U_PrjCode', headerName: 'Project Code', flex: 1, minWidth: 130 },
+    { field: 'U_PrjDesc', headerName: 'Project Name', flex: 1.5, minWidth: 180 },
     {
       field: 'DocDate',
       headerName: 'Posting Date',
@@ -88,7 +97,7 @@ export default function PurchaseRequestsList() {
       minWidth: 80,
       renderCell: (params) => (
         <Stack direction="row" height="100%" spacing={1}>
-          <IconButton size="small" color="primary" onClick={() => navigate(`/purchase-requests/view/${params.row.DocEntry}`)}>
+          <IconButton size="small" color="primary" onClick={() => navigate(`/goods-receipt-po/view/${params.row.DocEntry}`)}>
             <VisibilityIcon fontSize="small" />
           </IconButton>
         </Stack>
@@ -98,7 +107,6 @@ export default function PurchaseRequestsList() {
 
   return (
     <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', height: 'calc(100vh - 176px)' }}>
-      {/* Header */}
       <MainCard content={false} sx={{ mb: 3, flexShrink: 0 }}>
         <Box
           sx={{
@@ -111,12 +119,12 @@ export default function PurchaseRequestsList() {
             gap: 2
           }}
         >
-          <Typography variant="h4">Purchase Request</Typography>
+          <Typography variant="h4">Goods Receipt PO</Typography>
           <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />}>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <HomeIcon sx={{ fontSize: 18, color: 'secondary.main' }} />
             </Box>
-            <Typography variant="body2">Purchase Request</Typography>
+            <Typography variant="body2">Goods Receipt PO</Typography>
             <Typography variant="body2" color="secondary" fontWeight={600}>
               List
             </Typography>
@@ -124,35 +132,59 @@ export default function PurchaseRequestsList() {
         </Box>
       </MainCard>
 
-      {/* Filters */}
       <Paper variant="outlined" sx={{ p: 2, mb: 3, borderRadius: 2, flexShrink: 0 }}>
-        <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'center' }}>
-          <TextField
-            size="small"
-            label="Doc Entry"
-            value={filters.DocEntry}
-            onChange={(e) => setFilters((p) => ({ ...p, DocEntry: e.target.value }))}
-          />
-          <TextField
-            size="small"
-            label="MR No"
-            value={filters.MRNo}
-            onChange={(e) => setFilters((p) => ({ ...p, MRNo: e.target.value }))}
-          />
-          <TextField
-            size="small"
-            label="Project Code"
-            value={filters.ProjectCode}
-            onChange={(e) => setFilters((p) => ({ ...p, ProjectCode: e.target.value }))}
-          />
-          <TextField
-            size="small"
-            label="Project Name"
-            value={filters.ProjectName}
-            onChange={(e) => setFilters((p) => ({ ...p, ProjectName: e.target.value }))}
-          />
-          <Button variant="outlined" color="error" startIcon={<ClearIcon />} onClick={clearFilters}>
-            Clear
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: { xs: 'flex-start', md: 'center' },
+            flexDirection: { xs: 'column', md: 'row' },
+            gap: 2
+          }}
+        >
+          <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', flex: 1 }}>
+            <TextField
+              size="small"
+              label="Doc Entry"
+              value={filters.DocEntry}
+              onChange={(e) => setFilters((p) => ({ ...p, DocEntry: e.target.value }))}
+            />
+            <TextField
+              size="small"
+              label="Vendor Code"
+              value={filters.CardCode}
+              onChange={(e) => setFilters((p) => ({ ...p, CardCode: e.target.value }))}
+            />
+            <TextField
+              size="small"
+              label="Vendor Name"
+              value={filters.CardName}
+              onChange={(e) => setFilters((p) => ({ ...p, CardName: e.target.value }))}
+            />
+            <TextField
+              size="small"
+              label="Project Code"
+              value={filters.U_PrjCode}
+              onChange={(e) => setFilters((p) => ({ ...p, U_PrjCode: e.target.value }))}
+            />
+            <TextField
+              size="small"
+              label="Project Name"
+              value={filters.U_PrjDesc}
+              onChange={(e) => setFilters((p) => ({ ...p, U_PrjDesc: e.target.value }))}
+            />
+            <Button variant="outlined" color="error" startIcon={<ClearIcon />} onClick={clearFilters}>
+              Clear
+            </Button>
+          </Box>
+          <Button
+            variant="contained"
+            color="secondary"
+            startIcon={<AddIcon />}
+            onClick={() => navigate('/goods-receipt-po/create')}
+            sx={{ minWidth: 140, whiteSpace: 'nowrap' }}
+          >
+            Create
           </Button>
         </Box>
       </Paper>

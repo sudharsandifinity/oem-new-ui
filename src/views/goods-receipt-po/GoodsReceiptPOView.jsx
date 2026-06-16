@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getPRById, resetPRState } from '../../store/slices/purchaseRequestSlice';
-import { mapApiToForm, mapApiLineToRow } from './prHelpers';
+import { getGRPOById, resetGRPOState } from '../../store/slices/goodsReceiptPOSlice';
+import { mapApiToForm, mapApiLineToRow } from './grpoHelpers';
 
 import { Box, Breadcrumbs, Button, Divider, Skeleton, Tab, Tabs, Typography } from '@mui/material';
 
@@ -10,8 +10,8 @@ import HomeIcon from '@mui/icons-material/Home';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 
 import MainCard from 'ui-component/cards/MainCard';
-import PRGeneralTab from './GeneralTab';
-import PRContentTab from './ContentTab';
+import GRPOGeneralTab from './GeneralTab';
+import GRPOContentTab from './ContentTab';
 
 const noop = () => {};
 
@@ -20,46 +20,46 @@ function ContentSkeleton() {
     <Box>
       <Box sx={{ display: 'flex', gap: 4 }}>
         <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
-          {[1, 2, 3, 4].map((i) => (
+          {[1, 2, 3].map((i) => (
             <Skeleton key={i} variant="rounded" height={40} />
           ))}
         </Box>
         <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
-          {[1, 2].map((i) => (
+          {[1, 2, 3].map((i) => (
             <Skeleton key={i} variant="rounded" height={40} />
           ))}
         </Box>
       </Box>
-      <Skeleton variant="rounded" height={180} sx={{ mt: 4 }} />
+      <Skeleton variant="rounded" height={200} sx={{ mt: 4 }} />
     </Box>
   );
 }
 
-export default function PurchaseRequestView() {
+export default function GoodsReceiptPOView() {
   const { id } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const { currentPR, currentPRLoading, currentPRError } = useSelector((s) => s.purchaseRequest);
+  const { currentGRPO, currentGRPOLoading, currentGRPOError } = useSelector((s) => s.goodsReceiptPO);
 
   const [tabValue, setTabValue] = useState(0);
   const [form, setForm] = useState(null);
   const [lines, setLines] = useState([]);
 
   useEffect(() => {
-    if (id) dispatch(getPRById(id));
+    if (id) dispatch(getGRPOById(id));
     return () => {
-      dispatch(resetPRState());
+      dispatch(resetGRPOState());
     };
   }, [dispatch, id]);
 
   useEffect(() => {
-    if (!currentPR) return;
-    setForm(mapApiToForm(currentPR));
-    setLines((currentPR.DocumentLines || []).map(mapApiLineToRow));
-  }, [currentPR]);
+    if (!currentGRPO) return;
+    setForm(mapApiToForm(currentGRPO));
+    setLines((currentGRPO.DocumentLines || []).map(mapApiLineToRow));
+  }, [currentGRPO]);
 
-  const loading = currentPRLoading || !form;
+  const loading = currentGRPOLoading || !form;
 
   return (
     <Box>
@@ -75,13 +75,13 @@ export default function PurchaseRequestView() {
             gap: 2
           }}
         >
-          <Typography variant="h4">Purchase Request</Typography>
+          <Typography variant="h4">Goods Receipt PO</Typography>
           <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />}>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <HomeIcon sx={{ fontSize: 18, color: 'secondary.main' }} />
             </Box>
             <Typography variant="body2" color="text.primary">
-              Purchase Request
+              Goods Receipt PO
             </Typography>
             <Typography variant="body2" color="secondary" fontWeight={600}>
               View
@@ -99,13 +99,13 @@ export default function PurchaseRequestView() {
         </Box>
 
         <Box sx={{ p: 3 }}>
-          {currentPRError ? (
+          {currentGRPOError ? (
             <Box sx={{ py: 6, textAlign: 'center' }}>
               <Typography color="error" variant="h5">
-                Failed to load Purchase Request
+                Failed to load Goods Receipt PO
               </Typography>
               <Typography color="text.secondary" sx={{ mt: 1 }}>
-                {currentPRError}
+                {currentGRPOError}
               </Typography>
             </Box>
           ) : loading ? (
@@ -113,10 +113,10 @@ export default function PurchaseRequestView() {
           ) : (
             <>
               <Box sx={{ display: tabValue === 0 ? 'block' : 'none' }}>
-                <PRGeneralTab data={form} setData={noop} readOnly />
+                <GRPOGeneralTab data={form} setData={noop} readOnly />
               </Box>
               <Box sx={{ display: tabValue === 1 ? 'block' : 'none' }}>
-                <PRContentTab data={form} setData={noop} rows={lines} setRows={noop} readOnly />
+                <GRPOContentTab data={form} setData={noop} rows={lines} setRows={noop} readOnly />
               </Box>
             </>
           )}

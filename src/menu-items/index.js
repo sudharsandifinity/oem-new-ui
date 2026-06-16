@@ -1,13 +1,10 @@
 import dashboard from './dashboard';
-import sales from './sales';
-import purchase from './purchase';
-import materialRequest from './materialRequest';
-import purchaseRequest from './purchaseRequest';
+import contractingManagement from './contractingManagement';
 
 // ==============================|| MENU ITEMS ||============================== //
 
 const menuItems = {
-  items: [dashboard, sales, purchase, materialRequest, purchaseRequest]
+  items: [dashboard, contractingManagement]
 };
 
 export default menuItems;
