@@ -12,7 +12,7 @@ export const mapApiToForm = (mr) => ({
   RequestorType: mr.U_ReqType === 'E' ? 'Employee' : 'User',
   ReqCode: mr.U_ReqCode ?? '',
   RequestorName: mr.U_ReqName ?? '',
-  Department: '',
+  Department: mr.U_Dept != null ? String(mr.U_Dept) : '',
   DeptId: mr.U_Dept != null ? String(mr.U_Dept) : '',
   Remark: mr.U_Remark ?? ''
 });
@@ -36,7 +36,7 @@ export const mapApiLineToRow = (line, index) => ({
   Remark: line.U_HLB_Rmarks ?? ''
 });
 
-export const buildPayload = (form, lines) => ({
+export const buildPayload = (form, lines, user) => ({
   U_DocDate: form.RequisitionDate ? `${form.RequisitionDate}T00:00:00Z` : null,
   U_ReqDate: form.RequiredDate ? `${form.RequiredDate}T00:00:00Z` : null,
   U_ReqTime: form.RequisitionTime ? `${form.RequisitionTime}:00` : null,
@@ -50,6 +50,8 @@ export const buildPayload = (form, lines) => ({
   U_ReqName: form.RequestorName,
   U_Dept: form.DeptId ? Number(form.DeptId) : null,
   U_SQDocNum: form.BOMNo ? String(form.BOMNo) : null,
+  U_OEM_UID: user?.id ?? null,
+  U_OEM_UEMAIL: user?.email ?? null,
   HLB_MRQ1Collection: lines.map((r) => ({
     ...(r.LineId != null ? { LineId: r.LineId } : {}),
     U_ItmSerCode: r.ItemCode,

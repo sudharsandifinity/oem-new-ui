@@ -58,11 +58,17 @@ export default function MainLayout() {
 
       {/* main content */}
       <MainContentStyled {...{ borderRadius, open: drawerOpen }}>
-        <Box sx={{ ...{ px: { xs: 0 } }, minHeight: 'calc(100vh - 128px)', display: 'flex', flexDirection: 'column' }}>
-          {/* breadcrumb */}
-          <Breadcrumbs />
+        <Box
+          sx={{
+            px: { xs: 0 },
+            height: 'calc(100vh - 88px)',
+            display: 'flex',
+            flexDirection: 'column',
+            overflowY: 'auto',
+            overflowX: 'hidden'
+          }}
+        >
           <Outlet />
-          {/* <Footer /> */}
         </Box>
       </MainContentStyled>
       {/* <Customization /> */}

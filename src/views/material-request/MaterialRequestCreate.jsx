@@ -60,6 +60,7 @@ export default function MaterialRequestCreate() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { createLoading, saveSuccess, error } = useSelector((s) => s.materialRequest);
+  const { user } = useSelector((s) => s.auth);
 
   const [tabValue, setTabValue] = useState(0);
   const [form, setForm] = useState(initialForm());
@@ -106,13 +107,12 @@ export default function MaterialRequestCreate() {
   };
 
   const handleSubmit = () => {
-    const payload = buildPayload(form, lines);
+    const payload = buildPayload(form, lines, user);
     dispatch(createMR(payload));
   };
 
   return (
     <Box>
-      {/* HEADER */}
       <MainCard content={false} sx={{ mb: 3 }}>
         <Box
           sx={{
@@ -140,7 +140,6 @@ export default function MaterialRequestCreate() {
         </Box>
       </MainCard>
 
-      {/* CONTENT */}
       <MainCard content={false}>
         <Box sx={{ borderBottom: 1, borderColor: 'divider', px: 3, pt: 1 }}>
           <Tabs value={tabValue} onChange={(_, v) => setTabValue(v)}>
@@ -150,7 +149,6 @@ export default function MaterialRequestCreate() {
         </Box>
 
         <Box sx={{ p: 3 }}>
-          {/* Always mounted — CSS show/hide avoids unmount errors on tab switch */}
           <Box sx={{ display: tabValue === 0 ? 'block' : 'none' }}>
             <MRGeneralTab data={form} setData={setForm} />
           </Box>
@@ -160,7 +158,6 @@ export default function MaterialRequestCreate() {
 
           <Divider sx={{ my: 4 }} />
 
-          {/* Footer */}
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
             <Button
               variant="outlined"

@@ -12,8 +12,9 @@ import ClearIcon from '@mui/icons-material/Clear';
 import MainCard from 'ui-component/cards/MainCard';
 import { useNavigate } from 'react-router-dom';
 import { getGRPOList } from '../../store/slices/goodsReceiptPOSlice';
+import { formatDateDDMMYYYY, renderNoWrapCell } from 'utils/dataGridFormatters';
 
-const emptyFilters = () => ({ DocEntry: '', CardCode: '', CardName: '', U_PrjCode: '', U_PrjDesc: '' });
+const emptyFilters = () => ({ CardCode: '', CardName: '', U_PrjCode: '', U_PrjDesc: '' });
 
 export default function GoodsReceiptPOList() {
   const navigate = useNavigate();
@@ -33,15 +34,8 @@ export default function GoodsReceiptPOList() {
   }, [paginationModel, dispatch]);
 
   const filteredRows = useMemo(() => {
-    const { DocEntry, CardCode, CardName, U_PrjCode, U_PrjDesc } = filters;
+    const { CardCode, CardName, U_PrjCode, U_PrjDesc } = filters;
     return list.filter((r) => {
-      if (
-        DocEntry &&
-        !String(r.DocEntry ?? '')
-          .toLowerCase()
-          .includes(DocEntry.toLowerCase())
-      )
-        return false;
       if (
         CardCode &&
         !String(r.CardCode ?? '')
@@ -77,18 +71,21 @@ export default function GoodsReceiptPOList() {
   const clearFilters = () => setFilters(emptyFilters());
 
   const columns = [
-    { field: 'DocEntry', headerName: 'Doc Entry', flex: 1, minWidth: 120 },
+    {
+      field: 'sno',
+      headerName: '#',
+      width: 60,
+      sortable: false,
+      filterable: false,
+      renderCell: (params) => filteredRows.findIndex((r) => r.DocEntry === params.id) + 1
+    },
     { field: 'CardCode', headerName: 'Vendor Code', flex: 1, minWidth: 130 },
     { field: 'CardName', headerName: 'Vendor Name', flex: 1.5, minWidth: 200 },
     { field: 'U_PrjCode', headerName: 'Project Code', flex: 1, minWidth: 130 },
     { field: 'U_PrjDesc', headerName: 'Project Name', flex: 1.5, minWidth: 180 },
-    {
-      field: 'DocDate',
-      headerName: 'Posting Date',
-      flex: 1,
-      minWidth: 140,
-      valueFormatter: (value) => (value ? value.substring(0, 10) : '')
-    },
+    { field: 'U_PONo', headerName: 'PO No', flex: 1, minWidth: 120 },
+    { field: 'DocDate', headerName: 'Posting Date', flex: 1, minWidth: 140, valueFormatter: formatDateDDMMYYYY },
+    { field: 'Comments', headerName: 'Comments', flex: 1.5, minWidth: 180, renderCell: renderNoWrapCell },
     {
       field: 'action',
       headerName: 'Action',
@@ -106,7 +103,7 @@ export default function GoodsReceiptPOList() {
   ];
 
   return (
-    <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', height: 'calc(100vh - 176px)' }}>
+    <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', height: '100%' }}>
       <MainCard content={false} sx={{ mb: 3, flexShrink: 0 }}>
         <Box
           sx={{
@@ -143,12 +140,6 @@ export default function GoodsReceiptPOList() {
           }}
         >
           <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', flex: 1 }}>
-            <TextField
-              size="small"
-              label="Doc Entry"
-              value={filters.DocEntry}
-              onChange={(e) => setFilters((p) => ({ ...p, DocEntry: e.target.value }))}
-            />
             <TextField
               size="small"
               label="Vendor Code"

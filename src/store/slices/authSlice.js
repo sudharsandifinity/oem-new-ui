@@ -41,6 +41,15 @@ const authSlice = createSlice({
 
       localStorage.removeItem('token');
       localStorage.removeItem('user');
+    },
+    sessionExpired: (state) => {
+      state.user = null;
+      state.token = null;
+      state.isAuthenticated = false;
+      state.error = 'Your session has expired. Please log in again.';
+
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
     }
   },
 
@@ -66,6 +75,6 @@ const authSlice = createSlice({
   }
 });
 
-export const { logout } = authSlice.actions;
+export const { logout, sessionExpired } = authSlice.actions;
 
 export default authSlice.reducer;

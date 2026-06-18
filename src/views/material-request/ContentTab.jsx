@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import {
   Box,
   FormControl,
@@ -22,23 +23,25 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import SearchIcon from '@mui/icons-material/Search';
 import PersonSearchIcon from '@mui/icons-material/PersonSearch';
 import { useLookup } from '../../context/LookupContext';
+import { getItems } from '../../store/slices/itemSlice';
 import RequestorSelectModal from './RequestorSelectModal';
+import UoMSelectModal from './UoMSelectModal';
 
 const TABLE_COLUMNS = [
   { key: 'seq', label: '#', width: 50 },
   { key: 'BOMLineNum', label: 'BOM Line', width: 90 },
-  { key: 'ItemCode', label: 'Item Code', width: 130 },
+  { key: 'ItemCode', label: 'Item Code', width: 170 },
   { key: 'ItemDescription', label: 'Description', width: 180 },
-  { key: 'FullDescription', label: 'Full Desc', width: 180 },
-  { key: 'Quantity', label: 'Quantity', width: 100 },
-  { key: 'UoMCode', label: 'UOM', width: 100 },
+  { key: 'FullDescription', label: 'Full Description', width: 180 },
+  { key: 'Quantity', label: 'Quantity', width: 135 },
+  { key: 'UoMCode', label: 'UOM', width: 120 },
   { key: 'BOMQty', label: 'BOM Qty', width: 100 },
   { key: 'BOMOpenQty', label: 'BOM Open Qty', width: 120 },
   { key: 'MROpenQty', label: 'MR Open Qty', width: 120 },
   { key: 'WarehouseCode', label: 'Warehouse', width: 130 },
   { key: 'ProjectCode', label: 'Project', width: 130 },
   { key: 'IssuedQty', label: 'Issued Qty', width: 100 },
-  { key: 'InStock', label: 'In Stock', width: 100 },
+  // { key: 'InStock',      label: 'In Stock',     width: 100 },
   { key: 'Remark', label: 'Remark', width: 160 }
 ];
 
@@ -55,8 +58,12 @@ const DISABLED_COLS = new Set([
 ]);
 
 export default function MRContentTab({ data, setData, rows, setRows, readOnly = false }) {
+  const dispatch = useDispatch();
   const { openLookup } = useLookup();
+  const { items, loading: itemsLoading } = useSelector((s) => s.item);
   const [requestorModalOpen, setRequestorModalOpen] = useState(false);
+  const [uomModalOpen, setUomModalOpen] = useState(false);
+  const [activeUomRowId, setActiveUomRowId] = useState(null);
 
   const updateRow = (id, field, value) => {
     setRows((prev) => prev.map((r) => (r.id === id ? { ...r, [field]: value } : r)));
@@ -75,6 +82,20 @@ export default function MRContentTab({ data, setData, rows, setRows, readOnly = 
       }
     });
   };
+
+  const handleOpenUomLookup = (rowId) => {
+    if (!items.length) dispatch(getItems());
+    setActiveUomRowId(rowId);
+    setUomModalOpen(true);
+  };
+
+  const handleUomSelect = (uom) => {
+    updateRow(activeUomRowId, 'UoMCode', uom.Code || '');
+    setUomModalOpen(false);
+  };
+
+  const activeUomRow = rows.find((r) => r.id === activeUomRowId);
+  const activeUomItem = items.find((i) => i.ItemCode === activeUomRow?.ItemCode);
 
   const handleOpenWarehouseLookup = (rowId) => {
     openLookup({
@@ -150,6 +171,28 @@ export default function MRContentTab({ data, setData, rows, setRows, readOnly = 
       );
     }
 
+    if (col.key === 'UoMCode') {
+      return (
+        <TextField
+          size="small"
+          fullWidth
+          value={row.UoMCode || ''}
+          disabled={readOnly}
+          sx={{ minWidth: 110 }}
+          InputProps={{
+            readOnly: true,
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton size="small" disabled={readOnly} onClick={() => handleOpenUomLookup(row.id)}>
+                  <SearchIcon sx={{ fontSize: 16, color: readOnly ? 'text.disabled' : '#2196f3' }} />
+                </IconButton>
+              </InputAdornment>
+            )
+          }}
+        />
+      );
+    }
+
     if (col.key === 'ProjectCode') {
       return (
         <TextField
@@ -195,8 +238,7 @@ export default function MRContentTab({ data, setData, rows, setRows, readOnly = 
 
   return (
     <Box>
-      {/* Lines table */}
-      <TableContainer component={Paper} variant="outlined" sx={{ maxHeight: 360, borderRadius: 2 }}>
+      <TableContainer component={Paper} variant="outlined" sx={{ maxHeight: 480, borderRadius: 2 }}>
         <Table stickyHeader size="small">
           <TableHead>
             <TableRow>
@@ -294,14 +336,14 @@ export default function MRContentTab({ data, setData, rows, setRows, readOnly = 
         <Box sx={{ flex: 1, minWidth: 200 }}>
           <Paper variant="outlined" sx={{ p: 3, borderRadius: 2, height: '100%' }}>
             <Typography variant="h5" sx={{ mb: 2.5 }}>
-              Remark
+              Additional Information
             </Typography>
             <TextField
               fullWidth
               multiline
               rows={4}
               size="small"
-              label="Remark"
+              label="Additional Information"
               value={data?.Remark || ''}
               disabled={readOnly}
               onChange={(e) => setData((prev) => ({ ...prev, Remark: e.target.value }))}
@@ -315,6 +357,15 @@ export default function MRContentTab({ data, setData, rows, setRows, readOnly = 
         onClose={() => setRequestorModalOpen(false)}
         onSelect={handleRequestorSelect}
         requestorType={data?.RequestorType || 'User'}
+      />
+
+      <UoMSelectModal
+        open={uomModalOpen}
+        onClose={() => setUomModalOpen(false)}
+        onSelect={handleUomSelect}
+        uomList={activeUomItem?.OEM?.UOM || []}
+        loading={itemsLoading}
+        itemSelected={!!activeUomRow?.ItemCode}
       />
     </Box>
   );

@@ -31,7 +31,7 @@ const COLUMNS = [
 export default function PurchaseRequestModal({ open, onClose, onContinue, lines = [] }) {
   const [selected, setSelected] = useState(new Set());
 
-  const items = useMemo(() => lines.filter((l) => l.ItemCode && parseFloat(l.InStock ?? 0) < parseFloat(l.Quantity ?? 0)), [lines]);
+  const items = useMemo(() => lines.filter((l) => l.ItemCode), [lines]);
 
   const allSelected = items.length > 0 && items.every((l) => selected.has(l.id));
   const someSelected = items.some((l) => selected.has(l.id));

@@ -11,7 +11,8 @@ export const mapApiToForm = (pr) => ({
   ReqType: pr.ReqType ?? null,
   RequestorTypeLabel: pr.ReqType === 'E' ? 'Employee' : pr.ReqType === 'U' ? 'User' : '',
   RequestorName: pr.RequesterName ?? '',
-  Department: pr.U_Dept != null ? String(pr.U_Dept) : '',
+  Department: pr.RequesterDepartment != null ? String(pr.RequesterDepartment) : '',
+  DeptId: pr.RequesterDepartment != null ? String(pr.RequesterDepartment) : '',
   Comments: pr.Comments ?? ''
 });
 
@@ -51,20 +52,20 @@ export const mrLineToPRRow = (mrLine) => ({
   Remark: mrLine.Remark ?? ''
 });
 
-export const buildPRPayload = (form, lines) => ({
+export const buildPRPayload = (form, lines, user) => ({
   DocDate: form.DocDate ? `${form.DocDate}T00:00:00Z` : null,
   RequriedDate: form.RequiredDate ? `${form.RequiredDate}T00:00:00Z` : null,
   Comments: form.Comments ?? '',
   ReqType: form.RequestorTypeLabel === 'User' ? 12 : form.RequestorTypeLabel === 'Employee' ? 171 : null,
   ReqCode: form.ReqCode ?? '',
   RequesterName: form.RequestorName ?? '',
-  RequesterDepartment: form.Department ? Number(form.Department) : null,
+  RequesterDepartment: form.DeptId ? Number(form.DeptId) : null,
   SendNotification: 'tNO',
   U_MRNo: form.MRNo ? Number(form.MRNo) : null,
-  U_OEM_UID: null,
+  U_OEM_UID: user?.id ?? null,
   U_PrjCode: form.ProjectCode ?? '',
   U_PrjDesc: form.ProjectName ?? '',
-  U_OEM_UEMAIL: null,
+  U_OEM_UEMAIL: user?.email ?? null,
   DocumentLines: lines.map((line) => ({
     ItemCode: line.ItemCode,
     ItemDescription: line.ItemDescription,

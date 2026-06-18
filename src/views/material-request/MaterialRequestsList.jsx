@@ -13,8 +13,9 @@ import ClearIcon from '@mui/icons-material/Clear';
 import MainCard from 'ui-component/cards/MainCard';
 import { useNavigate } from 'react-router-dom';
 import { getMRList } from '../../store/slices/materialRequestSlice';
+import { formatDateDDMMYYYY, renderNoWrapCell } from 'utils/dataGridFormatters';
 
-const emptyFilters = () => ({ DocEntry: '', ProjectCode: '', ProjectName: '' });
+const emptyFilters = () => ({ ProjectCode: '', ProjectName: '' });
 
 export default function MaterialRequestsList() {
   const navigate = useNavigate();
@@ -34,15 +35,8 @@ export default function MaterialRequestsList() {
   }, [paginationModel, dispatch]);
 
   const filteredRows = useMemo(() => {
-    const { DocEntry, ProjectCode, ProjectName } = filters;
+    const { ProjectCode, ProjectName } = filters;
     return list.filter((r) => {
-      if (
-        DocEntry &&
-        !String(r.DocEntry ?? '')
-          .toLowerCase()
-          .includes(DocEntry.toLowerCase())
-      )
-        return false;
       if (
         ProjectCode &&
         !String(r.U_PrjCode ?? '')
@@ -64,16 +58,19 @@ export default function MaterialRequestsList() {
   const clearFilters = () => setFilters(emptyFilters());
 
   const columns = [
-    { field: 'DocEntry', headerName: 'Doc Entry', flex: 1, minWidth: 120 },
+    {
+      field: 'sno',
+      headerName: '#',
+      width: 60,
+      sortable: false,
+      filterable: false,
+      renderCell: (params) => filteredRows.findIndex((r) => r.DocEntry === params.id) + 1
+    },
     { field: 'U_PrjCode', headerName: 'Project Code', flex: 1, minWidth: 150 },
     { field: 'U_PrjDesc', headerName: 'Project Name', flex: 1.5, minWidth: 200 },
-    {
-      field: 'U_DocDate',
-      headerName: 'Requisition Date',
-      flex: 1,
-      minWidth: 150,
-      valueFormatter: (value) => (value ? value.substring(0, 10) : '')
-    },
+    { field: 'U_SQDocNum', headerName: 'BOM No', flex: 1, minWidth: 120 },
+    { field: 'U_DocDate', headerName: 'Requisition Date', flex: 1, minWidth: 150, valueFormatter: formatDateDDMMYYYY },
+    { field: 'U_Remark', headerName: 'Remark', flex: 1.5, minWidth: 180, renderCell: renderNoWrapCell },
     {
       field: 'action',
       headerName: 'Action',
@@ -94,7 +91,7 @@ export default function MaterialRequestsList() {
   ];
 
   return (
-    <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', height: 'calc(100vh - 176px)' }}>
+    <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', height: '100%' }}>
       {/* Header */}
       <MainCard content={false} sx={{ mb: 3, flexShrink: 0 }}>
         <Box
@@ -133,12 +130,6 @@ export default function MaterialRequestsList() {
           }}
         >
           <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', flex: 1 }}>
-            <TextField
-              size="small"
-              label="Doc Entry"
-              value={filters.DocEntry}
-              onChange={(e) => setFilters((p) => ({ ...p, DocEntry: e.target.value }))}
-            />
             <TextField
               size="small"
               label="Project Code"

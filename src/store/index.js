@@ -13,6 +13,7 @@ import purchaseRequestReducer from './slices/purchaseRequestSlice';
 import goodsReceiptPOReducer from './slices/goodsReceiptPOSlice';
 import purchaseOrderReducer from './slices/purchaseOrderSlice';
 import commonReducer from './slices/commonSlice';
+import attachmentReducer from './slices/attachmentSlice';
 
 export const store = configureStore({
   reducer: {
@@ -29,7 +30,8 @@ export const store = configureStore({
     purchaseRequest: purchaseRequestReducer,
     goodsReceiptPO: goodsReceiptPOReducer,
     purchaseOrder: purchaseOrderReducer,
-    common: commonReducer
+    common: commonReducer,
+    attachment: attachmentReducer
   }
 });
 

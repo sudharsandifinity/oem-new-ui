@@ -2,15 +2,17 @@ import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getMRById, updateMR, resetMRState } from '../../store/slices/materialRequestSlice';
-import { getItems } from '../../store/slices/itemSlice';
+// import { getItems } from '../../store/slices/itemSlice'; // used by Refresh Stock (hidden)
+import { getDepartments } from '../../store/slices/commonSlice';
 import { mapApiToForm, mapApiLineToRow, buildPayload } from './mrHelpers';
+import { resolveDepartmentName } from 'utils/department';
 
 import { Alert, Box, Breadcrumbs, Button, CircularProgress, Divider, Skeleton, Snackbar, Tab, Tabs, Typography } from '@mui/material';
 
 import HomeIcon from '@mui/icons-material/Home';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-import RefreshIcon from '@mui/icons-material/Refresh';
+// import RefreshIcon from '@mui/icons-material/Refresh'; // used by Refresh Stock (hidden)
 
 import MainCard from 'ui-component/cards/MainCard';
 import MRGeneralTab from './GeneralTab';
@@ -43,27 +45,41 @@ export default function MaterialRequestEdit() {
   const navigate = useNavigate();
 
   const { currentMR, currentMRLoading, currentMRError, updateLoading, saveSuccess, error } = useSelector((s) => s.materialRequest);
+  const { departments } = useSelector((s) => s.common);
 
   const [tabValue, setTabValue] = useState(0);
   const [form, setForm] = useState(null);
   const [lines, setLines] = useState([]);
   const [prModalOpen, setPrModalOpen] = useState(false);
-  const [stockLoading, setStockLoading] = useState(false);
+  // const [stockLoading, setStockLoading] = useState(false); // used by Refresh Stock (hidden)
   const [snackbar, setSnackbar] = useState({ open: false, severity: 'success', message: '' });
 
+  // Fetch on mount
   useEffect(() => {
     if (id) dispatch(getMRById(id));
+    if (!departments.length) dispatch(getDepartments());
     return () => {
       dispatch(resetMRState());
     };
   }, [dispatch, id]);
 
+  // Seed form whenever currentMR changes (initial load only in practice)
   useEffect(() => {
     if (!currentMR) return;
     setForm(mapApiToForm(currentMR));
     setLines((currentMR.HLB_MRQ1Collection || []).map(mapApiLineToRow));
   }, [currentMR]);
 
+  // Resolve Department display name from id once the departments list is available
+  useEffect(() => {
+    if (!form?.DeptId || !departments.length) return;
+    const name = resolveDepartmentName(departments, form.DeptId);
+    if (name !== form.Department) {
+      setForm((prev) => ({ ...prev, Department: name }));
+    }
+  }, [departments, form?.DeptId]);
+
+  // Handle save result
   useEffect(() => {
     if (saveSuccess) {
       setSnackbar({ open: true, severity: 'success', message: 'Material Request updated successfully!' });
@@ -76,31 +92,34 @@ export default function MaterialRequestEdit() {
     }
   }, [saveSuccess, error, dispatch, id, navigate]);
 
-  const handleRefreshStock = async () => {
-    if (!lines.some((l) => l.ItemCode)) return;
-
-    setStockLoading(true);
-    try {
-      const items = await dispatch(getItems()).unwrap();
-
-      setLines((prev) =>
-        prev.map((line) => {
-          if (!line.ItemCode) return line;
-          const itemCode = String(line.ItemCode).trim();
-          const whsCode = String(line.WarehouseCode ?? '').trim();
-          const item = items.find((i) => String(i.ItemCode).trim() === itemCode);
-          if (!item) return line;
-          const whs = (item.ItemWarehouseInfoCollection || []).find((w) => String(w.WarehouseCode).trim() === whsCode);
-          return { ...line, InStock: whs != null ? whs.InStock : line.InStock };
-        })
-      );
-      setSnackbar({ open: true, severity: 'success', message: 'Stock refreshed successfully' });
-    } catch {
-      setSnackbar({ open: true, severity: 'error', message: 'Failed to refresh stock' });
-    } finally {
-      setStockLoading(false);
-    }
-  };
+  // Refresh Stock
+  // const handleRefreshStock = async () => {
+  //   if (!lines.some((l) => l.ItemCode)) return;
+  //
+  //   setStockLoading(true);
+  //   try {
+  //     const items = await dispatch(getItems()).unwrap();
+  //
+  //     setLines((prev) =>
+  //       prev.map((line) => {
+  //         if (!line.ItemCode) return line;
+  //         const itemCode = String(line.ItemCode).trim();
+  //         const whsCode  = String(line.WarehouseCode ?? '').trim();
+  //         const item = items.find((i) => String(i.ItemCode).trim() === itemCode);
+  //         if (!item) return line;
+  //         const whs = (item.ItemWarehouseInfoCollection || []).find(
+  //           (w) => String(w.WarehouseCode).trim() === whsCode
+  //         );
+  //         return { ...line, InStock: whs != null ? whs.InStock : line.InStock };
+  //       })
+  //     );
+  //     setSnackbar({ open: true, severity: 'success', message: 'Stock refreshed successfully' });
+  //   } catch {
+  //     setSnackbar({ open: true, severity: 'error', message: 'Failed to refresh stock' });
+  //   } finally {
+  //     setStockLoading(false);
+  //   }
+  // };
 
   const handleSubmit = () => {
     dispatch(updateMR({ docEntry: id, payload: buildPayload(form, lines) }));
@@ -119,6 +138,7 @@ export default function MaterialRequestEdit() {
         requestorTypeLabel: form.RequestorType,
         requestorName: form.RequestorName,
         department: form.DeptId,
+        departmentName: form.Department,
         selectedLines
       }
     });
@@ -128,7 +148,6 @@ export default function MaterialRequestEdit() {
 
   return (
     <Box>
-      {/* HEADER — always visible */}
       <MainCard content={false} sx={{ mb: 3 }}>
         <Box
           sx={{
@@ -156,7 +175,6 @@ export default function MaterialRequestEdit() {
         </Box>
       </MainCard>
 
-      {/* CONTENT */}
       <MainCard content={false}>
         <Box sx={{ borderBottom: 1, borderColor: 'divider', px: 3, pt: 1 }}>
           <Tabs value={tabValue} onChange={(_, v) => !loading && setTabValue(v)}>
@@ -179,7 +197,6 @@ export default function MaterialRequestEdit() {
             <ContentSkeleton />
           ) : (
             <>
-              {/* Always mounted — CSS show/hide avoids unmount errors on tab switch */}
               <Box sx={{ display: tabValue === 0 ? 'block' : 'none' }}>
                 <MRGeneralTab data={form} setData={setForm} lockCustomerProject />
               </Box>
@@ -191,7 +208,6 @@ export default function MaterialRequestEdit() {
 
           <Divider sx={{ my: 4 }} />
 
-          {/* Footer — always visible */}
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
             <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap' }}>
               <Button
@@ -204,6 +220,7 @@ export default function MaterialRequestEdit() {
                 Purchase Request
               </Button>
 
+              {/* Refresh Stock
               <Button
                 variant="outlined"
                 color="info"
@@ -213,6 +230,7 @@ export default function MaterialRequestEdit() {
               >
                 Refresh Stock
               </Button>
+              */}
             </Box>
 
             <Box sx={{ display: 'flex', gap: 2 }}>

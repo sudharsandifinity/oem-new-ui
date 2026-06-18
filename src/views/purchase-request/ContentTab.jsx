@@ -13,15 +13,16 @@ import {
   Typography
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
+import AppDatePicker from 'ui-component/AppDatePicker';
 
 const TABLE_COLUMNS = [
   { key: 'seq', label: '#', width: 50, editable: false },
   { key: 'MRLine', label: 'MR Line', width: 90, editable: false },
-  { key: 'ItemCode', label: 'Item Code', width: 130, editable: false },
+  { key: 'ItemCode', label: 'Item Code', width: 170, editable: false },
   { key: 'ItemDescription', label: 'Description', width: 180, editable: false },
-  { key: 'FullDescription', label: 'Full Desc', width: 180, editable: false },
-  { key: 'Quantity', label: 'Quantity', width: 100, editable: true, type: 'number' },
-  { key: 'UoMCode', label: 'UOM', width: 100, editable: false },
+  { key: 'FullDescription', label: 'Full Description', width: 180, editable: false },
+  { key: 'Quantity', label: 'Quantity', width: 135, editable: true, type: 'number' },
+  { key: 'UoMCode', label: 'UOM', width: 120, editable: false },
   { key: 'BOMQty', label: 'BOM Qty', width: 100, editable: false },
   { key: 'BOMOpenQty', label: 'BOM Open Qty', width: 120, editable: false },
   { key: 'MROpenQty', label: 'MR Open Qty', width: 120, editable: false },
@@ -41,7 +42,7 @@ export default function PRContentTab({ data, setData, rows, setRows, readOnly = 
   };
 
   const renderCell = (row, col) => {
-    if (col.key === 'seq') return null; // rendered inline in TableCell
+    if (col.key === 'seq') return null;
 
     const disabled = readOnly || !col.editable;
 
@@ -61,14 +62,11 @@ export default function PRContentTab({ data, setData, rows, setRows, readOnly = 
 
     if (col.type === 'date') {
       return (
-        <TextField
+        <AppDatePicker
           size="small"
-          fullWidth
-          type="date"
           value={row[col.key] || ''}
           disabled={disabled}
-          onChange={(e) => updateRow(row.id, col.key, e.target.value)}
-          InputLabelProps={{ shrink: true }}
+          onChange={(val) => updateRow(row.id, col.key, val)}
           sx={{ minWidth: col.width - 20 }}
         />
       );
@@ -98,7 +96,7 @@ export default function PRContentTab({ data, setData, rows, setRows, readOnly = 
 
   return (
     <Box>
-      <TableContainer component={Paper} variant="outlined" sx={{ maxHeight: 360, borderRadius: 2 }}>
+      <TableContainer component={Paper} variant="outlined" sx={{ maxHeight: 480, borderRadius: 2 }}>
         <Table stickyHeader size="small">
           <TableHead>
             <TableRow>

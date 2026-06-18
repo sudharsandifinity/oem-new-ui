@@ -4,6 +4,7 @@ import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import SearchIcon from '@mui/icons-material/Search';
 import { useLookup } from '../../context/LookupContext';
 import VendorSelectModal from './VendorSelectModal';
+import AppDatePicker from 'ui-component/AppDatePicker';
 
 const today = new Date().toISOString().split('T')[0];
 
@@ -61,16 +62,22 @@ export default function GRPOGeneralTab({ data, setData, readOnly = false }) {
             onChange={(e) => handleChange('ContactPerson', e.target.value)}
             disabled={readOnly}
           />
+          <TextField
+            fullWidth
+            label="Vendor Ref No"
+            value={data?.VendorRefNo || ''}
+            onChange={(e) => handleChange('VendorRefNo', e.target.value)}
+            disabled={readOnly}
+          />
         </Box>
 
         <Box sx={{ flex: 1, minWidth: 350, display: 'flex', flexDirection: 'column', gap: 3 }}>
-          <TextField
-            fullWidth
-            type="date"
-            label="Posting Date"
-            value={data?.DocDate || today}
-            disabled
-            InputLabelProps={{ shrink: true }}
+          <AppDatePicker label="Posting Date" value={data?.DocDate || today} disabled />
+          <AppDatePicker
+            label="Document Date"
+            value={data?.DocDueDate || today}
+            onChange={(val) => handleChange('DocDueDate', val)}
+            disabled={readOnly}
           />
           <TextField
             fullWidth
@@ -93,6 +100,7 @@ export default function GRPOGeneralTab({ data, setData, readOnly = false }) {
             }
           />
           <TextField fullWidth label="Project Name" value={data?.ProjectName || ''} disabled />
+          <TextField fullWidth label="PO Number" value={data?.PONumber || ''} disabled />
         </Box>
       </Box>
 

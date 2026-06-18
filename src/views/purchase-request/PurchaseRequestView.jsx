@@ -2,7 +2,9 @@ import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getPRById, resetPRState } from '../../store/slices/purchaseRequestSlice';
+import { getDepartments } from '../../store/slices/commonSlice';
 import { mapApiToForm, mapApiLineToRow } from './prHelpers';
+import { resolveDepartmentName } from 'utils/department';
 
 import { Box, Breadcrumbs, Button, Divider, Skeleton, Tab, Tabs, Typography } from '@mui/material';
 
@@ -41,6 +43,7 @@ export default function PurchaseRequestView() {
   const navigate = useNavigate();
 
   const { currentPR, currentPRLoading, currentPRError } = useSelector((s) => s.purchaseRequest);
+  const { departments } = useSelector((s) => s.common);
 
   const [tabValue, setTabValue] = useState(0);
   const [form, setForm] = useState(null);
@@ -48,6 +51,7 @@ export default function PurchaseRequestView() {
 
   useEffect(() => {
     if (id) dispatch(getPRById(id));
+    if (!departments.length) dispatch(getDepartments());
     return () => {
       dispatch(resetPRState());
     };
@@ -58,6 +62,14 @@ export default function PurchaseRequestView() {
     setForm(mapApiToForm(currentPR));
     setLines((currentPR.DocumentLines || []).map(mapApiLineToRow));
   }, [currentPR]);
+
+  useEffect(() => {
+    if (!form?.DeptId || !departments.length) return;
+    const name = resolveDepartmentName(departments, form.DeptId);
+    if (name !== form.Department) {
+      setForm((prev) => ({ ...prev, Department: name }));
+    }
+  }, [departments, form?.DeptId]);
 
   const loading = currentPRLoading || !form;
 

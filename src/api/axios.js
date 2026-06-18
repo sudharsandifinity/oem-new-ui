@@ -6,12 +6,21 @@ const API = axios.create({
   withCredentials: true
 });
 
+let sessionExpiredFired = false;
+
 API.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      console.log('Session expired');
-      window.location.href = '/login';
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      if (!sessionExpiredFired) {
+        sessionExpiredFired = true;
+        window.dispatchEvent(new Event('session-expired'));
+        setTimeout(() => {
+          sessionExpiredFired = false;
+        }, 3000);
+      }
     }
     return Promise.reject(error);
   }

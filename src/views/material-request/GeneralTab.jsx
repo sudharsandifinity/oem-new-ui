@@ -2,6 +2,7 @@ import { Box, IconButton, InputAdornment, TextField } from '@mui/material';
 import PersonSearchIcon from '@mui/icons-material/PersonSearch';
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import { useLookup } from '../../context/LookupContext';
+import AppDatePicker from 'ui-component/AppDatePicker';
 
 const today = new Date().toISOString().split('T')[0];
 const nowTime = new Date().toTimeString().slice(0, 5);
@@ -44,7 +45,6 @@ export default function MRGeneralTab({ data, setData, readOnly = false, lockCust
 
   return (
     <Box sx={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
-      {/* ===== LEFT — Customer / Project / BOM ===== */}
       <Box sx={{ flex: 1, minWidth: 350, display: 'flex', flexDirection: 'column', gap: 3 }}>
         <TextField
           fullWidth
@@ -87,18 +87,10 @@ export default function MRGeneralTab({ data, setData, readOnly = false, lockCust
         <TextField fullWidth label="BOM No" value={data?.BOMNo || ''} disabled />
       </Box>
 
-      {/* ===== RIGHT — Requisition details ===== */}
       <Box sx={{ flex: 1, minWidth: 350, display: 'flex', flexDirection: 'column', gap: 3 }}>
         <TextField fullWidth label="Requisition Number" value={data?.RequisitionNo || ''} disabled />
 
-        <TextField
-          fullWidth
-          type="date"
-          label="Requisition Date"
-          value={data?.RequisitionDate || today}
-          disabled
-          InputLabelProps={{ shrink: true }}
-        />
+        <AppDatePicker label="Requisition Date" value={data?.RequisitionDate || today} disabled />
 
         <TextField
           fullWidth
@@ -109,14 +101,11 @@ export default function MRGeneralTab({ data, setData, readOnly = false, lockCust
           InputLabelProps={{ shrink: true }}
         />
 
-        <TextField
-          fullWidth
-          type="date"
+        <AppDatePicker
           label="Required Date"
           value={data?.RequiredDate || today}
-          onChange={(e) => !readOnly && handleChange('RequiredDate', e.target.value)}
+          onChange={(val) => !readOnly && handleChange('RequiredDate', val)}
           disabled={readOnly}
-          InputLabelProps={{ shrink: true }}
         />
       </Box>
     </Box>

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -9,12 +9,13 @@ import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 
 import MainCard from 'ui-component/cards/MainCard';
+import AttachmentUploadTab from 'ui-component/AttachmentUploadTab';
 import GRPOGeneralTab from './GeneralTab';
 import GRPOContentTab from './ContentTab';
 import POSelectModal from './POSelectModal';
 import POItemSelectModal from './POItemSelectModal';
 import { createGRPO, resetGRPOState } from '../../store/slices/goodsReceiptPOSlice';
-import { buildGRPOPayload, poLineToGRPORow } from './grpoHelpers';
+import { buildGRPOFormData, poLineToGRPORow } from './grpoHelpers';
 
 const today = new Date().toISOString().split('T')[0];
 
@@ -22,10 +23,15 @@ const initialForm = () => ({
   VendorCode: '',
   VendorName: '',
   ContactPerson: '',
+  VendorRefNo: '',
   DocDate: today,
+  DocDueDate: today,
+  PONumber: '',
   ProjectCode: '',
   ProjectName: '',
-  Comments: ''
+  Comments: '',
+  ReceivedBy: '',
+  Attachments2_Lines: [{ id: 1, file: null, fileName: '' }]
 });
 
 export default function GoodsReceiptPOCreate() {
@@ -33,9 +39,11 @@ export default function GoodsReceiptPOCreate() {
   const dispatch = useDispatch();
 
   const { createLoading, saveSuccess, error } = useSelector((s) => s.goodsReceiptPO);
+  const { user } = useSelector((s) => s.auth);
+  const receivedBy = useMemo(() => [user?.first_name, user?.last_name].filter(Boolean).join(' '), [user]);
 
   const [tabValue, setTabValue] = useState(0);
-  const [form, setForm] = useState(initialForm());
+  const [form, setForm] = useState(() => ({ ...initialForm(), ReceivedBy: receivedBy }));
   const [lines, setLines] = useState([]);
   const [poModalOpen, setPOModalOpen] = useState(false);
   const [poItemModalOpen, setPOItemModalOpen] = useState(false);
@@ -63,21 +71,22 @@ export default function GoodsReceiptPOCreate() {
       VendorCode: prev.VendorCode || po.CardCode || '',
       VendorName: prev.VendorName || po.CardName || '',
       ProjectCode: prev.ProjectCode || po.U_PrjCode || '',
-      ProjectName: prev.ProjectName || po.U_PrjDesc || ''
+      ProjectName: prev.ProjectName || po.U_PrjDesc || '',
+      PONumber: prev.PONumber || String(po.DocEntry ?? '')
     }));
     setPendingPO(po);
     setPOItemModalOpen(true);
   };
 
   const handlePOItemsConfirm = (selectedLines) => {
-    setLines(selectedLines.map(poLineToGRPORow));
+    setLines(selectedLines.map((line) => poLineToGRPORow(line, pendingPO?.DocEntry ?? '')));
     setPendingPO(null);
     setPOItemModalOpen(false);
     setTabValue(1);
   };
 
   const handleSubmit = () => {
-    dispatch(createGRPO(buildGRPOPayload(form, lines)));
+    dispatch(createGRPO(buildGRPOFormData(form, lines, form.Attachments2_Lines, user)));
   };
 
   return (
@@ -114,6 +123,7 @@ export default function GoodsReceiptPOCreate() {
           <Tabs value={tabValue} onChange={(_, v) => setTabValue(v)}>
             <Tab label="General" />
             <Tab label="Contents" />
+            <Tab label="Attachments" />
           </Tabs>
         </Box>
 
@@ -123,6 +133,9 @@ export default function GoodsReceiptPOCreate() {
           </Box>
           <Box sx={{ display: tabValue === 1 ? 'block' : 'none' }}>
             <GRPOContentTab data={form} setData={setForm} rows={lines} setRows={setLines} />
+          </Box>
+          <Box sx={{ display: tabValue === 2 ? 'block' : 'none' }}>
+            <AttachmentUploadTab data={form} setData={setForm} />
           </Box>
 
           <Divider sx={{ my: 4 }} />
@@ -156,7 +169,13 @@ export default function GoodsReceiptPOCreate() {
         </Box>
       </MainCard>
 
-      <POSelectModal open={poModalOpen} onClose={() => setPOModalOpen(false)} onChoose={handlePOChoose} />
+      <POSelectModal
+        open={poModalOpen}
+        onClose={() => setPOModalOpen(false)}
+        onChoose={handlePOChoose}
+        projectCode={form.ProjectCode}
+        cardCode={form.VendorCode}
+      />
 
       <POItemSelectModal
         open={poItemModalOpen}

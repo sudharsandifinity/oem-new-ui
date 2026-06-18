@@ -12,6 +12,7 @@ import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import MainCard from 'ui-component/cards/MainCard';
 import GRPOGeneralTab from './GeneralTab';
 import GRPOContentTab from './ContentTab';
+import GRPOAttachmentTab from './AttachmentTab';
 
 const noop = () => {};
 
@@ -95,6 +96,7 @@ export default function GoodsReceiptPOView() {
           <Tabs value={tabValue} onChange={(_, v) => !loading && setTabValue(v)}>
             <Tab label="General" />
             <Tab label="Contents" />
+            <Tab label="Attachments" />
           </Tabs>
         </Box>
 
@@ -118,6 +120,7 @@ export default function GoodsReceiptPOView() {
               <Box sx={{ display: tabValue === 1 ? 'block' : 'none' }}>
                 <GRPOContentTab data={form} setData={noop} rows={lines} setRows={noop} readOnly />
               </Box>
+              {tabValue === 2 && <GRPOAttachmentTab attachmentEntry={currentGRPO?.AttachmentEntry} />}
             </>
           )}
 

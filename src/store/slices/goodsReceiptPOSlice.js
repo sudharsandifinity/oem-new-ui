@@ -12,7 +12,9 @@ export const getGRPOList = createAsyncThunk('goodsReceiptPO/getList', async ({ t
 
 export const createGRPO = createAsyncThunk('goodsReceiptPO/create', async (payload, { rejectWithValue }) => {
   try {
-    const response = await API.post('/sap/purchase-delivery-notes', payload);
+    const response = await API.post('/sap/purchase-delivery-notes', payload, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
     return response.data;
   } catch (err) {
     const d = err.response?.data;

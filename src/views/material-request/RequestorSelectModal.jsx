@@ -23,7 +23,6 @@ import {
 import CloseIcon from '@mui/icons-material/Close';
 import { getUsers, getEmployees, getDepartments } from '../../store/slices/commonSlice';
 
-// Column config per type
 const USER_COLS = ['UserCode', 'UserName', 'Email'];
 const EMP_COLS = ['EmployeeID', 'FirstName', 'LastName', 'Email'];
 const USER_LABELS = { UserCode: 'User Code', UserName: 'Username', Email: 'Email' };

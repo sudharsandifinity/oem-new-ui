@@ -92,7 +92,6 @@ export default function BOMSelectModal({ open, onClose, onSelect, cardCode = '',
       </DialogTitle>
 
       <DialogContent sx={{ p: 3 }}>
-        {/* Filters */}
         <Paper variant="outlined" sx={{ p: 2, mb: 3 }}>
           <Typography sx={{ mb: 2 }}>Filters</Typography>
           <Grid container spacing={2}>
@@ -117,7 +116,6 @@ export default function BOMSelectModal({ open, onClose, onSelect, cardCode = '',
           </Grid>
         </Paper>
 
-        {/* Table */}
         <TableContainer component={Paper} variant="outlined" sx={{ maxHeight: 380 }}>
           <Table stickyHeader size="small">
             <TableHead>

@@ -11,8 +11,9 @@ import ClearIcon from '@mui/icons-material/Clear';
 import MainCard from 'ui-component/cards/MainCard';
 import { useNavigate } from 'react-router-dom';
 import { getPRList } from '../../store/slices/purchaseRequestSlice';
+import { formatDateDDMMYYYY, renderNoWrapCell } from 'utils/dataGridFormatters';
 
-const emptyFilters = () => ({ DocEntry: '', MRNo: '', ProjectCode: '', ProjectName: '' });
+const emptyFilters = () => ({ MRNo: '', ProjectCode: '', ProjectName: '' });
 
 export default function PurchaseRequestsList() {
   const navigate = useNavigate();
@@ -32,15 +33,8 @@ export default function PurchaseRequestsList() {
   }, [paginationModel, dispatch]);
 
   const filteredRows = useMemo(() => {
-    const { DocEntry, MRNo, ProjectCode, ProjectName } = filters;
+    const { MRNo, ProjectCode, ProjectName } = filters;
     return list.filter((r) => {
-      if (
-        DocEntry &&
-        !String(r.DocEntry ?? '')
-          .toLowerCase()
-          .includes(DocEntry.toLowerCase())
-      )
-        return false;
       if (
         MRNo &&
         !String(r.U_MRNo ?? '')
@@ -69,17 +63,19 @@ export default function PurchaseRequestsList() {
   const clearFilters = () => setFilters(emptyFilters());
 
   const columns = [
-    { field: 'DocEntry', headerName: 'Doc Entry', flex: 1, minWidth: 120 },
+    {
+      field: 'sno',
+      headerName: '#',
+      width: 60,
+      sortable: false,
+      filterable: false,
+      renderCell: (params) => filteredRows.findIndex((r) => r.DocEntry === params.id) + 1
+    },
     { field: 'U_MRNo', headerName: 'MR No', flex: 1, minWidth: 120 },
     { field: 'U_PrjCode', headerName: 'Project Code', flex: 1, minWidth: 150 },
     { field: 'U_PrjDesc', headerName: 'Project Name', flex: 1.5, minWidth: 200 },
-    {
-      field: 'DocDate',
-      headerName: 'Posting Date',
-      flex: 1,
-      minWidth: 140,
-      valueFormatter: (value) => (value ? value.substring(0, 10) : '')
-    },
+    { field: 'DocDate', headerName: 'Posting Date', flex: 1, minWidth: 140, valueFormatter: formatDateDDMMYYYY },
+    { field: 'Comments', headerName: 'Comments', flex: 1.5, minWidth: 180, renderCell: renderNoWrapCell },
     {
       field: 'action',
       headerName: 'Action',
@@ -97,8 +93,7 @@ export default function PurchaseRequestsList() {
   ];
 
   return (
-    <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', height: 'calc(100vh - 176px)' }}>
-      {/* Header */}
+    <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', height: '100%' }}>
       <MainCard content={false} sx={{ mb: 3, flexShrink: 0 }}>
         <Box
           sx={{
@@ -124,15 +119,8 @@ export default function PurchaseRequestsList() {
         </Box>
       </MainCard>
 
-      {/* Filters */}
       <Paper variant="outlined" sx={{ p: 2, mb: 3, borderRadius: 2, flexShrink: 0 }}>
         <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'center' }}>
-          <TextField
-            size="small"
-            label="Doc Entry"
-            value={filters.DocEntry}
-            onChange={(e) => setFilters((p) => ({ ...p, DocEntry: e.target.value }))}
-          />
           <TextField
             size="small"
             label="MR No"

@@ -11,7 +11,9 @@ import MainCard from 'ui-component/cards/MainCard';
 import PRGeneralTab from './GeneralTab';
 import PRContentTab from './ContentTab';
 import { createPR, resetPRState } from '../../store/slices/purchaseRequestSlice';
+import { getDepartments } from '../../store/slices/commonSlice';
 import { buildPRPayload, mrLineToPRRow } from './prHelpers';
+import { resolveDepartmentName } from 'utils/department';
 
 const today = new Date().toISOString().split('T')[0];
 
@@ -21,6 +23,8 @@ export default function PurchaseRequestCreate() {
   const { state } = useLocation();
 
   const { createLoading, saveSuccess, error } = useSelector((s) => s.purchaseRequest);
+  const { user } = useSelector((s) => s.auth);
+  const { departments } = useSelector((s) => s.common);
 
   const [tabValue, setTabValue] = useState(0);
   const [snackbar, setSnackbar] = useState({ open: false, severity: 'success', message: '' });
@@ -36,11 +40,22 @@ export default function PurchaseRequestCreate() {
     ReqType: state?.reqType ?? null,
     RequestorTypeLabel: state?.requestorTypeLabel ?? '',
     RequestorName: state?.requestorName ?? '',
-    Department: state?.department ?? '',
+    DeptId: state?.department ?? '',
+    Department: state?.departmentName ?? '',
     Comments: ''
   }));
 
   const [lines, setLines] = useState(() => (state?.selectedLines ?? []).map(mrLineToPRRow));
+
+  useEffect(() => {
+    if (!departments.length) dispatch(getDepartments());
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (!form.DeptId || form.Department || !departments.length) return;
+    const name = resolveDepartmentName(departments, form.DeptId);
+    setForm((prev) => ({ ...prev, Department: name }));
+  }, [departments, form.DeptId, form.Department]);
 
   useEffect(() => {
     if (saveSuccess) {
@@ -55,12 +70,11 @@ export default function PurchaseRequestCreate() {
   }, [saveSuccess, error, dispatch, navigate]);
 
   const handleSubmit = () => {
-    dispatch(createPR(buildPRPayload(form, lines)));
+    dispatch(createPR(buildPRPayload(form, lines, user)));
   };
 
   return (
     <Box>
-      {/* HEADER */}
       <MainCard content={false} sx={{ mb: 3 }}>
         <Box
           sx={{
@@ -88,7 +102,6 @@ export default function PurchaseRequestCreate() {
         </Box>
       </MainCard>
 
-      {/* CONTENT */}
       <MainCard content={false}>
         <Box sx={{ borderBottom: 1, borderColor: 'divider', px: 3, pt: 1 }}>
           <Tabs value={tabValue} onChange={(_, v) => setTabValue(v)}>

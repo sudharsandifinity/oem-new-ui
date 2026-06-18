@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useSelector } from 'react-redux';
 import {
   Box,
   IconButton,
@@ -17,21 +18,23 @@ import DeleteIcon from '@mui/icons-material/Delete';
 
 const TABLE_COLUMNS = [
   { key: 'seq', label: '#', width: 50, editable: false },
-  { key: 'ItemCode', label: 'Item Code', width: 130, editable: false },
+  { key: 'ItemCode', label: 'Item Code', width: 170, editable: false },
   { key: 'ItemDescription', label: 'Description', width: 180, editable: true },
-  { key: 'FullDescription', label: 'Full Desc', width: 180, editable: false },
-  { key: 'Quantity', label: 'Quantity', width: 100, editable: true, type: 'number' },
-  { key: 'UoMCode', label: 'UOM', width: 100, editable: false },
+  { key: 'FullDescription', label: 'Full Description', width: 180, editable: false },
+  { key: 'Quantity', label: 'Quantity', width: 135, editable: true, type: 'number' },
+  { key: 'UoMCode', label: 'UOM', width: 120, editable: false },
+  { key: 'BaseEntry', label: 'PO No', width: 100, editable: false },
   { key: 'POQty', label: 'PO Qty', width: 100, editable: false },
   { key: 'POOpenQty', label: 'PO Open Qty', width: 120, editable: false },
   { key: 'WarehouseCode', label: 'Warehouse', width: 130, editable: false },
   { key: 'ProjectCode', label: 'Project', width: 130, editable: false },
-  { key: 'IssuedQty', label: 'Issued Qty', width: 100, editable: false },
   { key: 'InStock', label: 'In Stock', width: 100, editable: false },
   { key: 'Remark', label: 'Remark', width: 160, editable: true }
 ];
 
 export default function GRPOContentTab({ data, setData, rows, setRows, readOnly = false }) {
+  const { user } = useSelector((s) => s.auth);
+
   useEffect(() => {
     if (!rows.length) return;
     setRows((prev) =>
@@ -91,9 +94,11 @@ export default function GRPOContentTab({ data, setData, rows, setRows, readOnly 
     return field;
   };
 
+  const receivedByValue = data?.ReceivedBy || [user?.first_name, user?.last_name].filter(Boolean).join(' ');
+
   return (
     <Box>
-      <TableContainer component={Paper} variant="outlined" sx={{ maxHeight: 360, borderRadius: 2 }}>
+      <TableContainer component={Paper} variant="outlined" sx={{ maxHeight: 480, borderRadius: 2 }}>
         <Table stickyHeader size="small">
           <TableHead>
             <TableRow>
@@ -132,8 +137,8 @@ export default function GRPOContentTab({ data, setData, rows, setRows, readOnly 
         </Table>
       </TableContainer>
 
-      <Box sx={{ mt: 3, display: 'flex' }}>
-        <Paper variant="outlined" sx={{ p: 3, borderRadius: 2, width: '50%', minWidth: 280 }}>
+      <Box sx={{ mt: 3, display: 'flex', gap: 3 }}>
+        <Paper variant="outlined" sx={{ p: 3, borderRadius: 2, flex: 1, minWidth: 280 }}>
           <Typography variant="h5" sx={{ mb: 2.5 }}>
             Comments
           </Typography>
@@ -147,6 +152,13 @@ export default function GRPOContentTab({ data, setData, rows, setRows, readOnly 
             disabled={readOnly}
             onChange={(e) => !readOnly && setData((prev) => ({ ...prev, Comments: e.target.value }))}
           />
+        </Paper>
+
+        <Paper variant="outlined" sx={{ p: 3, borderRadius: 2, flex: 1, minWidth: 280 }}>
+          <Typography variant="h5" sx={{ mb: 2.5 }}>
+            Received By
+          </Typography>
+          <TextField fullWidth size="small" label="Received By" value={receivedByValue} disabled />
         </Paper>
       </Box>
     </Box>
