@@ -13,6 +13,22 @@ export const getPRList = createAsyncThunk('purchaseRequest/getList', async ({ to
   }
 });
 
+export const getMyPRList = createAsyncThunk('purchaseRequest/getMyList', async ({ top = 25, skip = 0, email = '' } = {}, thunkAPI) => {
+  try {
+    const filterParts = ["DocumentStatus eq 'bost_Open'"];
+    if (email) filterParts.push(`U_OEM_UEMAIL eq '${email}'`);
+    const response = await API.get('/sap/purchase-requests', {
+      params: { top, skip, filter: filterParts.join(' and ') }
+    });
+    return {
+      list: response.data.value ?? response.data,
+      totalCount: response.data['odata.count'] || 0
+    };
+  } catch (error) {
+    return thunkAPI.rejectWithValue(error.response?.data?.message || 'Failed to fetch PR list');
+  }
+});
+
 export const createPR = createAsyncThunk('purchaseRequest/create', async (payload, thunkAPI) => {
   try {
     const response = await API.post('/sap/purchase-requests', payload);
@@ -72,6 +88,20 @@ const purchaseRequestSlice = createSlice({
         state.totalCount = action.payload.totalCount;
       })
       .addCase(getPRList.rejected, (state, action) => {
+        state.listLoading = false;
+        state.error = action.payload;
+      })
+
+      .addCase(getMyPRList.pending, (state) => {
+        state.listLoading = true;
+        state.error = null;
+      })
+      .addCase(getMyPRList.fulfilled, (state, action) => {
+        state.listLoading = false;
+        state.list = action.payload.list;
+        state.totalCount = action.payload.totalCount;
+      })
+      .addCase(getMyPRList.rejected, (state, action) => {
         state.listLoading = false;
         state.error = action.payload;
       })

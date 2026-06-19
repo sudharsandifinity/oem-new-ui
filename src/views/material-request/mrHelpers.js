@@ -1,3 +1,40 @@
+import { getChildItems } from '../../store/slices/itemSlice';
+
+export const emptyRow = () => ({
+  id: Date.now() + Math.random(),
+  LineId: null,
+  BOMLineNum: '',
+  ItemCode: '',
+  ItemDescription: '',
+  FullDescription: '',
+  Quantity: '',
+  UoMCode: '',
+  BOMQty: '',
+  BOMOpenQty: '',
+  MROpenQty: '',
+  WarehouseCode: '',
+  ProjectCode: '',
+  IssuedQty: '',
+  InStock: '',
+  Remark: ''
+});
+
+export const buildChildRow = (parentRow) => ({
+  ...emptyRow(),
+  IsChildRow: true,
+  ParentItemCode: parentRow.ItemCode,
+  ParentRowId: parentRow.id
+});
+
+export const fetchHasChildren = async (dispatch, itemCode) => {
+  try {
+    const children = await dispatch(getChildItems(itemCode)).unwrap();
+    return children.length > 0;
+  } catch {
+    return false;
+  }
+};
+
 export const mapApiToForm = (mr) => ({
   RequisitionNo: mr.DocNum ?? mr.DocEntry ?? '',
   RequisitionDate: mr.U_DocDate?.split('T')[0] ?? '',

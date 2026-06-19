@@ -1,4 +1,4 @@
-import { getItems } from '../../store/slices/itemSlice';
+import { getItems, getChildItems } from '../../store/slices/itemSlice';
 import { getTaxCodes } from '../../store/slices/taxCodeSlice';
 import { getProjects } from '../../store/slices/projectSlice';
 import { getWarehouses } from '../../store/slices/warehouseSlice';
@@ -18,6 +18,42 @@ export const LOOKUP_CONFIGS = {
     }),
 
     loadAction: getItems,
+
+    filters: [
+      {
+        key: 'itemCode',
+        label: 'Item Code',
+        dataKey: 'ItemCode'
+      },
+      {
+        key: 'itemName',
+        label: 'Item Name',
+        dataKey: 'ItemName'
+      }
+    ],
+
+    columns: [
+      {
+        field: 'ItemCode',
+        label: 'Item Code'
+      },
+      {
+        field: 'ItemName',
+        label: 'Item Name'
+      }
+    ]
+  },
+
+  itemChild: {
+    title: 'Select Child Item',
+
+    selector: (state) => ({
+      data: state.item.childItems,
+      loading: state.item.childItemsLoading,
+      error: state.item.childItemsError
+    }),
+
+    loadAction: getChildItems,
 
     filters: [
       {

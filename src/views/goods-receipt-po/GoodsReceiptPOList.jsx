@@ -11,7 +11,7 @@ import ClearIcon from '@mui/icons-material/Clear';
 
 import MainCard from 'ui-component/cards/MainCard';
 import { useNavigate } from 'react-router-dom';
-import { getGRPOList } from '../../store/slices/goodsReceiptPOSlice';
+import { getMyGRPOList } from '../../store/slices/goodsReceiptPOSlice';
 import { formatDateDDMMYYYY, renderNoWrapCell } from 'utils/dataGridFormatters';
 
 const emptyFilters = () => ({ CardCode: '', CardName: '', U_PrjCode: '', U_PrjDesc: '' });
@@ -20,18 +20,20 @@ export default function GoodsReceiptPOList() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { list, totalCount, listLoading } = useSelector((s) => s.goodsReceiptPO);
+  const { user } = useSelector((s) => s.auth);
 
   const [filters, setFilters] = useState(emptyFilters());
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 25 });
 
   useEffect(() => {
     dispatch(
-      getGRPOList({
+      getMyGRPOList({
         top: paginationModel.pageSize,
-        skip: paginationModel.page * paginationModel.pageSize
+        skip: paginationModel.page * paginationModel.pageSize,
+        email: user?.email || ''
       })
     );
-  }, [paginationModel, dispatch]);
+  }, [paginationModel, user?.email, dispatch]);
 
   const filteredRows = useMemo(() => {
     const { CardCode, CardName, U_PrjCode, U_PrjDesc } = filters;

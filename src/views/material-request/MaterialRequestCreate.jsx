@@ -17,6 +17,7 @@ import BOMItemSelectModal from './BOMItemSelectModal';
 import { createMR, resetMRState } from '../../store/slices/materialRequestSlice';
 import { buildPayload } from './mrHelpers';
 import { createDraft } from '../../store/slices/draftSlice';
+import { buildPayload, buildChildRow, fetchHasChildren } from './mrHelpers';
 
 const today = new Date().toISOString().split('T')[0];
 const nowTime = new Date().toTimeString().slice(0, 5);
@@ -90,10 +91,19 @@ export default function MaterialRequestCreate() {
     setBomItemModalOpen(true);
   };
 
-  const handleBOMItemsConfirm = (selectedLines) => {
+  const handleBOMItemsConfirm = async (selectedLines) => {
     const projCode = pendingBOM.U_PrjCode || form.ProjectCode;
     const mapped = selectedLines.map((l) => boqLineToRow(l, projCode));
-    setLines(mapped.length ? mapped : [emptyRow()]);
+
+    const finalRows = [];
+    for (const row of mapped) {
+      finalRows.push(row);
+      if (row.ItemCode && (await fetchHasChildren(dispatch, row.ItemCode))) {
+        finalRows.push(buildChildRow(row));
+      }
+    }
+
+    setLines(finalRows.length ? finalRows : [emptyRow()]);
     setForm((prev) => ({
       ...prev,
       BOMNo: pendingBOM.DocEntry,

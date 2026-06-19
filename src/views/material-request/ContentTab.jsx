@@ -26,6 +26,7 @@ import { useLookup } from '../../context/LookupContext';
 import { getItems } from '../../store/slices/itemSlice';
 import RequestorSelectModal from './RequestorSelectModal';
 import UoMSelectModal from './UoMSelectModal';
+import { buildChildRow, fetchHasChildren } from './mrHelpers';
 
 const TABLE_COLUMNS = [
   { key: 'seq', label: '#', width: 50 },
@@ -45,7 +46,6 @@ const TABLE_COLUMNS = [
   { key: 'Remark', label: 'Remark', width: 160 }
 ];
 
-// Always read-only regardless of mode
 const DISABLED_COLS = new Set([
   'BOMLineNum',
   'FullDescription',
@@ -70,15 +70,37 @@ export default function MRContentTab({ data, setData, rows, setRows, readOnly = 
   };
 
   const deleteRow = (id) => {
-    setRows((prev) => prev.filter((r) => r.id !== id));
+    setRows((prev) => prev.filter((r) => r.id !== id && r.ParentRowId !== id));
   };
 
   const handleOpenItemLookup = (rowId) => {
+    const row = rows.find((r) => r.id === rowId);
+
+    if (row?.IsChildRow) {
+      openLookup({
+        type: 'itemChild',
+        loadParams: row.ParentItemCode,
+        onSelect: (item) => {
+          updateRow(rowId, 'ItemCode', item.ItemCode || '');
+          updateRow(rowId, 'ItemDescription', item.ItemName || item.ItemDescription || '');
+        }
+      });
+      return;
+    }
+
     openLookup({
       type: 'item',
-      onSelect: (item) => {
+      onSelect: async (item) => {
         updateRow(rowId, 'ItemCode', item.ItemCode || '');
         updateRow(rowId, 'ItemDescription', item.ItemName || item.ItemDescription || '');
+        setRows((prev) => prev.filter((r) => r.ParentRowId !== rowId));
+        if (item.ItemCode && (await fetchHasChildren(dispatch, item.ItemCode))) {
+          setRows((prev) => {
+            const idx = prev.findIndex((r) => r.id === rowId);
+            if (idx === -1) return prev;
+            return [...prev.slice(0, idx + 1), buildChildRow({ id: rowId, ItemCode: item.ItemCode }), ...prev.slice(idx + 1)];
+          });
+        }
       }
     });
   };
@@ -137,23 +159,30 @@ export default function MRContentTab({ data, setData, rows, setRows, readOnly = 
 
     if (col.key === 'ItemCode') {
       return (
-        <TextField
-          size="small"
-          fullWidth
-          value={row.ItemCode || ''}
-          disabled={isDisabled}
-          sx={{ minWidth: 110 }}
-          InputProps={{
-            readOnly: true,
-            endAdornment: (
-              <InputAdornment position="end">
-                <IconButton size="small" disabled={isDisabled} onClick={() => handleOpenItemLookup(row.id)}>
-                  <SearchIcon sx={{ fontSize: 16, color: isDisabled ? 'text.disabled' : '#2196f3' }} />
-                </IconButton>
-              </InputAdornment>
-            )
-          }}
-        />
+        <Box>
+          <TextField
+            size="small"
+            fullWidth
+            value={row.ItemCode || ''}
+            disabled={isDisabled}
+            sx={{ minWidth: 110 }}
+            InputProps={{
+              readOnly: true,
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton size="small" disabled={isDisabled} onClick={() => handleOpenItemLookup(row.id)}>
+                    <SearchIcon sx={{ fontSize: 16, color: isDisabled ? 'text.disabled' : '#2196f3' }} />
+                  </IconButton>
+                </InputAdornment>
+              )
+            }}
+          />
+          {row.IsChildRow && (
+            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>
+              ↳ child of {row.ParentItemCode}
+            </Typography>
+          )}
+        </Box>
       );
     }
 
@@ -288,7 +317,7 @@ export default function MRContentTab({ data, setData, rows, setRows, readOnly = 
 
           <TableBody>
             {rows.map((row, index) => (
-              <TableRow key={row.id} hover>
+              <TableRow key={row.id} hover sx={row.IsChildRow ? { backgroundColor: 'action.hover' } : undefined}>
                 <TableCell>{index + 1}</TableCell>
                 {TABLE_COLUMNS.slice(1).map((col) => (
                   <TableCell key={col.key}>{renderCell(row, col)}</TableCell>
@@ -398,21 +427,4 @@ export default function MRContentTab({ data, setData, rows, setRows, readOnly = 
   );
 }
 
-export const emptyRow = () => ({
-  id: Date.now() + Math.random(),
-  LineId: null,
-  BOMLineNum: '',
-  ItemCode: '',
-  ItemDescription: '',
-  FullDescription: '',
-  Quantity: '',
-  UoMCode: '',
-  BOMQty: '',
-  BOMOpenQty: '',
-  MROpenQty: '',
-  WarehouseCode: '',
-  ProjectCode: '',
-  IssuedQty: '',
-  InStock: '',
-  Remark: ''
-});
+export { emptyRow } from './mrHelpers';
