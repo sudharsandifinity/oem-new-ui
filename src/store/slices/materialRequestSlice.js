@@ -13,6 +13,22 @@ export const getMRList = createAsyncThunk('materialRequest/getList', async ({ to
   }
 });
 
+export const getMyMRList = createAsyncThunk('materialRequest/getMyList', async ({ top = 25, skip = 0, email = '' } = {}, thunkAPI) => {
+  try {
+    const filterParts = ["Status eq 'O'"];
+    if (email) filterParts.push(`U_OEM_UEMAIL eq '${email}'`);
+    const response = await API.get('/sap/mr/list', {
+      params: { top, skip, filter: filterParts.join(' and ') }
+    });
+    return {
+      list: response.data.value ?? response.data,
+      totalCount: response.data['odata.count'] || 0
+    };
+  } catch (error) {
+    return thunkAPI.rejectWithValue(error.response?.data?.message || 'Failed to fetch MR list');
+  }
+});
+
 export const createMR = createAsyncThunk('materialRequest/create', async (payload, thunkAPI) => {
   try {
     const response = await API.post('/sap/mr', payload);
@@ -103,6 +119,20 @@ const materialRequestSlice = createSlice({
         state.totalCount = action.payload.totalCount;
       })
       .addCase(getMRList.rejected, (state, action) => {
+        state.listLoading = false;
+        state.error = action.payload;
+      })
+
+      .addCase(getMyMRList.pending, (state) => {
+        state.listLoading = true;
+        state.error = null;
+      })
+      .addCase(getMyMRList.fulfilled, (state, action) => {
+        state.listLoading = false;
+        state.list = action.payload.list;
+        state.totalCount = action.payload.totalCount;
+      })
+      .addCase(getMyMRList.rejected, (state, action) => {
         state.listLoading = false;
         state.error = action.payload;
       })

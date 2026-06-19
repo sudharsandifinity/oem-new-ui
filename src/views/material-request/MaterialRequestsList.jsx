@@ -12,7 +12,7 @@ import ClearIcon from '@mui/icons-material/Clear';
 
 import MainCard from 'ui-component/cards/MainCard';
 import { useNavigate } from 'react-router-dom';
-import { getMRList } from '../../store/slices/materialRequestSlice';
+import { getMyMRList } from '../../store/slices/materialRequestSlice';
 import { formatDateDDMMYYYY, renderNoWrapCell } from 'utils/dataGridFormatters';
 
 const emptyFilters = () => ({ ProjectCode: '', ProjectName: '' });
@@ -21,18 +21,20 @@ export default function MaterialRequestsList() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { list, totalCount, listLoading } = useSelector((s) => s.materialRequest);
+  const { user } = useSelector((s) => s.auth);
 
   const [filters, setFilters] = useState(emptyFilters());
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 25 });
 
   useEffect(() => {
     dispatch(
-      getMRList({
+      getMyMRList({
         top: paginationModel.pageSize,
-        skip: paginationModel.page * paginationModel.pageSize
+        skip: paginationModel.page * paginationModel.pageSize,
+        email: user?.email || ''
       })
     );
-  }, [paginationModel, dispatch]);
+  }, [paginationModel, user?.email, dispatch]);
 
   const filteredRows = useMemo(() => {
     const { ProjectCode, ProjectName } = filters;

@@ -10,7 +10,7 @@ import ClearIcon from '@mui/icons-material/Clear';
 
 import MainCard from 'ui-component/cards/MainCard';
 import { useNavigate } from 'react-router-dom';
-import { getPRList } from '../../store/slices/purchaseRequestSlice';
+import { getMyPRList } from '../../store/slices/purchaseRequestSlice';
 import { formatDateDDMMYYYY, renderNoWrapCell } from 'utils/dataGridFormatters';
 
 const emptyFilters = () => ({ MRNo: '', ProjectCode: '', ProjectName: '' });
@@ -19,18 +19,20 @@ export default function PurchaseRequestsList() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { list, totalCount, listLoading } = useSelector((s) => s.purchaseRequest);
+  const { user } = useSelector((s) => s.auth);
 
   const [filters, setFilters] = useState(emptyFilters());
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 25 });
 
   useEffect(() => {
     dispatch(
-      getPRList({
+      getMyPRList({
         top: paginationModel.pageSize,
-        skip: paginationModel.page * paginationModel.pageSize
+        skip: paginationModel.page * paginationModel.pageSize,
+        email: user?.email || ''
       })
     );
-  }, [paginationModel, dispatch]);
+  }, [paginationModel, user?.email, dispatch]);
 
   const filteredRows = useMemo(() => {
     const { MRNo, ProjectCode, ProjectName } = filters;

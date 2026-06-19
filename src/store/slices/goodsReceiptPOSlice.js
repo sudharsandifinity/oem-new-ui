@@ -10,6 +10,22 @@ export const getGRPOList = createAsyncThunk('goodsReceiptPO/getList', async ({ t
   }
 });
 
+export const getMyGRPOList = createAsyncThunk(
+  'goodsReceiptPO/getMyList',
+  async ({ top = 25, skip = 0, email = '' } = {}, { rejectWithValue }) => {
+    try {
+      const filterParts = ["DocumentStatus eq 'bost_Open'"];
+      if (email) filterParts.push(`U_OEM_UEMAIL eq '${email}'`);
+      const response = await API.get('/sap/purchase-delivery-notes', {
+        params: { top, skip, filter: filterParts.join(' and ') }
+      });
+      return { list: response.data.value ?? response.data, totalCount: response.data['odata.count'] || 0 };
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || err.message);
+    }
+  }
+);
+
 export const createGRPO = createAsyncThunk('goodsReceiptPO/create', async (payload, { rejectWithValue }) => {
   try {
     const response = await API.post('/sap/purchase-delivery-notes', payload, {
@@ -81,6 +97,18 @@ const goodsReceiptPOSlice = createSlice({
         state.totalCount = action.payload.totalCount;
       })
       .addCase(getGRPOList.rejected, (state) => {
+        state.listLoading = false;
+      })
+
+      .addCase(getMyGRPOList.pending, (state) => {
+        state.listLoading = true;
+      })
+      .addCase(getMyGRPOList.fulfilled, (state, action) => {
+        state.listLoading = false;
+        state.list = action.payload.list;
+        state.totalCount = action.payload.totalCount;
+      })
+      .addCase(getMyGRPOList.rejected, (state) => {
         state.listLoading = false;
       })
 

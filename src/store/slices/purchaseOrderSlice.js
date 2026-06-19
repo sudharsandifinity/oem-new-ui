@@ -18,7 +18,7 @@ export const getOpenPurchaseOrders = createAsyncThunk(
       if (projectCode) filterParts.push(`U_PrjCode eq '${projectCode}'`);
       if (cardCode) filterParts.push(`CardCode eq '${cardCode}'`);
       const response = await API.get('/sap/purchase-orders', {
-        params: { filter: filterParts.join(' and '), top: 200 }
+        params: { filter: filterParts.join(' and ') }
       });
       return response.data.value ?? response.data;
     } catch (err) {

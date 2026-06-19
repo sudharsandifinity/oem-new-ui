@@ -23,10 +23,12 @@ export default function LookupProviderRenderer() {
   useEffect(() => {
     if (!lookupConfig?.open || !config) return;
 
-    if (!data?.length) {
+    if (lookupConfig.loadParams !== undefined) {
+      dispatch(config.loadAction(lookupConfig.loadParams));
+    } else if (!data?.length) {
       dispatch(config.loadAction());
     }
-  }, [lookupConfig?.open, config, data?.length, dispatch]);
+  }, [lookupConfig?.open, lookupConfig?.loadParams, config, data?.length, dispatch]);
 
   if (!lookupConfig || !config) return null;
 
