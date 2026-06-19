@@ -27,6 +27,7 @@ const MaterialRequestsList = Loadable(lazy(() => import('views/material-request/
 const MaterialRequestCreate = Loadable(lazy(() => import('views/material-request/MaterialRequestCreate')));
 const MaterialRequestView = Loadable(lazy(() => import('views/material-request/MaterialRequestView')));
 const MaterialRequestEdit = Loadable(lazy(() => import('views/material-request/MaterialRequestEdit')));
+const MaterialRequestApprovals = Loadable(lazy(() => import('views/material-request/MaterialRequestApprovals')));
 
 // Purchase Request routing
 const PurchaseRequestsList = Loadable(lazy(() => import('views/purchase-request/PurchaseRequestsList')));
@@ -138,6 +139,10 @@ const MainRoutes = {
           element: <MaterialRequestEdit />
         }
       ]
+    },
+    {
+      path: 'Approvals',
+      children: [{ path: 'list', element: <MaterialRequestApprovals /> }]
     },
     {
       path: 'purchase-request',
