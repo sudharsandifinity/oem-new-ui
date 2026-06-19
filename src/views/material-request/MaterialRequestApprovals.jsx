@@ -154,7 +154,7 @@ export default function MaterialRequestApprovals() {
 
       <Paper variant="outlined" sx={{ flex: 1, minHeight: 0, width: '100%', borderRadius: 2, overflow: 'hidden' }}>
         <DataGrid
-          rows={approvals}
+          rows={(Array.isArray(approvals) ? approvals : []).filter((r) => r && r.DocEntry != null)}
           columns={columns}
           getRowId={(row) => row.DocEntry}
           loading={approvalsLoading}

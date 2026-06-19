@@ -38,7 +38,8 @@ export default function MaterialRequestsList() {
 
   const filteredRows = useMemo(() => {
     const { ProjectCode, ProjectName } = filters;
-    return list.filter((r) => {
+    const mrRows = (Array.isArray(list) ? list : []).filter((r) => r && r.DocEntry != null);
+    return mrRows.filter((r) => {
       if (
         ProjectCode &&
         !String(r.U_PrjCode ?? '')
