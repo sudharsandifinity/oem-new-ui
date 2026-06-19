@@ -84,7 +84,7 @@ export default function MaterialRequestEdit() {
     if (saveSuccess) {
       setSnackbar({ open: true, severity: 'success', message: 'Material Request updated successfully!' });
       dispatch(resetMRState());
-      setTimeout(() => navigate(`/material-requests/view/${id}`), 1500);
+      setTimeout(() => navigate(`/material-request/view/${id}`), 1500);
     }
     if (error) {
       setSnackbar({ open: true, severity: 'error', message: error });
@@ -127,7 +127,7 @@ export default function MaterialRequestEdit() {
 
   const handlePRContinue = (selectedLines) => {
     setPrModalOpen(false);
-    navigate('/purchase-requests/create', {
+    navigate('/purchase-request/create', {
       state: {
         mrDocEntry: id,
         mrNo: id,

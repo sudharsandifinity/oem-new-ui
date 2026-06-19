@@ -96,7 +96,7 @@ export default function GoodsReceiptPOList() {
       minWidth: 80,
       renderCell: (params) => (
         <Stack direction="row" height="100%" spacing={1}>
-          <IconButton size="small" color="primary" onClick={() => navigate(`/goods-receipt-po/view/${params.row.DocEntry}`)}>
+          <IconButton size="small" color="primary" onClick={() => navigate(`/GRPO/view/${params.row.DocEntry}`)}>
             <VisibilityIcon fontSize="small" />
           </IconButton>
         </Stack>
@@ -174,7 +174,7 @@ export default function GoodsReceiptPOList() {
             variant="contained"
             color="secondary"
             startIcon={<AddIcon />}
-            onClick={() => navigate('/goods-receipt-po/create')}
+            onClick={() => navigate('/GRPO/create')}
             sx={{ minWidth: 140, whiteSpace: 'nowrap' }}
           >
             Create

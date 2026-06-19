@@ -9,7 +9,7 @@ const materialRequest = {
       id: 'mr-list',
       title: 'Material Request',
       type: 'item',
-      url: '/material-requests/list',
+      url: '/material-request/list',
       icon: IconClipboardList,
       breadcrumbs: false
     }

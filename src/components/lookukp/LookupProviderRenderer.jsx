@@ -42,5 +42,6 @@ export default function LookupProviderRenderer() {
       open={lookupConfig.open}
       onClose={closeLookup}
     />
+    
   );
 }

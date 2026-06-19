@@ -6,28 +6,28 @@ const icons = { IconDashboard };
 
 // ==============================|| DASHBOARD MENU ITEMS ||============================== //
 
-const sales = { 
-  id: 'sales',
-  title: 'Sales',
+const CusAdmin = { 
+  id: 'UserManagement',
+  title: 'UserManagement',
   type: 'group',
   children: [
     {
-      id: 'list',
-      title: 'Sales',
+      id: 'UserManagement',
+      title: 'UserManagement',
       type: 'item',
-      url: '/sales-orders/list',
+      url: '/UserManagement/list',
       icon: icons.IconDashboard,
       breadcrumbs: false
     },
     {
-      id: 'create',
-      title: 'Create Sales Order',
+      id: 'RoleManagement',
+      title: ' Role Management',
       type: 'item',
-      url: '/sales-orders/create',
+      url: '/RoleManagement/list',
       icon: icons.IconDashboard,
       breadcrumbs: false
     }
   ]
 };
 
-export default sales;
+export default CusAdmin;

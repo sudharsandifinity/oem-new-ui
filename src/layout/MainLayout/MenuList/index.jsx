@@ -8,9 +8,27 @@ import Box from '@mui/material/Box';
 // project imports
 import NavItem from './NavItem';
 import NavGroup from './NavGroup';
-import menuItems from 'menu-items';
+import cusmenuItems from 'menu-items';
 
 import { useGetMenuMaster } from 'api/menu';
+import { useSelector } from 'react-redux';
+import {
+  IconDashboard,
+  IconUsers,
+  IconShoppingCart,
+  IconFileInvoice,
+  IconBuilding,
+  IconBriefcase
+} from '@tabler/icons-react';
+
+const menuIcons = {
+  Dashboard: IconDashboard,
+  '': IconUsers,
+  'Material Request': IconShoppingCart,
+  'Purchase Request': IconFileInvoice,
+  'GRPO': IconBriefcase,
+  'Contracting Management': IconBuilding
+};
 
 // ==============================|| SIDEBAR MENU LIST ||============================== //
 
@@ -21,8 +39,53 @@ function MenuList() {
   const [selectedID, setSelectedID] = useState('');
 
   const lastItem = null;
+  const { user } = useSelector((state) => state.auth);
 
-  let lastItemIndex = menuItems.items.length - 1;
+  const authUserMenus = user ? [...new Map(user.Roles.flatMap((role) => role.UserMenus).map((menu) => [menu.id, menu])).values()] : [];
+
+ const menuItems = Boolean(user?.is_com_admin)?cusmenuItems:{
+  items: [
+    {
+      id: 'dashboard',
+      title: 'Dashboard',
+      type: 'group',
+      children: [
+        {
+          id: 'dashboard-item',
+          title: 'Dashboard',
+          type: 'item',
+          url: '/dashboard',
+          icon: IconDashboard,
+          breadcrumbs: false
+        }
+      ]
+    },
+
+    ...authUserMenus
+      .filter((menu) => menu.status === 1)
+      .map((menu) => ({
+        id: menu.id,
+        title: menu.display_name,
+        type: 'group',
+        children: (menu.children || [])
+          .filter((child) => child.status === 1)
+          .map((child) => ({
+            id: child.id,
+            title: child.display_name,
+            type: 'item',
+            url: `/${child.display_name.replace(/\s+/g, '-')}/list`,
+            icon:
+              menuIcons[child.display_name] ||
+              IconDashboard,
+            breadcrumbs: false
+          }))
+      }))
+  ]
+};
+
+console.log('menuItems', menuItems);
+
+  let lastItemIndex = menuItems?.items.length - 1;
   let remItems = [];
   let lastItemId;
 

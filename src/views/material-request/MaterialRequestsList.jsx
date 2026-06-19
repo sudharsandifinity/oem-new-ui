@@ -81,10 +81,10 @@ export default function MaterialRequestsList() {
       minWidth: 120,
       renderCell: (params) => (
         <Stack direction="row" height="100%" spacing={1}>
-          <IconButton size="small" color="primary" onClick={() => navigate(`/material-requests/view/${params.row.DocEntry}`)}>
+          <IconButton size="small" color="primary" onClick={() => navigate(`/material-request/view/${params.row.DocEntry}`)}>
             <VisibilityIcon fontSize="small" />
           </IconButton>
-          <IconButton size="small" color="secondary" onClick={() => navigate(`/material-requests/edit/${params.row.DocEntry}`)}>
+          <IconButton size="small" color="secondary" onClick={() => navigate(`/material-request/edit/${params.row.DocEntry}`)}>
             <EditIcon fontSize="small" />
           </IconButton>
         </Stack>
@@ -152,7 +152,7 @@ export default function MaterialRequestsList() {
             variant="contained"
             color="secondary"
             startIcon={<AddIcon />}
-            onClick={() => navigate('/material-requests/create')}
+            onClick={() => navigate('/material-request/create')}
             sx={{ minWidth: 140, whiteSpace: 'nowrap' }}
           >
             Create

@@ -15,6 +15,8 @@ import MRContentTab, { emptyRow } from './ContentTab';
 import BOMSelectModal from './BOMSelectModal';
 import BOMItemSelectModal from './BOMItemSelectModal';
 import { createMR, resetMRState } from '../../store/slices/materialRequestSlice';
+import { buildPayload } from './mrHelpers';
+import { createDraft } from '../../store/slices/draftSlice';
 import { buildPayload, buildChildRow, fetchHasChildren } from './mrHelpers';
 
 const today = new Date().toISOString().split('T')[0];
@@ -76,7 +78,7 @@ export default function MaterialRequestCreate() {
     if (saveSuccess) {
       setSnackbar({ open: true, severity: 'success', message: 'Material Request created successfully!' });
       dispatch(resetMRState());
-      setTimeout(() => navigate('/material-requests/list'), 1500);
+      setTimeout(() => navigate('/material-request/list'), 1500);
     }
     if (error) {
       setSnackbar({ open: true, severity: 'error', message: error });
@@ -119,7 +121,11 @@ export default function MaterialRequestCreate() {
     const payload = buildPayload(form, lines, user);
     dispatch(createMR(payload));
   };
-
+const handleSubmitasDraft=()=>{
+    const payload = {...buildPayload(form, lines),DocModule:"MaterialRequest",};
+  console.log("handleSubmitasDraft",payload)
+  dispatch(createDraft(payload));
+}
   return (
     <Box>
       <MainCard content={false} sx={{ mb: 3 }}>
@@ -179,7 +185,7 @@ export default function MaterialRequestCreate() {
             </Button>
 
             <Box sx={{ display: 'flex', gap: 2 }}>
-              <Button variant="outlined" color="error" onClick={() => navigate('/material-requests/list')}>
+              <Button variant="outlined" color="error" onClick={() => navigate('/material-request/list')}>
                 Cancel
               </Button>
               <Button
@@ -191,6 +197,7 @@ export default function MaterialRequestCreate() {
               >
                 Submit
               </Button>
+              
             </Box>
           </Box>
         </Box>

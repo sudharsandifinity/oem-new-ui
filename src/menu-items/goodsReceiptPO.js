@@ -9,7 +9,7 @@ const goodsReceiptPO = {
       id: 'grpo-list',
       title: 'Goods Receipt PO',
       type: 'item',
-      url: '/goods-receipt-po/list',
+      url: '/GRPO/list',
       icon: IconPackageImport,
       breadcrumbs: false
     }

@@ -9,7 +9,7 @@ const contractingManagement = {
       id: 'mr-list',
       title: 'Material Request',
       type: 'item',
-      url: '/material-requests/list',
+      url: '//list',
       icon: IconClipboardList,
       breadcrumbs: false
     },
@@ -17,7 +17,7 @@ const contractingManagement = {
       id: 'pr-list',
       title: 'Purchase Request',
       type: 'item',
-      url: '/purchase-requests/list',
+      url: '/purchase-request/list',
       icon: IconFileInvoice,
       breadcrumbs: false
     },
@@ -25,7 +25,7 @@ const contractingManagement = {
       id: 'grpo-list',
       title: 'Goods Receipt PO',
       type: 'item',
-      url: '/goods-receipt-po/list',
+      url: '/GRPO/list',
       icon: IconPackageImport,
       breadcrumbs: false
     }

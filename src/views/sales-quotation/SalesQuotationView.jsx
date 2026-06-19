@@ -1,10 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getMRById, resetMRState } from '../../store/slices/materialRequestSlice';
-import { getDepartments } from '../../store/slices/commonSlice';
-import { mapApiToForm, mapApiLineToRow } from './mrHelpers';
-import { resolveDepartmentName } from 'utils/department';
+import { getGRPOById, resetGRPOState } from '../../store/slices/goodsReceiptPOSlice';
+import { mapApiToForm, mapApiLineToRow } from './grpoHelpers';
 
 import { Box, Breadcrumbs, Button, Divider, Skeleton, Tab, Tabs, Typography } from '@mui/material';
 
@@ -12,8 +10,8 @@ import HomeIcon from '@mui/icons-material/Home';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 
 import MainCard from 'ui-component/cards/MainCard';
-import MRGeneralTab from './GeneralTab';
-import MRContentTab from './ContentTab';
+import GRPOGeneralTab from './GeneralTab';
+import GRPOContentTab from './ContentTab';
 
 const noop = () => {};
 
@@ -22,56 +20,46 @@ function ContentSkeleton() {
     <Box>
       <Box sx={{ display: 'flex', gap: 4 }}>
         <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
-          {[1, 2, 3, 4, 5].map((i) => (
+          {[1, 2, 3].map((i) => (
             <Skeleton key={i} variant="rounded" height={40} />
           ))}
         </Box>
         <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
-          {[1, 2, 3, 4].map((i) => (
+          {[1, 2, 3].map((i) => (
             <Skeleton key={i} variant="rounded" height={40} />
           ))}
         </Box>
       </Box>
-      <Skeleton variant="rounded" height={180} sx={{ mt: 4 }} />
+      <Skeleton variant="rounded" height={200} sx={{ mt: 4 }} />
     </Box>
   );
 }
 
-export default function MaterialRequestView() {
+export default function GoodsReceiptPOView() {
   const { id } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const { currentMR, currentMRLoading, currentMRError } = useSelector((s) => s.materialRequest);
-  const { departments } = useSelector((s) => s.common);
+  const { currentGRPO, currentGRPOLoading, currentGRPOError } = useSelector((s) => s.goodsReceiptPO);
 
   const [tabValue, setTabValue] = useState(0);
   const [form, setForm] = useState(null);
   const [lines, setLines] = useState([]);
 
   useEffect(() => {
-    if (id) dispatch(getMRById(id));
-    if (!departments.length) dispatch(getDepartments());
+    if (id) dispatch(getGRPOById(id));
     return () => {
-      dispatch(resetMRState());
+      dispatch(resetGRPOState());
     };
   }, [dispatch, id]);
 
   useEffect(() => {
-    if (!currentMR) return;
-    setForm(mapApiToForm(currentMR));
-    setLines((currentMR.HLB_MRQ1Collection || []).map(mapApiLineToRow));
-  }, [currentMR]);
+    if (!currentGRPO) return;
+    setForm(mapApiToForm(currentGRPO));
+    setLines((currentGRPO.DocumentLines || []).map(mapApiLineToRow));
+  }, [currentGRPO]);
 
-  useEffect(() => {
-    if (!form?.DeptId || !departments.length) return;
-    const name = resolveDepartmentName(departments, form.DeptId);
-    if (name !== form.Department) {
-      setForm((prev) => ({ ...prev, Department: name }));
-    }
-  }, [departments, form?.DeptId]);
-
-  const loading = currentMRLoading || !form;
+  const loading = currentGRPOLoading || !form;
 
   return (
     <Box>
@@ -87,13 +75,13 @@ export default function MaterialRequestView() {
             gap: 2
           }}
         >
-          <Typography variant="h4">Material Request</Typography>
+          <Typography variant="h4">Goods Receipt PO</Typography>
           <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />}>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <HomeIcon sx={{ fontSize: 18, color: 'secondary.main' }} />
             </Box>
             <Typography variant="body2" color="text.primary">
-              Material Request
+              Goods Receipt PO
             </Typography>
             <Typography variant="body2" color="secondary" fontWeight={600}>
               View
@@ -111,13 +99,13 @@ export default function MaterialRequestView() {
         </Box>
 
         <Box sx={{ p: 3 }}>
-          {currentMRError ? (
+          {currentGRPOError ? (
             <Box sx={{ py: 6, textAlign: 'center' }}>
               <Typography color="error" variant="h5">
-                Failed to load Material Request
+                Failed to load Goods Receipt PO
               </Typography>
               <Typography color="text.secondary" sx={{ mt: 1 }}>
-                {currentMRError}
+                {currentGRPOError}
               </Typography>
             </Box>
           ) : loading ? (
@@ -125,10 +113,10 @@ export default function MaterialRequestView() {
           ) : (
             <>
               <Box sx={{ display: tabValue === 0 ? 'block' : 'none' }}>
-                <MRGeneralTab data={form} setData={noop} readOnly />
+                <GRPOGeneralTab data={form} setData={noop} readOnly />
               </Box>
               <Box sx={{ display: tabValue === 1 ? 'block' : 'none' }}>
-                <MRContentTab data={form} setData={noop} rows={lines} setRows={noop} readOnly />
+                <GRPOContentTab data={form} setData={noop} rows={lines} setRows={noop} readOnly />
               </Box>
             </>
           )}
@@ -138,14 +126,6 @@ export default function MaterialRequestView() {
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
             <Button variant="outlined" onClick={() => navigate(-1)}>
               Back
-            </Button>
-            <Button
-              variant="contained"
-              color="secondary"
-              disabled={loading || !!currentMRError}
-              onClick={() => navigate(`/material-request/edit/${id}`)}
-            >
-              Edit
             </Button>
           </Box>
         </Box>
