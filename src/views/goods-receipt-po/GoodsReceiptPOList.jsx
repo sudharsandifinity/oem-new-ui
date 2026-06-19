@@ -37,7 +37,8 @@ export default function GoodsReceiptPOList() {
 
   const filteredRows = useMemo(() => {
     const { CardCode, CardName, U_PrjCode, U_PrjDesc } = filters;
-    return list.filter((r) => {
+    const grpoRows = (Array.isArray(list) ? list : []).filter((r) => r && r.DocEntry != null);
+    return grpoRows.filter((r) => {
       if (
         CardCode &&
         !String(r.CardCode ?? '')

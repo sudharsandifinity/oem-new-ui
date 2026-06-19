@@ -36,7 +36,8 @@ export default function PurchaseRequestsList() {
 
   const filteredRows = useMemo(() => {
     const { MRNo, ProjectCode, ProjectName } = filters;
-    return list.filter((r) => {
+    const prRows = (Array.isArray(list) ? list : []).filter((r) => r && r.DocEntry != null);
+    return prRows.filter((r) => {
       if (
         MRNo &&
         !String(r.U_MRNo ?? '')
