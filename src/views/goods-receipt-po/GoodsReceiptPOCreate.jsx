@@ -56,7 +56,7 @@ export default function GoodsReceiptPOCreate() {
     if (saveSuccess) {
       setSnackbar({ open: true, severity: 'success', message: 'Goods Receipt PO created successfully!' });
       dispatch(resetGRPOState());
-      setTimeout(() => navigate('/goods-receipt-po/list'), 1500);
+      setTimeout(() => navigate('/GRPO/list'), 1500);
     }
     if (error) {
       setSnackbar({ open: true, severity: 'error', message: error });
@@ -152,7 +152,7 @@ export default function GoodsReceiptPOCreate() {
             </Button>
 
             <Box sx={{ display: 'flex', gap: 2 }}>
-              <Button variant="outlined" color="error" onClick={() => navigate('/goods-receipt-po/list')}>
+              <Button variant="outlined" color="error" onClick={() => navigate('/GRPO/list')}>
                 Cancel
               </Button>
               <Button

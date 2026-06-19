@@ -12,86 +12,90 @@ import ClearIcon from '@mui/icons-material/Clear';
 
 import MainCard from 'ui-component/cards/MainCard';
 import { useNavigate } from 'react-router-dom';
-import { getMRList } from '../../store/slices/materialRequestSlice';
-import { formatDateDDMMYYYY, renderNoWrapCell } from 'utils/dataGridFormatters';
+import {  getadminRoles } from '../../../store/slices/roleSlice';
+import { getadminCompanies } from '../../../store/slices/commonCustomerSlice';
 
-const emptyFilters = () => ({ ProjectCode: '', ProjectName: '' });
+const emptyFilters = () => ({ DocEntry: '', ProjectCode: '', ProjectName: '' });
 
-export default function MaterialRequestsList() {
+export default function RoleManagementList() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { list, totalCount, listLoading } = useSelector((s) => s.materialRequest);
+  const { companies } = useSelector((s) => s.commonCustomer);
+  const { roles, rolesLoading } = useSelector((s) => s.role);
+
+
 
   const [filters, setFilters] = useState(emptyFilters());
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 25 });
-
+{console.log("companies",companies)}
   useEffect(() => {
     dispatch(
-      getMRList({
-        top: paginationModel.pageSize,
-        skip: paginationModel.page * paginationModel.pageSize
-      })
+      getadminRoles()
+      
     );
+    dispatch(getadminCompanies())
   }, [paginationModel, dispatch]);
 
-  const filteredRows = useMemo(() => {
-    const { ProjectCode, ProjectName } = filters;
-    return list.filter((r) => {
-      if (
-        ProjectCode &&
-        !String(r.U_PrjCode ?? '')
-          .toLowerCase()
-          .includes(ProjectCode.toLowerCase())
-      )
-        return false;
-      if (
-        ProjectName &&
-        !String(r.U_PrjDesc ?? '')
-          .toLowerCase()
-          .includes(ProjectName.toLowerCase())
-      )
-        return false;
-      return true;
-    });
-  }, [list, filters]);
+  
 
-  const clearFilters = () => setFilters(emptyFilters());
 
-  const columns = [
-    {
-      field: 'sno',
-      headerName: '#',
-      width: 60,
-      sortable: false,
-      filterable: false,
-      renderCell: (params) => filteredRows.findIndex((r) => r.DocEntry === params.id) + 1
-    },
-    { field: 'U_PrjCode', headerName: 'Project Code', flex: 1, minWidth: 150 },
-    { field: 'U_PrjDesc', headerName: 'Project Name', flex: 1.5, minWidth: 200 },
-    { field: 'U_SQDocNum', headerName: 'BOM No', flex: 1, minWidth: 120 },
-    { field: 'U_DocDate', headerName: 'Requisition Date', flex: 1, minWidth: 150, valueFormatter: formatDateDDMMYYYY },
-    { field: 'U_Remark', headerName: 'Remark', flex: 1.5, minWidth: 180, renderCell: renderNoWrapCell },
-    {
-      field: 'action',
-      headerName: 'Action',
-      sortable: false,
-      filterable: false,
-      minWidth: 120,
-      renderCell: (params) => (
-        <Stack direction="row" height="100%" spacing={1}>
-          <IconButton size="small" color="primary" onClick={() => navigate(`/material-request/view/${params.row.DocEntry}`)}>
-            <VisibilityIcon fontSize="small" />
-          </IconButton>
-          <IconButton size="small" color="secondary" onClick={() => navigate(`/material-request/edit/${params.row.DocEntry}`)}>
-            <EditIcon fontSize="small" />
-          </IconButton>
-        </Stack>
-      )
-    }
-  ];
+const columns = [
+  {
+    field: "name",
+    headerName: "Name",
+    flex: 1,
+    minWidth: 120,
+   
+  },
+  
+  {
+    field: "companies",
+    headerName: "companyId",
+    flex: 1.5,
+    minWidth: 200,
+    renderCell: (params) =>
+      companies?.find((com) => com.id===params.row.companyId).name|| "-"
+  },
+  {
+    field: "status",
+    headerName: "Status",
+    flex: 1,
+    minWidth: 150,
+  },
+  {
+    field: "action",
+    headerName: "Action",
+    sortable: false,
+    filterable: false,
+    minWidth: 120,
+    renderCell: (params) => (
+      <Stack direction="row" height="100%" spacing={1}>
+        <IconButton
+          size="small"
+          color="primary"
+          onClick={() =>
+            navigate(`/RoleManagement/view/${params.row.id}`)
+          }
+        >
+          <VisibilityIcon fontSize="small" />
+        </IconButton>
+
+        <IconButton
+          size="small"
+          color="secondary"
+          onClick={() =>
+            navigate(`/RoleManagement/edit/${params.row.id}`) 
+          }
+        >
+          <EditIcon fontSize="small" />
+        </IconButton>
+      </Stack>
+    )
+  }
+];
 
   return (
-    <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', height: '100%' }}>
+    <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', height: 'calc(100vh - 176px)' }}>
       {/* Header */}
       <MainCard content={false} sx={{ mb: 3, flexShrink: 0 }}>
         <Box
@@ -105,21 +109,20 @@ export default function MaterialRequestsList() {
             gap: 2
           }}
         >
-          <Typography variant="h4">Material Request</Typography>
+          <Typography variant="h4">Role management </Typography>
           <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />}>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <HomeIcon sx={{ fontSize: 18, color: 'secondary.main' }} />
             </Box>
-            <Typography variant="body2">Material Request</Typography>
+            <Typography variant="body2">Role Management </Typography>
             <Typography variant="body2" color="secondary" fontWeight={600}>
               List
             </Typography>
           </Breadcrumbs>
+          
         </Box>
       </MainCard>
-
-      {/* Filters */}
-      <Paper variant="outlined" sx={{ p: 2, mb: 3, borderRadius: 2, flexShrink: 0 }}>
+<Paper variant="outlined" sx={{ p: 2, mb: 3, borderRadius: 2, flexShrink: 0 }}>
         <Box
           sx={{
             display: 'flex',
@@ -130,42 +133,30 @@ export default function MaterialRequestsList() {
           }}
         >
           <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', flex: 1 }}>
-            <TextField
-              size="small"
-              label="Project Code"
-              value={filters.ProjectCode}
-              onChange={(e) => setFilters((p) => ({ ...p, ProjectCode: e.target.value }))}
-            />
-            <TextField
-              size="small"
-              label="Project Name"
-              value={filters.ProjectName}
-              onChange={(e) => setFilters((p) => ({ ...p, ProjectName: e.target.value }))}
-            />
-            <Button variant="outlined" color="error" startIcon={<ClearIcon />} onClick={clearFilters}>
-              Clear
-            </Button>
+            
           </Box>
-          <Button
+             <Button
             variant="contained"
             color="secondary"
             startIcon={<AddIcon />}
-            onClick={() => navigate('/material-request/create')}
+            onClick={() => navigate('/RoleManagement/create')}
             sx={{ minWidth: 140, whiteSpace: 'nowrap' }}
           >
             Create
           </Button>
         </Box>
       </Paper>
-
+      {/* Filters */}
+     
+          {console.log("first",roles)}
       <Paper variant="outlined" sx={{ flex: 1, minHeight: 0, width: '100%', borderRadius: 2, overflow: 'hidden' }}>
         <DataGrid
-          rows={filteredRows}
+          rows={roles}
           columns={columns}
-          getRowId={(row) => row.DocEntry}
-          loading={listLoading}
+          getRowId={(row) => row.id}
+          loading={rolesLoading}
           paginationMode="server"
-          rowCount={totalCount}
+          rowCount={roles?.length}
           paginationModel={paginationModel}
           onPaginationModelChange={setPaginationModel}
           pageSizeOptions={[10, 25, 50, 100]}

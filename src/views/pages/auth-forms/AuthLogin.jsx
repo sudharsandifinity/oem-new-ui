@@ -30,7 +30,7 @@ export default function AuthLogin() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const { loading, error, isAuthenticated } = useSelector((state) => state.auth);
+  const { loading, error, isAuthenticated,user } = useSelector((state) => state.auth);
 
   // ==============================|| LOCAL STATE ||============================== //
 
@@ -62,6 +62,7 @@ export default function AuthLogin() {
   };
 
   useEffect(() => {
+   
     if (isAuthenticated) {
       navigate('/dashboard');
     }

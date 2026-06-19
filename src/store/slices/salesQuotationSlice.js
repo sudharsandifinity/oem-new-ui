@@ -3,7 +3,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import API from 'api/axios';
 
 const initialState = {
-  orders: [],
+  quotationlist: [],
   totalCount: 0, 
   currentOrder: null,
   loading: false,
@@ -11,11 +11,11 @@ const initialState = {
   saveSuccess: false
 };
 
-export const getSalesOrders = createAsyncThunk('salesOrder/getAll', async ({ top = 25, skip = 0 } = {}, thunkAPI) => {
+export const getSalesQuotations = createAsyncThunk('SalesQuotation/getAll', async ({ top = 25, skip = 0 } = {}, thunkAPI) => {
   try {
-    const response = await API.get('/sap/orders', { params: { top, skip } });
+    const response = await API.get('/sap/quotations', { params: { top, skip } });
     return {
-      orders: response.data.value,
+      quotationlist: response.data.value,
       totalCount: response.data['odata.count'] || 0
     };
   } catch (error) {
@@ -23,9 +23,9 @@ export const getSalesOrders = createAsyncThunk('salesOrder/getAll', async ({ top
   }
 });
 
-export const createSalesOrder = createAsyncThunk('salesOrder/create', async (formData, thunkAPI) => {
+export const createSalesQuotation = createAsyncThunk('SalesQuotation/create', async (formData, thunkAPI) => {
   try {
-    const response = await API.post('/sap/orders', formData, {
+    const response = await API.post('/sap/quotations', formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
       }
@@ -44,9 +44,9 @@ export const createSalesOrder = createAsyncThunk('salesOrder/create', async (for
   }
 });
 
-export const updateSalesOrder = createAsyncThunk('salesOrder/update', async ({ docEntry, formData }, thunkAPI) => {
+export const updateSalesQuotation = createAsyncThunk('SalesQuotation/update', async ({ docEntry, formData }, thunkAPI) => {
   try {
-    const response = await API.patch(`/sap/orders/${docEntry}`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+    const response = await API.patch(`/sap/quotations/${docEntry}`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
     return response.data;
   } catch (error) {
     const responseData = error.response?.data;
@@ -58,9 +58,9 @@ export const updateSalesOrder = createAsyncThunk('salesOrder/update', async ({ d
   }
 });
 
-export const getSalesOrderById = createAsyncThunk('salesOrder/getById', async (docEntry, thunkAPI) => {
+export const getSalesQuotationById = createAsyncThunk('SalesQuotation/getById', async (docEntry, thunkAPI) => {
   try {
-    const response = await API.get(`/sap/orders/${docEntry}`);
+    const response = await API.get(`/sap/quotations/${docEntry}`);
 
     return response.data;
   } catch (error) {
@@ -68,12 +68,12 @@ export const getSalesOrderById = createAsyncThunk('salesOrder/getById', async (d
   }
 });
 
-const salesOrderSlice = createSlice({
-  name: 'salesOrder',
+const SalesQuotationSlice = createSlice({
+  name: 'SalesQuotation',
   initialState,
 
   reducers: {
-    resetSalesOrderState: (state) => {
+    resetSalesQuotationState: (state) => {
       state.loading = false;
       state.error = null;
       state.saveSuccess = false;
@@ -83,74 +83,74 @@ const salesOrderSlice = createSlice({
 
   extraReducers: (builder) => {
     builder
-      .addCase(getSalesOrders.pending, (state) => {
+      .addCase(getSalesQuotations.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
 
-      .addCase(getSalesOrders.fulfilled, (state, action) => {
+      .addCase(getSalesQuotations.fulfilled, (state, action) => {
         state.loading = false;
-        state.orders = action.payload.orders;
+        state.quotationlist = action.payload.quotationlist;
         state.totalCount = action.payload.totalCount;
       })
 
-      .addCase(getSalesOrders.rejected, (state, action) => {
+      .addCase(getSalesQuotations.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
 
-      .addCase(createSalesOrder.pending, (state) => {
+      .addCase(createSalesQuotation.pending, (state) => {
         state.loading = true;
         state.error = null;
         state.saveSuccess = false;
       })
 
-      .addCase(createSalesOrder.fulfilled, (state, action) => {
+      .addCase(createSalesQuotation.fulfilled, (state, action) => {
         state.loading = false;
         state.currentOrder = action.payload;
         state.saveSuccess = true;
       })
 
-      .addCase(createSalesOrder.rejected, (state, action) => {
+      .addCase(createSalesQuotation.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload?.message || action.payload;
       })
 
-      .addCase(updateSalesOrder.pending, (state) => {
+      .addCase(updateSalesQuotation.pending, (state) => {
         state.loading = true;
         state.error = null;
         state.saveSuccess = false;
       })
 
-      .addCase(updateSalesOrder.fulfilled, (state, action) => {
+      .addCase(updateSalesQuotation.fulfilled, (state, action) => {
         state.loading = false;
         state.currentOrder = action.payload;
         state.saveSuccess = true;
       })
 
-      .addCase(updateSalesOrder.rejected, (state, action) => {
+      .addCase(updateSalesQuotation.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload?.message || action.payload;
       })
 
-      .addCase(getSalesOrderById.pending, (state) => {
+      .addCase(getSalesQuotationById.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
 
-      .addCase(getSalesOrderById.fulfilled, (state, action) => {
+      .addCase(getSalesQuotationById.fulfilled, (state, action) => {
         state.loading = false;
         state.currentOrder = action.payload;
         console.log('ccccc', state.currentOrder);
       })
 
-      .addCase(getSalesOrderById.rejected, (state, action) => {
+      .addCase(getSalesQuotationById.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });
   }
 });
 
-export const { resetSalesOrderState } = salesOrderSlice.actions;
+export const { resetSalesQuotationState } = SalesQuotationSlice.actions;
 
-export default salesOrderSlice.reducer;
+export default SalesQuotationSlice.reducer;

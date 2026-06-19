@@ -20,7 +20,7 @@ import {
   TextField,
   Typography
 } from '@mui/material';
-
+import Checkbox from '@mui/material/Checkbox';
 import CloseIcon from '@mui/icons-material/Close';
 
 export default function GenericLookupModal({
@@ -32,14 +32,17 @@ export default function GenericLookupModal({
   error = null,
   filters = [],
   columns = [],
-  onSelect
+  onSelect,
+  multiSelect = false
 }) {
   const [filterValues, setFilterValues] = useState({});
-
+  const [selectedRows, setSelectedRows] = useState([]);
   // ================= LOAD DATA =================
-
   useEffect(() => {
     if (!open) return;
+
+    setSelectedRows([]);
+
     const initialFilters = {};
 
     filters.forEach((f) => {
@@ -48,6 +51,24 @@ export default function GenericLookupModal({
 
     setFilterValues(initialFilters);
   }, [open]);
+  const handleRowSelection = (row) => {
+    console.log('handlerowselection', multiSelect);
+    if (!multiSelect) {
+      onSelect?.(row);
+      onClose?.();
+      return;
+    }
+
+    setSelectedRows((prev) => {
+      const exists = prev.some((r) => r.id === row.id);
+
+      if (exists) {
+        return prev.filter((r) => r.id !== row.id);
+      }
+
+      return [...prev, row];
+    });
+  };
 
   // ================= FILTER DATA =================
 
@@ -160,6 +181,21 @@ export default function GenericLookupModal({
                   backgroundColor: 'grey.100'
                 }}
               >
+                {' '}
+                {multiSelect && (
+                  <TableCell padding="checkbox">
+                    <Checkbox
+                      checked={filteredData.length > 0 && selectedRows.length === filteredData.length}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setSelectedRows(filteredData);
+                        } else {
+                          setSelectedRows([]);
+                        }
+                      }}
+                    />
+                  </TableCell>
+                )}
                 <TableCell
                   sx={{
                     fontWeight: 700
@@ -167,7 +203,6 @@ export default function GenericLookupModal({
                 >
                   S.No
                 </TableCell>
-
                 {columns.map((column) => (
                   <TableCell
                     key={column.field}
@@ -201,18 +236,31 @@ export default function GenericLookupModal({
               {/* DATA */}
 
               {filteredData.map((row, index) => (
+                // <TableRow
+                //   hover
+                //   key={row.id || index}
+                //   sx={{
+                //     cursor: 'pointer'
+                //   }}
+                //   onClick={() => {
+                //     onSelect?.(row);
+
+                //     onClose?.();
+                //   }}
+                // >
                 <TableRow
                   hover
                   key={row.id || index}
                   sx={{
                     cursor: 'pointer'
                   }}
-                  onClick={() => {
-                    onSelect?.(row);
-
-                    onClose?.();
-                  }}
+                  onClick={() => handleRowSelection(row)}
                 >
+                  {multiSelect && (
+                    <TableCell padding="checkbox">
+                      <Checkbox checked={selectedRows.some((r) => r.id === row.id)} />
+                    </TableCell>
+                  )}
                   <TableCell>{index + 1}</TableCell>
 
                   {columns.map((column) => (
@@ -232,6 +280,28 @@ export default function GenericLookupModal({
               )}
             </TableBody>
           </Table>
+          {multiSelect && (
+            <Box
+              sx={{
+                mt: 2,
+                display: 'flex',
+                justifyContent: 'flex-end',
+                gap: 1
+              }}
+            >
+              <Button onClick={onClose}>Cancel</Button>
+
+              <Button
+                variant="contained"
+                onClick={() => {
+                  onSelect?.(selectedRows);
+                  onClose?.();
+                }}
+              >
+                Select ({selectedRows.length})
+              </Button>
+            </Box>
+          )}
         </TableContainer>
       </DialogContent>
     </Dialog>

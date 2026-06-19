@@ -12,13 +12,18 @@ import materialRequestReducer from './slices/materialRequestSlice';
 import purchaseRequestReducer from './slices/purchaseRequestSlice';
 import goodsReceiptPOReducer from './slices/goodsReceiptPOSlice';
 import purchaseOrderReducer from './slices/purchaseOrderSlice';
+import salesQuotationReducer from './slices/salesQuotationSlice'
 import commonReducer from './slices/commonSlice';
 import attachmentReducer from './slices/attachmentSlice';
+import commonCustomerReducer from './slices/commonCustomerSlice'
+import draftReducer from './slices/draftSlice';
+import roleReducer from './slices/roleSlice';
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
     salesOrder: salesOrderReducer,
+    salesQuotation:salesQuotationReducer,
     customer: customerReducer,
     item: itemReducer,
     taxCode: taxCodeReducer,
@@ -26,12 +31,15 @@ export const store = configureStore({
     warehouse: warehouseReducer,
     currency: currencyReducer,
     freight: freightReducer,
+    draft:draftReducer,
     materialRequest: materialRequestReducer,
     purchaseRequest: purchaseRequestReducer,
     goodsReceiptPO: goodsReceiptPOReducer,
     purchaseOrder: purchaseOrderReducer,
     common: commonReducer,
-    attachment: attachmentReducer
+    attachment: attachmentReducer,
+    commonCustomer:commonCustomerReducer,
+    role:roleReducer,
   }
 });
 

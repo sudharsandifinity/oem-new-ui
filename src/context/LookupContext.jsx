@@ -3,7 +3,7 @@ import { createContext, useContext, useState } from 'react';
 const LookupContext = createContext(null);
 
 export function LookupProvider({ children }) {
-  const [lookupConfig, setLookupConfig] = useState(null);
+  const [lookupConfig, setLookupConfig] = useState(null); 
 
   const openLookup = (config) => {
     setLookupConfig({

@@ -1,6 +1,8 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import API from 'api/axios';
 
+
+
 export const getUsers = createAsyncThunk('common/getUsers', async (_, thunkAPI) => {
   try {
     const response = await API.get('/sap/users');

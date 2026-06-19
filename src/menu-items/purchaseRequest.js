@@ -9,7 +9,7 @@ const purchaseRequest = {
       id: 'pr-list',
       title: 'Purchase Request',
       type: 'item',
-      url: '/purchase-requests/list',
+      url: '/purchase-request/list',
       icon: IconFileInvoice,
       breadcrumbs: false
     }

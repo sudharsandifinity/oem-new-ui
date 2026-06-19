@@ -105,6 +105,14 @@ export default function MRContentTab({ data, setData, rows, setRows, readOnly = 
       }
     });
   };
+  const handleOpenUOMLookup = (rowId) => {
+    openLookup({
+      type: 'UOM',
+      onSelect: (uom) => {
+        updateRow(rowId, 'Code', uom.Code || uom.Code || '');
+      }
+    });
+  };
 
   const handleRequestorSelect = ({ code, name, deptId = '', deptName = '' }) => {
     setData((prev) => ({ ...prev, ReqCode: code, RequestorName: name, DeptId: deptId, Department: deptName }));
@@ -213,7 +221,26 @@ export default function MRContentTab({ data, setData, rows, setRows, readOnly = 
         />
       );
     }
-
+ if (col.key === 'UoMCode') {
+      return (
+        <TextField
+          size="small"
+          fullWidth
+          value={row.Code || ''}
+          
+          sx={{ minWidth: 110 }}
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton size="small" disabled={readOnly} onClick={() => handleOpenUOMLookup(row.id)}>
+                  <SearchIcon sx={{ fontSize: 16, color: readOnly ? 'text.disabled' : '#2196f3' }} />
+                </IconButton>
+              </InputAdornment>
+            )
+          }}
+        />
+      );
+    }
     const field = (
       <TextField
         size="small"
