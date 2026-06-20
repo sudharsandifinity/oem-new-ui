@@ -20,7 +20,7 @@ const TABLE_COLUMNS = [
   { key: 'MRLine', label: 'MR Line', width: 90, editable: false },
   { key: 'ItemCode', label: 'Item Code', width: 170, editable: false },
   { key: 'ItemDescription', label: 'Description', width: 180, editable: false },
-  { key: 'FullDescription', label: 'Full Description', width: 180, editable: false },
+  { key: 'FullDescription', label: 'Full Description', width: 180, editable: true },
   { key: 'Quantity', label: 'Quantity', width: 135, editable: true, type: 'number' },
   { key: 'UoMCode', label: 'UOM', width: 120, editable: false },
   { key: 'BOMQty', label: 'BOM Qty', width: 100, editable: false },

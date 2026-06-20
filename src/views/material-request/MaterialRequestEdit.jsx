@@ -11,8 +11,8 @@ import { Alert, Box, Breadcrumbs, Button, CircularProgress, Divider, Skeleton, S
 
 import HomeIcon from '@mui/icons-material/Home';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-// import RefreshIcon from '@mui/icons-material/Refresh'; // used by Refresh Stock (hidden)
+// import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+// import RefreshIcon from '@mui/icons-material/Refresh';
 
 import MainCard from 'ui-component/cards/MainCard';
 import MRGeneralTab from './GeneralTab';
@@ -210,6 +210,7 @@ export default function MaterialRequestEdit() {
 
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
             <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap' }}>
+              {/* 
               <Button
                 variant="outlined"
                 color="primary"
@@ -219,6 +220,7 @@ export default function MaterialRequestEdit() {
               >
                 Purchase Request
               </Button>
+              */}
 
               {/* Refresh Stock
               <Button

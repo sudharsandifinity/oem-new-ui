@@ -30,10 +30,12 @@ import HomeIcon from '@mui/icons-material/Home';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 
 import MainCard from 'ui-component/cards/MainCard';
 import MRGeneralTab from './GeneralTab';
 import MRContentTab from './ContentTab';
+import PurchaseRequestModal from './PurchaseRequestModal';
 
 const noop = () => {};
 
@@ -70,6 +72,7 @@ export default function MaterialRequestView() {
   const [lines, setLines] = useState([]);
   const [confirm, setConfirm] = useState({ open: false, type: null });
   const [snackbar, setSnackbar] = useState({ open: false, severity: 'success', message: '' });
+  const [prModalOpen, setPrModalOpen] = useState(false);
 
   useEffect(() => {
     if (id) dispatch(getMRById(id));
@@ -91,7 +94,7 @@ export default function MaterialRequestView() {
     if (name !== form.Department) {
       setForm((prev) => ({ ...prev, Department: name }));
     }
-  }, [departments, form?.DeptId]);
+      }, [departments, form?.DeptId, currentMR]);
 
   const loading = currentMRLoading || !form;
   const docStatus = currentMR?.U_DocStatus;
@@ -100,6 +103,25 @@ export default function MaterialRequestView() {
 
   const closeConfirm = () => {
     if (!decisionLoading) setConfirm({ open: false, type: null });
+  };
+
+  const handlePRContinue = (selectedLines) => {
+    setPrModalOpen(false);
+    navigate('/purchase-request/create', {
+      state: {
+        mrDocEntry: id,
+        mrNo: id,
+        projectCode: form.ProjectCode,
+        projectName: form.ProjectName,
+        reqCode: form.ReqCode,
+        reqType: null,
+        requestorTypeLabel: form.RequestorType,
+        requestorName: form.RequestorName,
+        department: form.DeptId,
+        departmentName: form.Department,
+        selectedLines
+      }
+    });
   };
 
   const handleDecision = async () => {
@@ -182,7 +204,7 @@ export default function MaterialRequestView() {
           <Divider sx={{ my: 4 }} />
 
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
-            <Box>
+            <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center', flexWrap: 'wrap' }}>
               {docStatus && (
                 <Chip
                   label={(MR_STATUS_META[docStatus] || { label: docStatus }).label}
@@ -190,6 +212,15 @@ export default function MaterialRequestView() {
                   variant="outlined"
                 />
               )}
+              <Button
+                variant="outlined"
+                color="primary"
+                startIcon={<ShoppingCartIcon />}
+                disabled={loading || !!currentMRError}
+                onClick={() => setPrModalOpen(true)}
+              >
+                Purchase Request
+              </Button>
             </Box>
 
             <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
@@ -199,7 +230,7 @@ export default function MaterialRequestView() {
               {isPending && (
                 <>
                   <Button
-                    variant="contained"
+                    variant="outlined"
                     color="success"
                     startIcon={<CheckCircleIcon />}
                     disabled={loading || !!currentMRError || decisionLoading}
@@ -208,7 +239,7 @@ export default function MaterialRequestView() {
                     Approve
                   </Button>
                   <Button
-                    variant="contained"
+                    variant="outlined"
                     color="error"
                     startIcon={<CancelIcon />}
                     disabled={loading || !!currentMRError || decisionLoading}
@@ -231,6 +262,8 @@ export default function MaterialRequestView() {
         </Box>
       </MainCard>
 
+      <PurchaseRequestModal open={prModalOpen} onClose={() => setPrModalOpen(false)} onContinue={handlePRContinue} lines={lines} />
+
       <Dialog open={confirm.open} onClose={closeConfirm} maxWidth="xs" fullWidth>
         <DialogTitle>{confirm.type === 'approve' ? 'Approve Material Request' : 'Reject Material Request'}</DialogTitle>
         <DialogContent>
@@ -245,7 +278,7 @@ export default function MaterialRequestView() {
           </Button>
           <Button
             onClick={handleDecision}
-            variant="contained"
+            variant="outlined"
             color={confirm.type === 'approve' ? 'success' : 'error'}
             disabled={decisionLoading}
             startIcon={decisionLoading ? <CircularProgress size={16} color="inherit" /> : null}

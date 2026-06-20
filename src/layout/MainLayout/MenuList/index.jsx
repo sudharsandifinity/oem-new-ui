@@ -18,7 +18,8 @@ import {
   IconShoppingCart,
   IconFileInvoice,
   IconBuilding,
-  IconBriefcase
+  IconBriefcase,
+  IconClipboardCheck
 } from '@tabler/icons-react';
 
 const menuIcons = {
@@ -27,7 +28,8 @@ const menuIcons = {
   'Material Request': IconShoppingCart,
   'Purchase Request': IconFileInvoice,
   'GRPO': IconBriefcase,
-  'Contracting Management': IconBuilding
+  'Contracting Management': IconBuilding,
+  'Approvals': IconClipboardCheck
 };
 
 // ==============================|| SIDEBAR MENU LIST ||============================== //

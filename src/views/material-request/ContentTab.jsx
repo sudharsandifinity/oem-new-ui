@@ -48,7 +48,6 @@ const TABLE_COLUMNS = [
 
 const DISABLED_COLS = new Set([
   'BOMLineNum',
-  'FullDescription',
   'BOMQty',
   'BOMOpenQty',
   'MROpenQty',

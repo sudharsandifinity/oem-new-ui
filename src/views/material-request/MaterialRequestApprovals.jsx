@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Box, Breadcrumbs, Chip, IconButton, Paper, Stack, Tooltip, Typography } from '@mui/material';
+import { Alert, Box, Breadcrumbs, Button, Chip, IconButton, Paper, Stack, Tooltip, Typography } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 
 import HomeIcon from '@mui/icons-material/Home';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
+import RefreshIcon from '@mui/icons-material/Refresh';
 
 import MainCard from 'ui-component/cards/MainCard';
 import { useNavigate } from 'react-router-dom';
@@ -24,10 +25,20 @@ export default function MaterialRequestApprovals() {
   const { approvals, approvalsCount, approvalsLoading } = useSelector((s) => s.materialRequest);
 
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 25 });
+  const [loadError, setLoadError] = useState(null);
+
+  const loadApprovals = async () => {
+    setLoadError(null);
+    try {
+      await dispatch(getMRApprovals({ top: paginationModel.pageSize, skip: paginationModel.page * paginationModel.pageSize })).unwrap();
+    } catch (err) {
+      setLoadError(err || 'Failed to load approvals');
+    }
+  };
 
   useEffect(() => {
-    dispatch(getMRApprovals({ top: paginationModel.pageSize, skip: paginationModel.page * paginationModel.pageSize }));
-  }, [paginationModel, dispatch]);
+    loadApprovals();
+  }, [paginationModel]);
 
   const rows = (Array.isArray(approvals) ? approvals : []).filter((r) => r && r.DocEntry != null);
 
@@ -90,6 +101,20 @@ export default function MaterialRequestApprovals() {
           </Breadcrumbs>
         </Box>
       </MainCard>
+
+      {loadError && (
+        <Alert
+          severity="error"
+          sx={{ mb: 2, flexShrink: 0 }}
+          action={
+            <Button color="inherit" size="small" startIcon={<RefreshIcon fontSize="small" />} onClick={loadApprovals}>
+              Retry
+            </Button>
+          }
+        >
+          {loadError}
+        </Alert>
+      )}
 
       <Paper variant="outlined" sx={{ flex: 1, minHeight: 0, width: '100%', borderRadius: 2, overflow: 'hidden' }}>
         <DataGrid

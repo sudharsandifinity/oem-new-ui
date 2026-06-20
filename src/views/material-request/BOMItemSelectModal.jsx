@@ -3,6 +3,7 @@ import {
   Box,
   Button,
   Checkbox,
+  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
@@ -32,6 +33,7 @@ const COLUMNS = [
 export default function BOMItemSelectModal({ open, onClose, onConfirm, bomLines = [] }) {
   const [selected, setSelected] = useState(new Set());
   const [filters, setFilters] = useState({ U_ItemCode: '', U_Desc: '' });
+  const [submitting, setSubmitting] = useState(false);
 
   const filtered = useMemo(
     () =>
@@ -70,13 +72,19 @@ export default function BOMItemSelectModal({ open, onClose, onConfirm, bomLines 
     }
   };
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     const chosenLines = bomLines.filter((l) => selected.has(l.LineId));
-    onConfirm(chosenLines);
-    handleClose();
+    setSubmitting(true);
+    try {
+      await onConfirm(chosenLines);
+      handleClose();
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleClose = () => {
+    if (submitting) return;
     setSelected(new Set());
     setFilters({ U_ItemCode: '', U_Desc: '' });
     onClose();
@@ -88,7 +96,7 @@ export default function BOMItemSelectModal({ open, onClose, onConfirm, bomLines 
         <Typography variant="h5" component="div">
           Select Items from BOM
         </Typography>
-        <IconButton onClick={handleClose}>
+        <IconButton onClick={handleClose} disabled={submitting}>
           <CloseIcon />
         </IconButton>
       </DialogTitle>
@@ -179,10 +187,16 @@ export default function BOMItemSelectModal({ open, onClose, onConfirm, bomLines 
       </DialogContent>
 
       <DialogActions sx={{ px: 3, pb: 2, gap: 1 }}>
-        <Button variant="outlined" onClick={handleClose}>
+        <Button variant="outlined" onClick={handleClose} disabled={submitting}>
           Cancel
         </Button>
-        <Button variant="contained" color="secondary" disabled={selected.size === 0} onClick={handleConfirm}>
+        <Button
+          variant="contained"
+          color="secondary"
+          disabled={selected.size === 0 || submitting}
+          onClick={handleConfirm}
+          startIcon={submitting ? <CircularProgress size={16} color="inherit" /> : null}
+        >
           Add Selected
         </Button>
       </DialogActions>
