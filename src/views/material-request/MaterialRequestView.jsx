@@ -212,15 +212,17 @@ export default function MaterialRequestView() {
                   variant="outlined"
                 />
               )}
-              <Button
-                variant="outlined"
-                color="primary"
-                startIcon={<ShoppingCartIcon />}
-                disabled={loading || !!currentMRError}
-                onClick={() => setPrModalOpen(true)}
-              >
-                Purchase Request
-              </Button>
+              {!isPending && (
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  startIcon={<ShoppingCartIcon />}
+                  disabled={loading || !!currentMRError}
+                  onClick={() => setPrModalOpen(true)}
+                >
+                  Purchase Request
+                </Button>
+              )}
             </Box>
 
             <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>

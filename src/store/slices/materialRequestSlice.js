@@ -119,9 +119,12 @@ const materialRequestSlice = createSlice({
     boqList: [],
     boqLoading: false,
 
+    listRequestId: null,
+
     approvals: [],
     approvalsCount: 0,
     approvalsLoading: false,
+    approvalsRequestId: null,
     decisionLoading: false,
 
     createLoading: false,
@@ -144,30 +147,36 @@ const materialRequestSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(getMRList.pending, (state) => {
+      .addCase(getMRList.pending, (state, action) => {
+        state.listRequestId = action.meta.requestId;
         state.listLoading = true;
         state.error = null;
       })
       .addCase(getMRList.fulfilled, (state, action) => {
+        if (action.meta.requestId !== state.listRequestId) return;
         state.listLoading = false;
         state.list = action.payload.list;
         state.totalCount = action.payload.totalCount;
       })
       .addCase(getMRList.rejected, (state, action) => {
+        if (action.meta.requestId !== state.listRequestId) return;
         state.listLoading = false;
         state.error = action.payload;
       })
 
-      .addCase(getMyMRList.pending, (state) => {
+      .addCase(getMyMRList.pending, (state, action) => {
+        state.listRequestId = action.meta.requestId;
         state.listLoading = true;
         state.error = null;
       })
       .addCase(getMyMRList.fulfilled, (state, action) => {
+        if (action.meta.requestId !== state.listRequestId) return;
         state.listLoading = false;
         state.list = action.payload.list;
         state.totalCount = action.payload.totalCount;
       })
       .addCase(getMyMRList.rejected, (state, action) => {
+        if (action.meta.requestId !== state.listRequestId) return;
         state.listLoading = false;
         state.error = action.payload;
       })
@@ -214,16 +223,19 @@ const materialRequestSlice = createSlice({
         state.error = action.payload?.message || action.payload;
       })
 
-      .addCase(getMRApprovals.pending, (state) => {
+      .addCase(getMRApprovals.pending, (state, action) => {
+        state.approvalsRequestId = action.meta.requestId;
         state.approvalsLoading = true;
         state.error = null;
       })
       .addCase(getMRApprovals.fulfilled, (state, action) => {
+        if (action.meta.requestId !== state.approvalsRequestId) return;
         state.approvalsLoading = false;
         state.approvals = action.payload.list;
         state.approvalsCount = action.payload.totalCount;
       })
       .addCase(getMRApprovals.rejected, (state, action) => {
+        if (action.meta.requestId !== state.approvalsRequestId) return;
         state.approvalsLoading = false;
         state.error = action.payload;
       })
