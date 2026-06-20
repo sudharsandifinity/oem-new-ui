@@ -40,7 +40,8 @@ export const mapApiLineToRow = (line, index) => ({
 export const buildPayload = (form) => ({
  name: form.name,
   companyId: form.companyId,
-   userMenuIds: form.userMenuIds?.map((id) => ({
+   userMenuIds: form.userMenuIds?.map((id) =>
+     ({
     menuId:id
   })),
   status: form.status,

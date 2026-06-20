@@ -54,13 +54,14 @@ const columns = [
     flex: 1.5,
     minWidth: 200,
     renderCell: (params) =>
-      companies?.find((com) => com.id===params.row.companyId).name|| "-"
+      companies?.find((com) => com.id===params.row.companyId)?.name|| "-"
   },
   {
     field: "status",
     headerName: "Status",
     flex: 1,
     minWidth: 150,
+    renderCell:(params)=>params.row.status==1?"Active":"In Active"
   },
   {
     field: "action",
