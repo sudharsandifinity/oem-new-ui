@@ -34,7 +34,7 @@ export const getAdminRoleById = createAsyncThunk('role/getById', async (id, thun
 
 export const updateAdminRoles = createAsyncThunk('role/update', async ({ id, payload }, thunkAPI) => {
   try {
-    const response = await API.patch(`/company-admin/roles/${id}`, payload);
+    const response = await API.put(`/company-admin/roles/${id}`, payload);
     return response.data;
   } catch (error) {
     const d = error.response?.data;

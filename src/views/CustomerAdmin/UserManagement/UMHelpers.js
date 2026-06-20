@@ -5,6 +5,7 @@ export const mapApiToForm = (userData) => ({
     last_name: userData.last_name || '',
     email: userData.email || '',
     status: userData.status,
+    is_approver:userData.is_approver||'',
 
     // Company
     companies: userData.Companies || [],
@@ -48,6 +49,18 @@ export const buildPayload = (form) => ({
   email:form.email,
   roleIds: form.roleIds,
   projectIds: form.projectIds,
+  companyIds:form.companyIds,
+  is_approver:form.is_approver,
+  status: form.status,
+ 
+});
+export const updatebuildPayload = (form) => ({
+ first_name: form.first_name,
+  last_name: form.last_name,
+  roleIds: form.roleIds,
+  projectIds: form.projectIds,
+  companyIds:form.companyIds,
+  is_approver:form.is_approver,
   status: form.status,
  
 });

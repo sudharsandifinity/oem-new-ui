@@ -38,7 +38,7 @@ const columns = [
     field: "name",
     headerName: "Name",
     flex: 1,
-    minWidth: 120,
+    minWidth: 100,
     renderCell: (params) => (
       <Stack>
         {`${params.row.first_name || ""} ${params.row.last_name || ""}`}
@@ -68,13 +68,28 @@ const columns = [
       params.row.Projects?.map((pr) => pr.Name).join(", ") || "-"
   },
   {
+    field: "project",
+    headerName: "Projects",
+    flex: 1,
+    minWidth: 150,
+    renderCell: (params) =>
+      params.row.Projects?.map((pr) => pr.Name).join(", ") || "-"
+  },
+  {
+    field: "status",
+    headerName: "Status",
+    flex: 1,
+    minWidth: 150,
+    renderCell:(params)=>params.row.status==1?"Active":"In Active"
+  },
+  {
     field: "action",
     headerName: "Action",
     sortable: false,
     filterable: false,
     minWidth: 120,
     renderCell: (params) => (
-      <Stack direction="row" height="100%" spacing={1}>
+      <Stack direction="row" height="100%" spacing={1}>{console.log("params.row",params.row)}
         <IconButton
           size="small"
           color="primary"
