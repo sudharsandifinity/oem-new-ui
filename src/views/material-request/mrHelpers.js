@@ -3,7 +3,8 @@ import { getChildItems } from '../../store/slices/itemSlice';
 export const MR_STATUS_META = {
   D: { label: 'Pending', color: 'warning' },
   O: { label: 'Approved', color: 'success' },
-  C: { label: 'Rejected', color: 'error' }
+  C: { label: 'Closed', color: 'default' },
+  R: { label: 'Rejected', color: 'error' }
 };
 
 export const emptyRow = () => ({
@@ -58,8 +59,9 @@ export const mapApiToForm = (mr) => ({
   Department: mr.U_Dept != null ? String(mr.U_Dept) : '',
   DeptId: mr.U_Dept != null ? String(mr.U_Dept) : '',
   Remark: mr.U_Remark ?? '',
-  PreparedBy: mr.U_OEM_UEMAIL ?? '',
-  DocStatus: mr.U_DocStatus ?? ''
+  PreparedBy: mr.U_PreparedBy ?? '',
+  DocStatus: mr.U_DocStatus ?? '',
+  AprRemark: mr.U_Apr_remark ?? ''
 });
 
 export const mapApiLineToRow = (line, index) => ({
@@ -97,6 +99,8 @@ export const buildPayload = (form, lines, user) => ({
   U_SQDocNum: form.BOMNo ? String(form.BOMNo) : null,
   U_OEM_UID: user?.id ?? null,
   U_OEM_UEMAIL: user?.email ?? null,
+  U_OEM_UName: [user?.first_name, user?.last_name].filter(Boolean).join(' ') || null,
+  U_PreparedBy: [user?.first_name, user?.last_name].filter(Boolean).join(' ') || null,
   HLB_MRQ1Collection: lines.map((r) => ({
     ...(r.LineId != null ? { LineId: r.LineId } : {}),
     U_ItmSerCode: r.ItemCode,

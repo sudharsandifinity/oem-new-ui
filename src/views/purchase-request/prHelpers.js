@@ -66,6 +66,8 @@ export const buildPRPayload = (form, lines, user) => ({
   U_PrjCode: form.ProjectCode ?? '',
   U_PrjDesc: form.ProjectName ?? '',
   U_OEM_UEMAIL: user?.email ?? null,
+  U_OEM_UName: [user?.first_name, user?.last_name].filter(Boolean).join(' ') || null,
+  U_PreparedBy: [user?.first_name, user?.last_name].filter(Boolean).join(' ') || null,
   DocumentLines: lines.map((line) => ({
     ItemCode: line.ItemCode,
     ItemDescription: line.ItemDescription,

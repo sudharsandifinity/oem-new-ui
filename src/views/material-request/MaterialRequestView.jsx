@@ -23,6 +23,7 @@ import {
   Snackbar,
   Tab,
   Tabs,
+  TextField,
   Typography
 } from '@mui/material';
 
@@ -71,6 +72,7 @@ export default function MaterialRequestView() {
   const [form, setForm] = useState(null);
   const [lines, setLines] = useState([]);
   const [confirm, setConfirm] = useState({ open: false, type: null });
+  const [aprRemark, setAprRemark] = useState('');
   const [snackbar, setSnackbar] = useState({ open: false, severity: 'success', message: '' });
   const [prModalOpen, setPrModalOpen] = useState(false);
 
@@ -127,13 +129,14 @@ export default function MaterialRequestView() {
   const handleDecision = async () => {
     const action = confirm.type === 'approve' ? approveMR : rejectMR;
     try {
-      await dispatch(action(id)).unwrap();
+      await dispatch(action({ docEntry: id, remark: aprRemark })).unwrap();
       setSnackbar({
         open: true,
         severity: 'success',
         message: `Material Request ${confirm.type === 'approve' ? 'approved' : 'rejected'} successfully!`
       });
       setConfirm({ open: false, type: null });
+      setAprRemark('');
       dispatch(getMRById(id));
     } catch (err) {
       setSnackbar({ open: true, severity: 'error', message: err || 'Action failed' });
@@ -201,6 +204,12 @@ export default function MaterialRequestView() {
             </>
           )}
 
+          {currentMR?.U_Apr_remark && (
+            <Alert severity="info" sx={{ mt: 3 }}>
+              <strong>Approver Remark:</strong> {currentMR.U_Apr_remark}
+            </Alert>
+          )}
+
           <Divider sx={{ my: 4 }} />
 
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
@@ -236,7 +245,10 @@ export default function MaterialRequestView() {
                     color="success"
                     startIcon={<CheckCircleIcon />}
                     disabled={loading || !!currentMRError || decisionLoading}
-                    onClick={() => setConfirm({ open: true, type: 'approve' })}
+                    onClick={() => {
+                      setAprRemark('');
+                      setConfirm({ open: true, type: 'approve' });
+                    }}
                   >
                     Approve
                   </Button>
@@ -245,7 +257,10 @@ export default function MaterialRequestView() {
                     color="error"
                     startIcon={<CancelIcon />}
                     disabled={loading || !!currentMRError || decisionLoading}
-                    onClick={() => setConfirm({ open: true, type: 'reject' })}
+                    onClick={() => {
+                      setAprRemark('');
+                      setConfirm({ open: true, type: 'reject' });
+                    }}
                   >
                     Reject
                   </Button>
@@ -273,6 +288,17 @@ export default function MaterialRequestView() {
             Are you sure you want to {confirm.type === 'approve' ? 'approve' : 'reject'} this Material Request
             {form?.ProjectCode ? ` for project ${form.ProjectCode}` : ''}?
           </DialogContentText>
+          <TextField
+            fullWidth
+            multiline
+            rows={3}
+            size="small"
+            label="Remark (optional)"
+            sx={{ mt: 2 }}
+            value={aprRemark}
+            onChange={(e) => setAprRemark(e.target.value)}
+            disabled={decisionLoading}
+          />
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2 }}>
           <Button onClick={closeConfirm} color="inherit" disabled={decisionLoading}>

@@ -395,7 +395,13 @@ export default function MRContentTab({ data, setData, rows, setRows, readOnly = 
               Additional Information
             </Typography>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-              <TextField fullWidth size="small" label="Prepared By" value={data?.PreparedBy || user?.email || ''} disabled />
+              <TextField
+                fullWidth
+                size="small"
+                label="Prepared By"
+                value={data?.PreparedBy || [user?.first_name, user?.last_name].filter(Boolean).join(' ') || ''}
+                disabled
+              />
               <TextField
                 fullWidth
                 multiline

@@ -18,7 +18,16 @@ import { formatDateDDMMYYYY, renderNoWrapCell } from 'utils/dataGridFormatters';
 
 const renderStatusCell = (params) => {
   const meta = MR_STATUS_META[params.value] || { label: params.value || '—', color: 'default' };
-  return <Chip size="small" label={meta.label} color={meta.color} variant="outlined" />;
+  const chip = <Chip size="small" label={meta.label} color={meta.color} variant="outlined" />;
+
+  if (params.row.U_Apr_remark) {
+    return (
+      <Tooltip title={`Approver Remark: ${params.row.U_Apr_remark}`} arrow>
+        <span>{chip}</span>
+      </Tooltip>
+    );
+  }
+  return chip;
 };
 
 const emptyFilters = () => ({ ProjectCode: '', ProjectName: '' });
