@@ -15,11 +15,11 @@ export const getMRList = createAsyncThunk('materialRequest/getList', async ({ to
 
 export const getMyMRList = createAsyncThunk('materialRequest/getMyList', async ({ top = 25, skip = 0, email = '' } = {}, thunkAPI) => {
   try {
-    const filterParts = ["Status eq 'O'"];
+    const filterParts = [];
     if (email) filterParts.push(`U_OEM_UEMAIL eq '${email}'`);
-    const response = await API.get('/sap/mr/list', {
-      params: { top, skip, filter: filterParts.join(' and ') }
-    });
+    const params = { top, skip };
+    if (filterParts.length) params.filter = filterParts.join(' and ');
+    const response = await API.get('/sap/mr/list', { params });
     return {
       list: response.data.value ?? response.data,
       totalCount: response.data['odata.count'] || 0

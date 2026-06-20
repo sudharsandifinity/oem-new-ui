@@ -61,6 +61,7 @@ export default function MRContentTab({ data, setData, rows, setRows, readOnly = 
   const dispatch = useDispatch();
   const { openLookup } = useLookup();
   const { items, loading: itemsLoading } = useSelector((s) => s.item);
+  const { user } = useSelector((s) => s.auth);
   const [requestorModalOpen, setRequestorModalOpen] = useState(false);
   const [uomModalOpen, setUomModalOpen] = useState(false);
   const [activeUomRowId, setActiveUomRowId] = useState(null);
@@ -394,16 +395,19 @@ export default function MRContentTab({ data, setData, rows, setRows, readOnly = 
             <Typography variant="h5" sx={{ mb: 2.5 }}>
               Additional Information
             </Typography>
-            <TextField
-              fullWidth
-              multiline
-              rows={4}
-              size="small"
-              label="Additional Information"
-              value={data?.Remark || ''}
-              disabled={readOnly}
-              onChange={(e) => setData((prev) => ({ ...prev, Remark: e.target.value }))}
-            />
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <TextField fullWidth size="small" label="Prepared By" value={data?.PreparedBy || user?.email || ''} disabled />
+              <TextField
+                fullWidth
+                multiline
+                rows={4}
+                size="small"
+                label="Remarks"
+                value={data?.Remark || ''}
+                disabled={readOnly}
+                onChange={(e) => setData((prev) => ({ ...prev, Remark: e.target.value }))}
+              />
+            </Box>
           </Paper>
         </Box>
       </Box>

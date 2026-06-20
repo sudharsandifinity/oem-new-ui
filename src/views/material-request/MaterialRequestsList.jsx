@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Box, Breadcrumbs, Button, IconButton, Paper, Stack, TextField, Typography } from '@mui/material';
+import { Box, Breadcrumbs, Button, Chip, IconButton, Paper, Stack, TextField, Tooltip, Typography } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 
 import HomeIcon from '@mui/icons-material/Home';
@@ -13,7 +13,13 @@ import ClearIcon from '@mui/icons-material/Clear';
 import MainCard from 'ui-component/cards/MainCard';
 import { useNavigate } from 'react-router-dom';
 import { getMyMRList } from '../../store/slices/materialRequestSlice';
+import { MR_STATUS_META } from './mrHelpers';
 import { formatDateDDMMYYYY, renderNoWrapCell } from 'utils/dataGridFormatters';
+
+const renderStatusCell = (params) => {
+  const meta = MR_STATUS_META[params.value] || { label: params.value || '—', color: 'default' };
+  return <Chip size="small" label={meta.label} color={meta.color} variant="outlined" />;
+};
 
 const emptyFilters = () => ({ ProjectCode: '', ProjectName: '' });
 
@@ -74,28 +80,40 @@ export default function MaterialRequestsList() {
     { field: 'U_SQDocNum', headerName: 'BOM No', flex: 1, minWidth: 120 },
     { field: 'U_DocDate', headerName: 'Requisition Date', flex: 1, minWidth: 150, valueFormatter: formatDateDDMMYYYY },
     { field: 'U_Remark', headerName: 'Remark', flex: 1.5, minWidth: 180, renderCell: renderNoWrapCell },
+    { field: 'U_DocStatus', headerName: 'Status', width: 120, sortable: false, renderCell: renderStatusCell },
     {
       field: 'action',
       headerName: 'Action',
       sortable: false,
       filterable: false,
       minWidth: 120,
-      renderCell: (params) => (
-        <Stack direction="row" height="100%" spacing={1}>
-          <IconButton size="small" color="primary" onClick={() => navigate(`/material-request/view/${params.row.DocEntry}`)}>
-            <VisibilityIcon fontSize="small" />
-          </IconButton>
-          <IconButton size="small" color="secondary" onClick={() => navigate(`/material-request/edit/${params.row.DocEntry}`)}>
-            <EditIcon fontSize="small" />
-          </IconButton>
-        </Stack>
-      )
+      renderCell: (params) => {
+        const isApproved = params.row.U_DocStatus === 'O';
+        return (
+          <Stack direction="row" height="100%" spacing={1}>
+            <IconButton size="small" color="primary" onClick={() => navigate(`/material-request/view/${params.row.DocEntry}`)}>
+              <VisibilityIcon fontSize="small" />
+            </IconButton>
+            <Tooltip title={isApproved ? 'Approved requests cannot be edited' : 'Edit'}>
+              <span>
+                <IconButton
+                  size="small"
+                  color="secondary"
+                  disabled={isApproved}
+                  onClick={() => navigate(`/material-request/edit/${params.row.DocEntry}`)}
+                >
+                  <EditIcon fontSize="small" />
+                </IconButton>
+              </span>
+            </Tooltip>
+          </Stack>
+        );
+      }
     }
   ];
 
   return (
     <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', height: '100%' }}>
-      {/* Header */}
       <MainCard content={false} sx={{ mb: 3, flexShrink: 0 }}>
         <Box
           sx={{
@@ -121,7 +139,6 @@ export default function MaterialRequestsList() {
         </Box>
       </MainCard>
 
-      {/* Filters */}
       <Paper variant="outlined" sx={{ p: 2, mb: 3, borderRadius: 2, flexShrink: 0 }}>
         <Box
           sx={{

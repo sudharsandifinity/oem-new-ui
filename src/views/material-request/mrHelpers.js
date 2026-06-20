@@ -1,5 +1,11 @@
 import { getChildItems } from '../../store/slices/itemSlice';
 
+export const MR_STATUS_META = {
+  D: { label: 'Pending', color: 'warning' },
+  O: { label: 'Approved', color: 'success' },
+  C: { label: 'Rejected', color: 'error' }
+};
+
 export const emptyRow = () => ({
   id: Date.now() + Math.random(),
   LineId: null,
@@ -51,7 +57,9 @@ export const mapApiToForm = (mr) => ({
   RequestorName: mr.U_ReqName ?? '',
   Department: mr.U_Dept != null ? String(mr.U_Dept) : '',
   DeptId: mr.U_Dept != null ? String(mr.U_Dept) : '',
-  Remark: mr.U_Remark ?? ''
+  Remark: mr.U_Remark ?? '',
+  PreparedBy: mr.U_OEM_UEMAIL ?? '',
+  DocStatus: mr.U_DocStatus ?? ''
 });
 
 export const mapApiLineToRow = (line, index) => ({
