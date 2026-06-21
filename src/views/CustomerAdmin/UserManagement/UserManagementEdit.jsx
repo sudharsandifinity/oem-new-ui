@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams, useNavigate } from 'react-router-dom';
-import { mapApiToForm, mapApiLineToRow, buildPayload } from './UMHelpers';
+import { mapApiToForm, mapApiLineToRow, buildPayload, updatebuildPayload } from './UMHelpers';
 
 import { Alert, Box, Breadcrumbs, Button, CircularProgress, Divider, Skeleton, Snackbar, Tab, Tabs, Typography } from '@mui/material';
 
@@ -57,6 +57,7 @@ export default function UserManagementEdit() {
 
   useEffect(() => {
     if (!currentAdminUser) return;
+    console.log("currentAdminUser",currentAdminUser)
     setForm(mapApiToForm(currentAdminUser));
   }, [currentAdminUser]);
 
@@ -75,7 +76,7 @@ export default function UserManagementEdit() {
  
 
   const handleSubmit = () => {
-    dispatch(updateAdminUsers({ id: id, payload: buildPayload(form) }));
+    dispatch(updateAdminUsers({ id: id, payload: updatebuildPayload(form) }));
   };
 
 

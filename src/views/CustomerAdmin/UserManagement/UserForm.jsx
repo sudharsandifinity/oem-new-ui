@@ -1,17 +1,61 @@
-import { Box, FormControl, IconButton, InputAdornment, InputLabel, MenuItem, Select, TextField } from '@mui/material';
+import {
+  Box,
+  FormControl,
+  FormControlLabel,
+  FormGroup,
+  IconButton,
+  InputAdornment,
+  InputLabel,
+  MenuItem,
+  Select,
+  Switch,
+  TextField
+} from '@mui/material';
 import PersonSearchIcon from '@mui/icons-material/PersonSearch';
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import { useLookup } from '../../../context/LookupContext';
 import { useState } from 'react';
+import styled from '@emotion/styled';
 
 const today = new Date().toISOString().split('T')[0];
 const nowTime = new Date().toTimeString().slice(0, 5);
+const Android12Switch = styled(Switch)(({ theme }) => ({
+  padding: 8,
+  '& .MuiSwitch-track': {
+    borderRadius: 22 / 2,
+    '&::before, &::after': {
+      content: '""',
+      position: 'absolute',
+      top: '50%',
+      transform: 'translateY(-50%)',
+      width: 16,
+      height: 16
+    },
+    '&::before': {
+      backgroundImage: `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" height="16" width="16" viewBox="0 0 24 24"><path fill="${encodeURIComponent(
+        theme.palette.getContrastText(theme.palette.primary.main)
+      )}" d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z"/></svg>')`,
+      left: 12
+    },
+    '&::after': {
+      backgroundImage: `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" height="16" width="16" viewBox="0 0 24 24"><path fill="${encodeURIComponent(
+        theme.palette.getContrastText(theme.palette.primary.main)
+      )}" d="M19,13H5V11H19V13Z" /></svg>')`,
+      right: 12
+    }
+  },
+  '& .MuiSwitch-thumb': {
+    boxShadow: 'none',
+    width: 16,
+    height: 16,
+    margin: 2
+  }
+}));
 
 export default function UserForm({ data, setData, readOnly = false, lockCustomerProject = false }) {
   const { openLookup } = useLookup();
   const [is_super_user, setIs_super_user] = useState('0');
   const [is_com_admin, setIs_com_admin] = useState('0');
-
 
   const handleChange = (field, value) => {
     setData((prev) => ({ ...prev, [field]: value }));
@@ -19,7 +63,6 @@ export default function UserForm({ data, setData, readOnly = false, lockCustomer
 
   const customerDisabled = readOnly || lockCustomerProject;
   const projectDisabled = readOnly || lockCustomerProject;
-
 
   const handleOpenCompanyLookup = () => {
     openLookup({
@@ -31,20 +74,19 @@ export default function UserForm({ data, setData, readOnly = false, lockCustomer
         setData((prev) => ({
           ...prev,
           //companies: companies,
-          companyIds: company.map((c) => c.company_code),
+          companyIds: company.map((c) => c.id),
           companyNames: company.map((c) => c.name).join(', ')
         }));
       }
     });
   };
- 
- 
+
   const handleOpenRoleLookup = () => {
     openLookup({
       type: 'role',
       multiSelect: true,
       onSelect: (role) => {
-         const roles = Array.isArray(role) ? role : [role];
+        const roles = Array.isArray(role) ? role : [role];
         console.log('Selected Roles', roles);
         setData((prev) => ({
           ...prev,
@@ -56,14 +98,13 @@ export default function UserForm({ data, setData, readOnly = false, lockCustomer
     });
   };
 
-
   const handleOpenProjectLookup = () => {
     openLookup({
       type: 'cusadminproject',
       multiSelect: true,
       onSelect: (projects) => {
-         const project = Array.isArray(projects) ? projects : [projects];
-        console.log('Selected projects', projects)
+        const project = Array.isArray(projects) ? projects : [projects];
+        console.log('Selected projects', projects);
         setData((prev) => ({
           ...prev,
           //projects: projects,
@@ -75,9 +116,16 @@ export default function UserForm({ data, setData, readOnly = false, lockCustomer
   };
   return (
     <Box sx={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
-      {/* ===== LEFT — Customer / Project / BOM ===== */}
-      <Box sx={{ flex: 1, minWidth: 350, display: 'flex', flexDirection: 'column', gap: 3 }}>
-       
+      {/* LEFT */}
+      <Box
+        sx={{
+          flex: 1,
+          minWidth: 350,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 3
+        }}
+      >
         <TextField
           fullWidth
           label="First Name"
@@ -91,27 +139,48 @@ export default function UserForm({ data, setData, readOnly = false, lockCustomer
           value={data?.last_name || ''}
           onChange={(e) => setData((prev) => ({ ...prev, last_name: e.target.value }))}
         />
+
         <TextField
           fullWidth
           label="Email"
           value={data?.email || ''}
           onChange={(e) => setData((prev) => ({ ...prev, email: e.target.value }))}
         />
+
         <TextField
           fullWidth
           label="Password"
-          type="text"
+          type="password"
           value={data?.password || ''}
           onChange={(e) => setData((prev) => ({ ...prev, password: e.target.value }))}
         />
-
-        
       </Box>
 
-      {/* ===== RIGHT — Requisition details ===== */}
-      <Box sx={{ flex: 1, minWidth: 350, display: 'flex', flexDirection: 'column', gap: 3 }}>
-       
-        
+      {/* RIGHT */}
+      <Box
+        sx={{
+          flex: 1,
+          minWidth: 350,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 3
+        }}
+      >
+        <TextField
+          fullWidth
+          label="Company"
+          value={data?.companyNames || ''}
+          InputProps={{
+            readOnly: true,
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton onClick={handleOpenCompanyLookup}>
+                  <PersonSearchIcon />
+                </IconButton>
+              </InputAdornment>
+            )
+          }}
+        />
         <TextField
           fullWidth
           label="Role"
@@ -127,7 +196,7 @@ export default function UserForm({ data, setData, readOnly = false, lockCustomer
             )
           }}
         />
-       
+
         <TextField
           fullWidth
           label="Project"
@@ -143,18 +212,47 @@ export default function UserForm({ data, setData, readOnly = false, lockCustomer
             )
           }}
         />
-        <FormControl sx={{ minWidth: 150 }} disabled={readOnly}>
-          <InputLabel>Status</InputLabel>
-          <Select
-            label="Requestor Type"
-            value={data?.status || 'User'}
-            onChange={(e) => setData((prev) => ({ ...prev, status: e.target.value }))}
-          >
-            <MenuItem value="1">Active</MenuItem>
-            <MenuItem value="0">In Active</MenuItem>
-          </Select>
-        </FormControl>
-        
+
+        <Box
+          sx={{
+            height: 56,
+            px: 2,
+            display: 'flex',
+            gap: 60,
+            alignItems: 'center'
+          }}
+        >
+          <>
+            <FormControlLabel
+              control={
+                <Android12Switch
+                  checked={data?.is_approver}
+                  onChange={(e) =>
+                    setData((prev) => ({
+                      ...prev,
+                      is_approver: e.target.checked 
+                    }))
+                  }
+                />
+              }
+              label="Is Approved"
+            />
+            <FormControlLabel
+              control={
+                <Android12Switch
+                  checked={data?.status === 1}
+                  onChange={(e) =>
+                    setData((prev) => ({
+                      ...prev,
+                      status: e.target.checked ? 1 : 0
+                    }))
+                  }
+                />
+              }
+              label="Status"
+            />
+          </>
+        </Box>
       </Box>
     </Box>
   );
