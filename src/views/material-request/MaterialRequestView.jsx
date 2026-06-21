@@ -177,9 +177,6 @@ export default function MaterialRequestView() {
 
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
             <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-              <Button variant="outlined" onClick={() => navigate(-1)}>
-                Back
-              </Button>
               {!isPending && (
                 <Button
                   variant="outlined"
@@ -191,6 +188,12 @@ export default function MaterialRequestView() {
                   Purchase Request
                 </Button>
               )}
+            </Box>
+
+            <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+              <Button variant="outlined" onClick={() => navigate(-1)}>
+                Back
+              </Button>
               <Button
                 variant="contained"
                 color="secondary"
