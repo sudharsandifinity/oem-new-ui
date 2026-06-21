@@ -15,7 +15,6 @@ import MRContentTab, { emptyRow } from './ContentTab';
 import BOMSelectModal from './BOMSelectModal';
 import BOMItemSelectModal from './BOMItemSelectModal';
 import { createMR, resetMRState } from '../../store/slices/materialRequestSlice';
-import { buildPayload } from './mrHelpers';
 import { createDraft } from '../../store/slices/draftSlice';
 import { buildPayload, buildChildRow, fetchHasChildren } from './mrHelpers';
 
