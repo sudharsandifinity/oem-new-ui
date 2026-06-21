@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getMRById, resetMRState, approveMR, rejectMR } from '../../store/slices/materialRequestSlice';
 import { getDepartments } from '../../store/slices/commonSlice';
-import { mapApiToForm, mapApiLineToRow, MR_STATUS_META } from './mrHelpers';
+import { mapApiToForm, mapApiLineToRow } from './mrHelpers';
 import { resolveDepartmentName } from 'utils/department';
 
 import {
@@ -11,7 +11,6 @@ import {
   Box,
   Breadcrumbs,
   Button,
-  Chip,
   CircularProgress,
   Dialog,
   DialogActions,
@@ -98,6 +97,7 @@ export default function MaterialRequestApprovalView() {
   const loading = currentMRLoading || !form;
   const docStatus = currentMR?.U_DocStatus;
   const isPending = docStatus === 'D';
+  const isApproved = docStatus === 'O';
 
   const closeConfirm = () => {
     if (!decisionLoading) setConfirm({ open: false, type: null });
@@ -135,16 +135,7 @@ export default function MaterialRequestApprovalView() {
             gap: 2
           }}
         >
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-            <Typography variant="h4">Material Request Approval</Typography>
-            {docStatus && (
-              <Chip
-                label={(MR_STATUS_META[docStatus] || { label: docStatus }).label}
-                color={(MR_STATUS_META[docStatus] || { color: 'default' }).color}
-                variant="outlined"
-              />
-            )}
-          </Box>
+          <Typography variant="h4">Material Request Approval</Typography>
           <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />}>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <HomeIcon sx={{ fontSize: 18, color: 'secondary.main' }} />
@@ -199,9 +190,19 @@ export default function MaterialRequestApprovalView() {
           <Divider sx={{ my: 4 }} />
 
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
-            <Button variant="outlined" onClick={() => navigate(-1)}>
-              Back
-            </Button>
+            <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+              <Button variant="outlined" onClick={() => navigate(-1)}>
+                Back
+              </Button>
+              <Button
+                variant="contained"
+                color="secondary"
+                disabled={loading || !!currentMRError || isApproved}
+                onClick={() => navigate(`/material-request/edit/${id}`)}
+              >
+                Edit
+              </Button>
+            </Box>
 
             {isPending && (
               <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
