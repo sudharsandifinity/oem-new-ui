@@ -66,7 +66,7 @@ export default function MaterialRequestApprovals() {
       renderCell: (params) => (
         <Stack direction="row" height="100%" spacing={0.5} alignItems="center">
           <Tooltip title="View">
-            <IconButton size="small" color="primary" onClick={() => navigate(`/material-request/view/${params.row.DocEntry}`)}>
+            <IconButton size="small" color="primary" onClick={() => navigate(`/Approvals/view/${params.row.DocEntry}`)}>
               <VisibilityIcon fontSize="small" />
             </IconButton>
           </Tooltip>

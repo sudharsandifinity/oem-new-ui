@@ -26,7 +26,7 @@ import { useLookup } from '../../context/LookupContext';
 import { getItems } from '../../store/slices/itemSlice';
 import RequestorSelectModal from './RequestorSelectModal';
 import UoMSelectModal from './UoMSelectModal';
-import { buildChildRow, fetchHasChildren } from './mrHelpers';
+import { buildChildRow, fetchHasChildren, emptyRow } from './mrHelpers';
 
 const TABLE_COLUMNS = [
   { key: 'seq', label: '#', width: 50 },
@@ -66,7 +66,18 @@ export default function MRContentTab({ data, setData, rows, setRows, readOnly = 
   const [activeUomRowId, setActiveUomRowId] = useState(null);
 
   const updateRow = (id, field, value) => {
-    setRows((prev) => prev.map((r) => (r.id === id ? { ...r, [field]: value } : r)));
+    setRows((prev) => {
+      const updated = prev.map((r) => (r.id === id ? { ...r, [field]: value } : r));
+      const idx = updated.findIndex((r) => r.id === id);
+      const row = updated[idx];
+      const isLastRow = idx === updated.length - 1;
+      const isComplete = String(row.ItemCode || '').trim() && String(row.Quantity || '').trim();
+
+      if (isLastRow && !row.IsChildRow && isComplete) {
+        return [...updated, emptyRow()];
+      }
+      return updated;
+    });
   };
 
   const deleteRow = (id) => {
@@ -395,7 +406,13 @@ export default function MRContentTab({ data, setData, rows, setRows, readOnly = 
               Additional Information
             </Typography>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-              <TextField fullWidth size="small" label="Prepared By" value={data?.PreparedBy || user?.email || ''} disabled />
+              <TextField
+                fullWidth
+                size="small"
+                label="Prepared By"
+                value={data?.PreparedBy || [user?.first_name, user?.last_name].filter(Boolean).join(' ') || ''}
+                disabled
+              />
               <TextField
                 fullWidth
                 multiline

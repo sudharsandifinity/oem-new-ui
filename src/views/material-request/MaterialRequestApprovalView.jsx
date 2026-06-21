@@ -1,21 +1,39 @@
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getMRById, resetMRState } from '../../store/slices/materialRequestSlice';
+import { getMRById, resetMRState, approveMR, rejectMR } from '../../store/slices/materialRequestSlice';
 import { getDepartments } from '../../store/slices/commonSlice';
-import { mapApiToForm, mapApiLineToRow, MR_STATUS_META } from './mrHelpers';
+import { mapApiToForm, mapApiLineToRow } from './mrHelpers';
 import { resolveDepartmentName } from 'utils/department';
 
-import { Alert, Box, Breadcrumbs, Button, Chip, Divider, Skeleton, Tab, Tabs, Typography } from '@mui/material';
+import {
+  Alert,
+  Box,
+  Breadcrumbs,
+  Button,
+  CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Divider,
+  Skeleton,
+  Snackbar,
+  Tab,
+  Tabs,
+  TextField,
+  Typography
+} from '@mui/material';
 
 import HomeIcon from '@mui/icons-material/Home';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import CancelIcon from '@mui/icons-material/Cancel';
 
 import MainCard from 'ui-component/cards/MainCard';
 import MRGeneralTab from './GeneralTab';
 import MRContentTab from './ContentTab';
-import PurchaseRequestModal from './PurchaseRequestModal';
 
 const noop = () => {};
 
@@ -39,18 +57,20 @@ function ContentSkeleton() {
   );
 }
 
-export default function MaterialRequestView() {
+export default function MaterialRequestApprovalView() {
   const { id } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const { currentMR, currentMRLoading, currentMRError } = useSelector((s) => s.materialRequest);
+  const { currentMR, currentMRLoading, currentMRError, decisionLoading } = useSelector((s) => s.materialRequest);
   const { departments } = useSelector((s) => s.common);
 
   const [tabValue, setTabValue] = useState(0);
   const [form, setForm] = useState(null);
   const [lines, setLines] = useState([]);
-  const [prModalOpen, setPrModalOpen] = useState(false);
+  const [confirm, setConfirm] = useState({ open: false, type: null });
+  const [aprRemark, setAprRemark] = useState('');
+  const [snackbar, setSnackbar] = useState({ open: false, severity: 'success', message: '' });
 
   useEffect(() => {
     if (id) dispatch(getMRById(id));
@@ -79,23 +99,26 @@ export default function MaterialRequestView() {
   const isPending = docStatus === 'D';
   const isApproved = docStatus === 'O';
 
-  const handlePRContinue = (selectedLines) => {
-    setPrModalOpen(false);
-    navigate('/purchase-request/create', {
-      state: {
-        mrDocEntry: id,
-        mrNo: id,
-        projectCode: form.ProjectCode,
-        projectName: form.ProjectName,
-        reqCode: form.ReqCode,
-        reqType: null,
-        requestorTypeLabel: form.RequestorType,
-        requestorName: form.RequestorName,
-        department: form.DeptId,
-        departmentName: form.Department,
-        selectedLines
-      }
-    });
+  const closeConfirm = () => {
+    if (!decisionLoading) setConfirm({ open: false, type: null });
+  };
+
+  const handleDecision = async () => {
+    const action = confirm.type === 'approve' ? approveMR : rejectMR;
+    try {
+      await dispatch(action({ docEntry: id, remark: aprRemark })).unwrap();
+      setSnackbar({
+        open: true,
+        severity: 'success',
+        message: `Material Request ${confirm.type === 'approve' ? 'approved' : 'rejected'} successfully!`
+      });
+      setConfirm({ open: false, type: null });
+      setAprRemark('');
+      dispatch(getMRById(id));
+    } catch (err) {
+      setSnackbar({ open: true, severity: 'error', message: err || 'Action failed' });
+      setConfirm({ open: false, type: null });
+    }
   };
 
   return (
@@ -112,22 +135,13 @@ export default function MaterialRequestView() {
             gap: 2
           }}
         >
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-            <Typography variant="h4">Material Request</Typography>
-            {docStatus && (
-              <Chip
-                label={(MR_STATUS_META[docStatus] || { label: docStatus }).label}
-                color={(MR_STATUS_META[docStatus] || { color: 'default' }).color}
-                variant="outlined"
-              />
-            )}
-          </Box>
+          <Typography variant="h4">Material Request Approval</Typography>
           <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />}>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <HomeIcon sx={{ fontSize: 18, color: 'secondary.main' }} />
             </Box>
             <Typography variant="body2" color="text.primary">
-              Material Request
+              Approvals
             </Typography>
             <Typography variant="body2" color="secondary" fontWeight={600}>
               View
@@ -177,20 +191,6 @@ export default function MaterialRequestView() {
 
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
             <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-              {!isPending && (
-                <Button
-                  variant="outlined"
-                  color="primary"
-                  startIcon={<ShoppingCartIcon />}
-                  disabled={loading || !!currentMRError}
-                  onClick={() => setPrModalOpen(true)}
-                >
-                  Purchase Request
-                </Button>
-              )}
-            </Box>
-
-            <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
               <Button variant="outlined" onClick={() => navigate(-1)}>
                 Back
               </Button>
@@ -203,11 +203,84 @@ export default function MaterialRequestView() {
                 Edit
               </Button>
             </Box>
+
+            {isPending && (
+              <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+                <Button
+                  variant="outlined"
+                  color="success"
+                  startIcon={<CheckCircleIcon />}
+                  disabled={loading || !!currentMRError || decisionLoading}
+                  onClick={() => {
+                    setAprRemark('');
+                    setConfirm({ open: true, type: 'approve' });
+                  }}
+                >
+                  Approve
+                </Button>
+                <Button
+                  variant="outlined"
+                  color="error"
+                  startIcon={<CancelIcon />}
+                  disabled={loading || !!currentMRError || decisionLoading}
+                  onClick={() => {
+                    setAprRemark('');
+                    setConfirm({ open: true, type: 'reject' });
+                  }}
+                >
+                  Reject
+                </Button>
+              </Box>
+            )}
           </Box>
         </Box>
       </MainCard>
 
-      <PurchaseRequestModal open={prModalOpen} onClose={() => setPrModalOpen(false)} onContinue={handlePRContinue} lines={lines} />
+      <Dialog open={confirm.open} onClose={closeConfirm} maxWidth="xs" fullWidth>
+        <DialogTitle>{confirm.type === 'approve' ? 'Approve Material Request' : 'Reject Material Request'}</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to {confirm.type === 'approve' ? 'approve' : 'reject'} this Material Request
+            {form?.ProjectCode ? ` for project ${form.ProjectCode}` : ''}?
+          </DialogContentText>
+          <TextField
+            fullWidth
+            multiline
+            rows={3}
+            size="small"
+            label="Remark (optional)"
+            sx={{ mt: 2 }}
+            value={aprRemark}
+            onChange={(e) => setAprRemark(e.target.value)}
+            disabled={decisionLoading}
+          />
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 2 }}>
+          <Button onClick={closeConfirm} color="inherit" disabled={decisionLoading}>
+            Cancel
+          </Button>
+          <Button
+            onClick={handleDecision}
+            variant="outlined"
+            color={confirm.type === 'approve' ? 'success' : 'error'}
+            disabled={decisionLoading}
+            startIcon={decisionLoading ? <CircularProgress size={16} color="inherit" /> : null}
+          >
+            {confirm.type === 'approve' ? 'Approve' : 'Reject'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={5000}
+        onClose={() => setSnackbar((p) => ({ ...p, open: false }))}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+      >
+        <Alert severity={snackbar.severity} onClose={() => setSnackbar((p) => ({ ...p, open: false }))}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }

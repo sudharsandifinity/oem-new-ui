@@ -156,9 +156,16 @@ export default function GRPOContentTab({ data, setData, rows, setRows, readOnly 
 
         <Paper variant="outlined" sx={{ p: 3, borderRadius: 2, flex: 1, minWidth: 280 }}>
           <Typography variant="h5" sx={{ mb: 2.5 }}>
-            Received By
+            Additional Information
           </Typography>
-          <TextField fullWidth size="small" label="Received By" value={receivedByValue} disabled />
+          <TextField
+            fullWidth
+            size="small"
+            label="Received By"
+            value={receivedByValue}
+            disabled={readOnly}
+            onChange={(e) => !readOnly && setData((prev) => ({ ...prev, ReceivedBy: e.target.value }))}
+          />
         </Paper>
       </Box>
     </Box>

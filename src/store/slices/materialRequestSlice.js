@@ -78,18 +78,18 @@ export const getMRApprovals = createAsyncThunk('materialRequest/getApprovals', a
   }
 });
 
-export const approveMR = createAsyncThunk('materialRequest/approve', async (docEntry, thunkAPI) => {
+export const approveMR = createAsyncThunk('materialRequest/approve', async ({ docEntry, remark = '' } = {}, thunkAPI) => {
   try {
-    const response = await API.patch(`/sap/mr/${docEntry}/approve`);
+    const response = await API.patch(`/sap/mr/${docEntry}/approve`, { U_Apr_remark: remark });
     return response.data;
   } catch (error) {
     return thunkAPI.rejectWithValue(error.response?.data?.message || 'Failed to approve Material Request');
   }
 });
 
-export const rejectMR = createAsyncThunk('materialRequest/reject', async (docEntry, thunkAPI) => {
+export const rejectMR = createAsyncThunk('materialRequest/reject', async ({ docEntry, remark = '' } = {}, thunkAPI) => {
   try {
-    const response = await API.patch(`/sap/mr/${docEntry}/reject`);
+    const response = await API.patch(`/sap/mr/${docEntry}/reject`, { U_Apr_remark: remark });
     return response.data;
   } catch (error) {
     return thunkAPI.rejectWithValue(error.response?.data?.message || 'Failed to reject Material Request');
