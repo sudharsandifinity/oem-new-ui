@@ -5,7 +5,7 @@ export const mapApiToForm = (userData) => ({
     last_name: userData.last_name || '',
     email: userData.email || '',
     status: userData.status,
-    is_approver:userData.is_approver||'',
+    is_approver: userData.is_approver ?? false,
 
     // Company
     companies: userData.Companies || [],
