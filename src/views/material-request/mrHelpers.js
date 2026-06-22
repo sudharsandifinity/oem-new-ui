@@ -101,21 +101,23 @@ export const buildPayload = (form, lines, user) => ({
   U_OEM_UEMAIL: user?.email ?? null,
   U_OEM_UName: [user?.first_name, user?.last_name].filter(Boolean).join(' ') || null,
   U_PreparedBy: [user?.first_name, user?.last_name].filter(Boolean).join(' ') || null,
-  HLB_MRQ1Collection: lines.map((r) => ({
-    ...(r.LineId != null ? { LineId: r.LineId } : {}),
-    U_ItmSerCode: r.ItemCode,
-    U_ItemDesc: r.ItemDescription,
-    U_SerDesc: r.FullDescription,
-    U_ReqQty: Number(r.Quantity) || 0,
-    U_UOM: r.UoMCode,
-    U_Project: r.ProjectCode,
-    U_Whs: r.WarehouseCode,
-    U_SQlineNum: r.BOMLineNum ? String(r.BOMLineNum) : null,
-    U_BOMQty: Number(r.BOMQty) || 0,
-    U_BOMOpenQty: Number(r.BOMOpenQty) || 0,
-    U_MROpenQty: Number(r.MROpenQty) || 0,
-    U_IssuedQty: Number(r.IssuedQty) || 0,
-    U_InStock: Number(r.InStock) || 0,
-    U_HLB_Rmarks: r.Remark
-  }))
+  HLB_MRQ1Collection: lines
+    .filter((r) => String(r.ItemCode || '').trim() && String(r.Quantity || '').trim())
+    .map((r) => ({
+      ...(r.LineId != null ? { LineId: r.LineId } : {}),
+      U_ItmSerCode: r.ItemCode,
+      U_ItemDesc: r.ItemDescription,
+      U_SerDesc: r.FullDescription,
+      U_ReqQty: Number(r.Quantity) || 0,
+      U_UOM: r.UoMCode,
+      U_Project: r.ProjectCode,
+      U_Whs: r.WarehouseCode,
+      U_SQlineNum: r.BOMLineNum ? String(r.BOMLineNum) : null,
+      U_BOMQty: Number(r.BOMQty) || 0,
+      U_BOMOpenQty: Number(r.BOMOpenQty) || 0,
+      U_MROpenQty: Number(r.MROpenQty) || 0,
+      U_IssuedQty: Number(r.IssuedQty) || 0,
+      U_InStock: Number(r.InStock) || 0,
+      U_HLB_Rmarks: r.Remark
+    }))
 });

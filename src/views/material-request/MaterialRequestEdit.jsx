@@ -122,7 +122,9 @@ export default function MaterialRequestEdit() {
   // };
 
   const handleSubmit = () => {
-    dispatch(updateMR({ docEntry: id, payload: buildPayload(form, lines) }));
+    // eslint-disable-next-line no-unused-vars
+    const { U_OEM_UID, U_OEM_UEMAIL, U_OEM_UName, U_PreparedBy, ...payload } = buildPayload(form, lines);
+    dispatch(updateMR({ docEntry: id, payload }));
   };
 
   const handlePRContinue = (selectedLines) => {
