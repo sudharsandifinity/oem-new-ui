@@ -222,36 +222,20 @@ export default function UserForm({ data, setData, readOnly = false, lockCustomer
             alignItems: 'center'
           }}
         >
-          <>
-            <FormControlLabel
-              control={
-                <Android12Switch
-                  checked={data?.is_approver}
-                  onChange={(e) =>
-                    setData((prev) => ({
-                      ...prev,
-                      is_approver: e.target.checked 
-                    }))
-                  }
-                />
-              }
-              label="Is Approved"
-            />
-            <FormControlLabel
-              control={
-                <Android12Switch
-                  checked={data?.status === 1}
-                  onChange={(e) =>
-                    setData((prev) => ({
-                      ...prev,
-                      status: e.target.checked ? 1 : 0
-                    }))
-                  }
-                />
-              }
-              label="Status"
-            />
-          </>
+          <FormControlLabel
+            control={
+              <Android12Switch
+                checked={data?.status === 1}
+                onChange={(e) =>
+                  setData((prev) => ({
+                    ...prev,
+                    status: e.target.checked ? 1 : 0
+                  }))
+                }
+              />
+            }
+            label="Status"
+          />
         </Box>
       </Box>
     </Box>
