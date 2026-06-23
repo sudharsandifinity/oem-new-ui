@@ -15,9 +15,8 @@ import MRContentTab, { emptyRow } from './ContentTab';
 import BOMSelectModal from './BOMSelectModal';
 import BOMItemSelectModal from './BOMItemSelectModal';
 import { createMR, resetMRState } from '../../store/slices/materialRequestSlice';
-import { buildPayload } from './mrHelpers';
 import { createDraft } from '../../store/slices/draftSlice';
-import { buildPayload, buildChildRow, fetchHasChildren } from './mrHelpers';
+import { buildPayload, buildChildRow, fetchHasChildren, withTrailingEmptyRow } from './mrHelpers';
 
 const today = new Date().toISOString().split('T')[0];
 const nowTime = new Date().toTimeString().slice(0, 5);
@@ -54,6 +53,7 @@ const boqLineToRow = (line, projectCode) => ({
   WarehouseCode: line.U_Whs || '03',
   ProjectCode: projectCode ?? '',
   Quantity: line.U_PQty ?? 0,
+  ApprovedQuantity: line.U_PQty ?? 0,
   MROpenQty: 0,
   InStock: 0
 });
@@ -103,7 +103,7 @@ export default function MaterialRequestCreate() {
       }
     }
 
-    setLines(finalRows.length ? finalRows : [emptyRow()]);
+    setLines(finalRows.length ? withTrailingEmptyRow(finalRows) : [emptyRow()]);
     setForm((prev) => ({
       ...prev,
       BOMNo: pendingBOM.DocEntry,

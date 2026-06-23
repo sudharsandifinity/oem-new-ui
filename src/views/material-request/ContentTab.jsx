@@ -26,7 +26,8 @@ import { useLookup } from '../../context/LookupContext';
 import { getItems } from '../../store/slices/itemSlice';
 import RequestorSelectModal from './RequestorSelectModal';
 import UoMSelectModal from './UoMSelectModal';
-import { buildChildRow, fetchHasChildren, emptyRow } from './mrHelpers';
+import AppDatePicker from 'ui-component/AppDatePicker';
+import { buildChildRow, fetchHasChildren, emptyRow, withTrailingEmptyRow } from './mrHelpers';
 
 const TABLE_COLUMNS = [
   { key: 'seq', label: '#', width: 50 },
@@ -34,7 +35,8 @@ const TABLE_COLUMNS = [
   { key: 'ItemCode', label: 'Item Code', width: 170 },
   { key: 'ItemDescription', label: 'Description', width: 180 },
   { key: 'FullDescription', label: 'Full Description', width: 180 },
-  { key: 'Quantity', label: 'Quantity', width: 135 },
+  { key: 'Quantity', label: 'Required Quantity', width: 150 },
+  { key: 'ApprovedQuantity', label: 'Approved Quantity', width: 150 },
   { key: 'UoMCode', label: 'UOM', width: 120 },
   { key: 'BOMQty', label: 'BOM Qty', width: 100 },
   { key: 'BOMOpenQty', label: 'BOM Open Qty', width: 120 },
@@ -43,6 +45,7 @@ const TABLE_COLUMNS = [
   { key: 'ProjectCode', label: 'Project', width: 130 },
   { key: 'IssuedQty', label: 'Issued Qty', width: 100 },
   // { key: 'InStock',      label: 'In Stock',     width: 100 },
+  { key: 'RequiredDate', label: 'Required Date', width: 150 },
   { key: 'Remark', label: 'Remark', width: 160 }
 ];
 
@@ -53,10 +56,11 @@ const DISABLED_COLS = new Set([
   'MROpenQty',
   'ProjectCode',
   'IssuedQty',
-  'InStock'
+  'InStock',
+  'ApprovedQuantity'
 ]);
 
-export default function MRContentTab({ data, setData, rows, setRows, readOnly = false }) {
+export default function MRContentTab({ data, setData, rows, setRows, readOnly = false, canEditApprovedQty = false }) {
   const dispatch = useDispatch();
   const { openLookup } = useLookup();
   const { items, loading: itemsLoading } = useSelector((s) => s.item);
@@ -75,15 +79,9 @@ export default function MRContentTab({ data, setData, rows, setRows, readOnly = 
         }
         return next;
       });
-      const idx = updated.findIndex((r) => r.id === id);
-      const row = updated[idx];
-      const isLastRow = idx === updated.length - 1;
-      const isComplete = String(row.ItemCode || '').trim() && String(row.Quantity || '').trim();
 
-      if (isLastRow && !row.IsChildRow && isComplete) {
-        return [...updated, emptyRow()];
-      }
-      return updated;
+      if (field !== 'ItemCode' && field !== 'Quantity') return updated;
+      return withTrailingEmptyRow(updated);
     });
   };
 
@@ -159,7 +157,8 @@ export default function MRContentTab({ data, setData, rows, setRows, readOnly = 
   };
 
   const renderCell = (row, col) => {
-    const isDisabled = readOnly || DISABLED_COLS.has(col.key);
+    const approvedQtyEditable = col.key === 'ApprovedQuantity' && canEditApprovedQty;
+    const isDisabled = approvedQtyEditable ? false : readOnly || DISABLED_COLS.has(col.key);
 
     if (col.key === 'Quantity') {
       return (
@@ -171,6 +170,32 @@ export default function MRContentTab({ data, setData, rows, setRows, readOnly = 
           disabled={readOnly}
           onChange={(e) => updateRow(row.id, 'Quantity', e.target.value)}
           sx={{ minWidth: 80 }}
+        />
+      );
+    }
+
+    if (col.key === 'ApprovedQuantity') {
+      return (
+        <TextField
+          size="small"
+          fullWidth
+          type="number"
+          value={row.ApprovedQuantity ?? ''}
+          disabled={isDisabled}
+          onChange={(e) => updateRow(row.id, 'ApprovedQuantity', e.target.value)}
+          sx={{ minWidth: 80 }}
+        />
+      );
+    }
+
+    if (col.key === 'RequiredDate') {
+      return (
+        <AppDatePicker
+          size="small"
+          value={row.RequiredDate || ''}
+          disabled={readOnly}
+          onChange={(val) => updateRow(row.id, 'RequiredDate', val)}
+          sx={{ minWidth: col.width - 20 }}
         />
       );
     }
@@ -299,7 +324,15 @@ export default function MRContentTab({ data, setData, rows, setRows, readOnly = 
       />
     );
 
-    if (readOnly && (col.key === 'ItemDescription' || col.key === 'FullDescription') && row[col.key]) {
+    if (col.key === 'FullDescription' && row[col.key]) {
+      return (
+        <Tooltip title={row[col.key]} placement="top" arrow>
+          <span style={{ display: 'block', width: '100%' }}>{field}</span>
+        </Tooltip>
+      );
+    }
+
+    if (readOnly && col.key === 'ItemDescription' && row[col.key]) {
       return (
         <Tooltip title={row[col.key]} placement="top" arrow>
           <span style={{ display: 'block', width: '100%' }}>{field}</span>

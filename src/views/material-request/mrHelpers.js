@@ -15,6 +15,7 @@ export const emptyRow = () => ({
   ItemDescription: '',
   FullDescription: '',
   Quantity: '',
+  ApprovedQuantity: '',
   UoMCode: '',
   BOMQty: '',
   BOMOpenQty: '',
@@ -23,6 +24,7 @@ export const emptyRow = () => ({
   ProjectCode: '',
   IssuedQty: '',
   InStock: '',
+  RequiredDate: '',
   Remark: ''
 });
 
@@ -32,6 +34,12 @@ export const buildChildRow = (parentRow) => ({
   ParentItemCode: parentRow.ItemCode,
   ParentRowId: parentRow.id
 });
+
+export const withTrailingEmptyRow = (rows) => {
+  const last = rows[rows.length - 1];
+  const isComplete = last && !last.IsChildRow && String(last.ItemCode || '').trim() && String(last.Quantity || '').trim();
+  return isComplete ? [...rows, emptyRow()] : rows;
+};
 
 export const fetchHasChildren = async (dispatch, itemCode) => {
   try {
@@ -72,6 +80,7 @@ export const mapApiLineToRow = (line, index) => ({
   ItemDescription: line.U_ItemDesc ?? '',
   FullDescription: line.U_SerDesc ?? '',
   Quantity: line.U_ReqQty ?? '',
+  ApprovedQuantity: line.U_ReqQty ?? '',
   UoMCode: line.U_UOM ?? '',
   BOMQty: line.U_BOMQty ?? '',
   BOMOpenQty: line.U_BOMOpenQty ?? '',
@@ -80,6 +89,7 @@ export const mapApiLineToRow = (line, index) => ({
   ProjectCode: line.U_Project ?? '',
   IssuedQty: line.U_IssuedQty ?? '',
   InStock: line.U_InStock ?? '',
+  RequiredDate: line.U_ReqDate?.split('T')[0] ?? '',
   Remark: line.U_HLB_Rmarks ?? ''
 });
 
@@ -118,6 +128,7 @@ export const buildPayload = (form, lines, user) => ({
       U_MROpenQty: Number(r.MROpenQty) || 0,
       U_IssuedQty: Number(r.IssuedQty) || 0,
       U_InStock: Number(r.InStock) || 0,
+      U_ReqDate: r.RequiredDate ? `${r.RequiredDate}T00:00:00Z` : null,
       U_HLB_Rmarks: r.Remark
     }))
 });
