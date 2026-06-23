@@ -121,8 +121,7 @@ export default function MaterialRequestCreate() {
     dispatch(createMR(payload));
   };
 const handleSubmitasDraft=()=>{
-    const payload = {...buildPayload(form, lines),DocModule:"MaterialRequest",};
-  console.log("handleSubmitasDraft",payload)
+    const payload = {...buildPayload(form, lines, user),DocModule:"MaterialRequest",};
   dispatch(createDraft(payload));
 }
   return (

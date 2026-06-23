@@ -67,7 +67,14 @@ export default function MRContentTab({ data, setData, rows, setRows, readOnly = 
 
   const updateRow = (id, field, value) => {
     setRows((prev) => {
-      const updated = prev.map((r) => (r.id === id ? { ...r, [field]: value } : r));
+      const updated = prev.map((r) => {
+        if (r.id !== id) return r;
+        const next = { ...r, [field]: value };
+        if (field === 'Quantity') {
+          next.BOMOpenQty = (Number(next.BOMQty) || 0) - (Number(value) || 0);
+        }
+        return next;
+      });
       const idx = updated.findIndex((r) => r.id === id);
       const row = updated[idx];
       const isLastRow = idx === updated.length - 1;
