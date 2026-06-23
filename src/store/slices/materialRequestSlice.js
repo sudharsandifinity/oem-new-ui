@@ -96,6 +96,18 @@ export const rejectMR = createAsyncThunk('materialRequest/reject', async ({ docE
   }
 });
 
+export const getMRPendingReport = createAsyncThunk('materialRequest/getPendingReport', async ({ top = 25, skip = 0 } = {}, thunkAPI) => {
+  try {
+    const response = await API.get('/sap/mr/pending-report', { params: { top, skip } });
+    return {
+      list: response.data.value ?? response.data,
+      totalCount: response.data['odata.count'] || 0
+    };
+  } catch (error) {
+    return thunkAPI.rejectWithValue(error.response?.data?.message || 'Failed to fetch pending approval report');
+  }
+});
+
 export const getBOQList = createAsyncThunk('materialRequest/getBOQList', async ({ U_BPCode = '', U_PrjCode = '' } = {}, thunkAPI) => {
   try {
     const response = await API.get('/sap/boq/active', { params: { U_BPCode, U_PrjCode } });
@@ -126,6 +138,11 @@ const materialRequestSlice = createSlice({
     approvalsLoading: false,
     approvalsRequestId: null,
     decisionLoading: false,
+
+    pendingReport: [],
+    pendingReportCount: 0,
+    pendingReportLoading: false,
+    pendingReportRequestId: null,
 
     createLoading: false,
     updateLoading: false,
@@ -261,6 +278,23 @@ const materialRequestSlice = createSlice({
       })
       .addCase(rejectMR.rejected, (state, action) => {
         state.decisionLoading = false;
+        state.error = action.payload;
+      })
+
+      .addCase(getMRPendingReport.pending, (state, action) => {
+        state.pendingReportRequestId = action.meta.requestId;
+        state.pendingReportLoading = true;
+        state.error = null;
+      })
+      .addCase(getMRPendingReport.fulfilled, (state, action) => {
+        if (action.meta.requestId !== state.pendingReportRequestId) return;
+        state.pendingReportLoading = false;
+        state.pendingReport = action.payload.list;
+        state.pendingReportCount = action.payload.totalCount;
+      })
+      .addCase(getMRPendingReport.rejected, (state, action) => {
+        if (action.meta.requestId !== state.pendingReportRequestId) return;
+        state.pendingReportLoading = false;
         state.error = action.payload;
       })
 
