@@ -176,7 +176,7 @@ export default function MaterialRequestApprovalView() {
                 <MRGeneralTab data={form} setData={noop} readOnly />
               </Box>
               <Box sx={{ display: tabValue === 1 ? 'block' : 'none' }}>
-                <MRContentTab data={form} setData={noop} rows={lines} setRows={noop} readOnly />
+                <MRContentTab data={form} setData={noop} rows={lines} setRows={setLines} readOnly canEditApprovedQty />
               </Box>
             </>
           )}
