@@ -15,7 +15,7 @@ export const emptyRow = () => ({
   ItemDescription: '',
   FullDescription: '',
   Quantity: '',
-  ApprovedQuantity: '',
+  ApprovedQuantity: 0,
   UoMCode: '',
   BOMQty: '',
   BOMOpenQty: '',

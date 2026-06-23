@@ -48,12 +48,12 @@ const boqLineToRow = (line, projectCode) => ({
   FullDescription: line.U_FullDesc ?? '',
   UoMCode: line.U_Unit ?? '',
   BOMQty: line.U_PQty ?? 0,
-  BOMOpenQty: line.U_QDiff ?? 0,
+  BOMOpenQty: 0,
   IssuedQty: line.U_AQty ?? 0,
   WarehouseCode: line.U_Whs || '03',
   ProjectCode: projectCode ?? '',
   Quantity: line.U_PQty ?? 0,
-  ApprovedQuantity: line.U_PQty ?? 0,
+  ApprovedQuantity: 0,
   MROpenQty: 0,
   InStock: 0
 });

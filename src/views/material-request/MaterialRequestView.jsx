@@ -10,7 +10,7 @@ import { Alert, Box, Breadcrumbs, Button, Chip, Divider, Skeleton, Tab, Tabs, Ty
 
 import HomeIcon from '@mui/icons-material/Home';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+// import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 
 import MainCard from 'ui-component/cards/MainCard';
 import MRGeneralTab from './GeneralTab';
@@ -76,7 +76,7 @@ export default function MaterialRequestView() {
 
   const loading = currentMRLoading || !form;
   const docStatus = currentMR?.U_DocStatus;
-  const isPending = docStatus === 'D';
+  // const isPending = docStatus === 'D';
   const isApproved = docStatus === 'O';
 
   const handlePRContinue = (selectedLines) => {
@@ -177,6 +177,7 @@ export default function MaterialRequestView() {
 
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
             <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+              {/*
               {!isPending && (
                 <Button
                   variant="outlined"
@@ -188,6 +189,7 @@ export default function MaterialRequestView() {
                   Purchase Request
                 </Button>
               )}
+              */}
             </Box>
 
             <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
