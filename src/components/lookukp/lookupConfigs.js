@@ -363,11 +363,7 @@ export const LOOKUP_CONFIGS = {
     loadAction: getadminRoles,
 
     filters: [
-      {
-        key: 'status',
-        label: 'Status',
-        dataKey: 'status'
-      },
+      
       {
         key: 'name',
         label: ' Name',
@@ -376,10 +372,7 @@ export const LOOKUP_CONFIGS = {
     ],
 
     columns: [
-      {
-        field: 'status',
-        label: 'Status'
-      },
+      
       {
         field: 'name',
         label: 'Name'
@@ -391,18 +384,20 @@ export const LOOKUP_CONFIGS = {
 
   selector: (state) => ({
     data: [
-      ...(state.commonCustomer.menus || []).map((menu) => ({
-        id: menu.id,
-        name: menu.name,
-        status: menu.status
-      })),
+      // ...(state.commonCustomer.menus || []).map((menu) => ({
+      //   id: menu.id,
+      //   name: menu.name,
+      //   status: menu.status
+      // })),
 
       ...(state.commonCustomer.menus || []).flatMap(
         (menu) =>
           (menu.children || []).map((child) => ({
             id: child.id,
             name: `${child.name}`,
-            status: child.status
+            status: child.status,
+            parentId:menu.id,
+            parentname:menu.name
           }))
       )
     ],
@@ -414,11 +409,7 @@ export const LOOKUP_CONFIGS = {
   loadAction: getmenus,
 
   filters: [
-    {
-      key: 'status',
-      label: 'Status',
-      dataKey: 'status'
-    },
+    
     {
       key: 'name',
       label: 'Name',
@@ -427,10 +418,7 @@ export const LOOKUP_CONFIGS = {
   ],
 
   columns: [
-    {
-      field: 'status',
-      label: 'Status'
-    },
+   
     {
       field: 'name',
       label: 'Name'

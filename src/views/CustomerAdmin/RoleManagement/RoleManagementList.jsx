@@ -53,15 +53,15 @@ const columns = [
     headerName: "companyId",
     flex: 1.5,
     minWidth: 200,
-    renderCell: (params) =>
-      companies?.find((com) => com.id===params.row.companyId)?.name|| "-"
+    valueGetter: (_, row) =>
+    companies?.find((com) => com.id===row.companyId)?.name|| "-"
   },
   {
     field: "status",
     headerName: "Status",
     flex: 1,
     minWidth: 150,
-    renderCell:(params)=>params.row.status==1?"Active":"In Active"
+    valueGetter: (_, row) =>row.status==1?"Active":"In Active"
   },
   {
     field: "action",
