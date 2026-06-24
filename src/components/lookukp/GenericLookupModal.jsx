@@ -33,7 +33,8 @@ export default function GenericLookupModal({
   filters = [],
   columns = [],
   onSelect,
-  multiSelect = false
+  multiSelect = false,
+   selectedIds = []
 }) {
   const [filterValues, setFilterValues] = useState({});
   const [selectedRows, setSelectedRows] = useState([]);
@@ -50,7 +51,16 @@ export default function GenericLookupModal({
     });
 
     setFilterValues(initialFilters);
-  }, [open]);
+     if (multiSelect) {
+    const preSelected = data.filter((row) =>
+      selectedIds.includes(row.id)
+    );
+
+    setSelectedRows(preSelected);
+  } else {
+    setSelectedRows([]);
+  }
+  }, [open ,data, selectedIds, multiSelect]);
   const handleRowSelection = (row) => {
     console.log('handlerowselection', multiSelect);
     if (!multiSelect) {

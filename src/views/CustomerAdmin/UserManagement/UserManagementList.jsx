@@ -14,12 +14,15 @@ import MainCard from 'ui-component/cards/MainCard';
 import { useNavigate } from 'react-router-dom';
 import { getadminUsers } from '../../../store/slices/commonCustomerSlice';
 
-const emptyFilters = () => ({ DocEntry: '', ProjectCode: '', ProjectName: '' });
+const emptyFilters = () => ({ name: '', email: '', companies: '' });
 
 export default function UserManagementList() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { users, usersLoading } = useSelector((s) => s.commonCustomer);
+const [filterModel, setFilterModel] = useState({
+  items: [],
+});
 
   const [filters, setFilters] = useState(emptyFilters());
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 25 });
@@ -39,11 +42,13 @@ const columns = [
     headerName: "Name",
     flex: 1,
     minWidth: 100,
-    renderCell: (params) => (
-      <Stack>
-        {`${params.row.first_name || ""} ${params.row.last_name || ""}`}
-      </Stack>
-    )
+    valueGetter: (_, row) =>
+    `${row.first_name || ""} ${row.last_name || ""}`.trim(),
+    // renderCell: (params) => (
+    //   <Stack>
+    //     {`${params.row.first_name || ""} ${params.row.last_name || ""}`}
+    //   </Stack>
+    // )
   },
   {
     field: "email",
@@ -56,31 +61,25 @@ const columns = [
     headerName: "Companies",
     flex: 1.5,
     minWidth: 200,
-    renderCell: (params) =>
-      params.row.Companies?.map((com) => com.name).join(", ") || "-"
+      valueGetter: (_, row) =>
+    row.Companies?.map((c) => c.name).join(", ") || "-",
   },
   {
     field: "project",
     headerName: "Projects",
     flex: 1,
     minWidth: 150,
-    renderCell: (params) =>
-      params.row.Projects?.map((pr) => pr.Name).join(", ") || "-"
+    valueGetter: (_, row) =>
+    row.Projects?.map((p) => p.Name).join(", ") || "-",
   },
-  {
-    field: "project",
-    headerName: "Projects",
-    flex: 1,
-    minWidth: 150,
-    renderCell: (params) =>
-      params.row.Projects?.map((pr) => pr.Name).join(", ") || "-"
-  },
+  
   {
     field: "status",
     headerName: "Status",
     flex: 1,
     minWidth: 150,
-    renderCell:(params)=>params.row.status==1?"Active":"In Active"
+    valueGetter: (_, row) =>
+    row.status === 1 ? "Active" : "Inactive",
   },
   {
     field: "action",
@@ -181,6 +180,7 @@ const columns = [
           onPaginationModelChange={setPaginationModel}
           pageSizeOptions={[10, 25, 50, 100]}
           disableRowSelectionOnClick
+     
           sx={{
             border: 0,
             height: '100%',

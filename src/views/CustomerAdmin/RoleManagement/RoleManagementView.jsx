@@ -134,7 +134,7 @@ export default function RoleManagementView() {
             <>
               {/* Always mounted — CSS show/hide avoids unmount errors on tab switch */}
               <Box sx={{ display: tabValue === 0 ? 'block' : 'none' }}>
-                <RoleForm data={form} setData={setForm} lockCustomerProject />
+                <RoleForm data={form} setData={setForm} lockCustomerProject readOnly/>
               </Box>
              
             </>
