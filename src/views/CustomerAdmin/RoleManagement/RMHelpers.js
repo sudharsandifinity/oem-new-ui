@@ -1,5 +1,5 @@
 export const mapApiToForm = (userData, companies = []) => {
-  console.log("companies",companies)
+  console.log("companies",companies,userData)
   const company = companies.find(
     (c) => c.id === userData.companyId
   );
@@ -11,10 +11,10 @@ export const mapApiToForm = (userData, companies = []) => {
     companyId: userData.companyId,
     companyNames: company?.name || '',
 
-    userMenuIds: userData.UserMenus?.map((menu) => menu.id) || [],
-    menuNames: userData.UserMenus?.map((menu) => menu.name).join(', ') || '',
+    userMenuIds: userData.UserMenus?.filter(UM=>UM.parentUserMenuId!=="").map((menu) => menu.id) || [],
+    menuNames: userData.UserMenus?.filter(UM=>UM.parentUserMenuId!=="").map((menu) => menu.name).join(', ') || '',
 
-    status: userData.status
+    status: userData.status===1?"1":"0"
   };
 };
 
@@ -37,13 +37,28 @@ export const mapApiLineToRow = (line, index) => ({
   Remark: line.U_HLB_Rmarks ?? ''
 });
 
-export const buildPayload = (form) => ({
- name: form.name,
-  companyId: form.companyId,
-   userMenuIds: form.userMenuIds?.map((id) =>
-     ({
-    menuId:id
-  })),
-  status: form.status,
+// export const buildPayload = (form) => ({
+//  name: form.name,
+//   companyId: form.companyId,
+//    userMenuIds: form.userMenuIds?.map((id) =>
+//      ({
+//     menuId:id
+//   })),
+//   status: form.status,
  
-});
+// });
+export const buildPayload = (form) => {
+  const uniqueMenuIds = [
+    ...(form.userMenuIds || []),
+    ...(form.parentIds || []),
+  ].filter((id, index, arr) => id && arr.indexOf(id) === index);
+
+  return {
+    name: form.name,
+    companyId: form.companyId,
+    userMenuIds: uniqueMenuIds.map((id) => ({
+      menuId: id,
+    })),
+    status: form.status==="1"?1:0,
+  };
+};

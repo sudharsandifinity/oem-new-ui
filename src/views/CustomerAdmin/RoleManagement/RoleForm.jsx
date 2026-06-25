@@ -16,7 +16,7 @@ export default function UserForm({ data, setData, readOnly = false, lockCustomer
     setData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const customerDisabled = readOnly || lockCustomerProject;
+  const isDisabled = readOnly;
   const projectDisabled = readOnly || lockCustomerProject;
 
 
@@ -24,15 +24,22 @@ const handleOpenUserMenuLookup=()=>{
    openLookup({
       type: 'UserMenuproject',
       multiSelect: true,
+       selectedIds: data.userMenuIds || [],
+
       onSelect: (menu) => {
          const menus = Array.isArray(menu) ? menu : [menu];
         console.log('Selected menus', menus)
-        setData((prev) => ({
-          ...prev,
-          //projects: projects,
-          userMenuIds: menu.map((p) => p.id),
-          menuNames: menu.map((p) => p.name).join(', ')
-        }));
+        const uniqueMenus = Array.from(
+  new Map(menus.map((item) => [item.id, item])).values()
+);
+
+setData((prev) => ({
+  ...prev,
+  userMenuIds: uniqueMenus.map((p) => p.id),
+  menuNames: uniqueMenus.map((p) => p.name).join(", "),
+  parentIds: [...new Set(uniqueMenus.map((p) => p.parentId).filter(Boolean))],
+  parentNames: [...new Set(uniqueMenus.map((p) => p.parentname).filter(Boolean))].join(", "),
+}));
       }
     });
 }
@@ -60,6 +67,7 @@ const handleOpenUserMenuLookup=()=>{
         <TextField
           fullWidth
           label="Name"
+          disabled={isDisabled}
           value={data?.name || ''}
           onChange={(e) => setData((prev) => ({ ...prev, name: e.target.value }))}
         />
@@ -68,11 +76,13 @@ const handleOpenUserMenuLookup=()=>{
           fullWidth
           label="company"
           value={data?.companyNames || ''}
+          disabled={isDisabled}
+
           InputProps={{
             readOnly: true,
             endAdornment: (
               <InputAdornment position="end">
-                <IconButton onClick={handleOpenCompanyLookup}>
+                <IconButton disabled={isDisabled} onClick={!isDisabled ? handleOpenCompanyLookup : undefined}>
                   <PersonSearchIcon />
                 </IconButton>
               </InputAdornment>
@@ -93,11 +103,13 @@ const handleOpenUserMenuLookup=()=>{
           fullWidth
           label="Menu"
           value={data?.menuNames || ''}
+          disabled={isDisabled}
+
           InputProps={{
             readOnly: true,
             endAdornment: (
               <InputAdornment position="end">
-                <IconButton onClick={handleOpenUserMenuLookup}>
+                <IconButton disabled={isDisabled} onClick={!isDisabled ? handleOpenUserMenuLookup : undefined}>
                   <PersonSearchIcon />
                 </IconButton>
               </InputAdornment>
@@ -108,7 +120,9 @@ const handleOpenUserMenuLookup=()=>{
           <InputLabel>Status</InputLabel>
           <Select
             label="Requestor Type"
-            value={data?.status || 'User'}
+            value={data?.status || 1}
+                  disabled={isDisabled}
+
             onChange={(e) => setData((prev) => ({ ...prev, status: e.target.value }))}
           >
             <MenuItem value="1">Active</MenuItem>

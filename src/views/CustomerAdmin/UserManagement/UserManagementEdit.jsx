@@ -133,7 +133,7 @@ export default function UserManagementEdit() {
             <>
               {/* Always mounted — CSS show/hide avoids unmount errors on tab switch */}
               <Box sx={{ display: tabValue === 0 ? 'block' : 'none' }}>
-                <UserForm data={form} setData={setForm} lockCustomerProject />
+                <UserForm data={form} setData={setForm} lockUserPassword />
               </Box>
              
             </>

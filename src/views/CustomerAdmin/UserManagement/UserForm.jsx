@@ -52,7 +52,7 @@ const Android12Switch = styled(Switch)(({ theme }) => ({
   }
 }));
 
-export default function UserForm({ data, setData, readOnly = false, lockCustomerProject = false }) {
+export default function UserForm({ data, setData, readOnly = false, lockUserPassword = false }) {
   const { openLookup } = useLookup();
   const [is_super_user, setIs_super_user] = useState('0');
   const [is_com_admin, setIs_com_admin] = useState('0');
@@ -61,13 +61,15 @@ export default function UserForm({ data, setData, readOnly = false, lockCustomer
     setData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const customerDisabled = readOnly || lockCustomerProject;
-  const projectDisabled = readOnly || lockCustomerProject;
+  const idDisabled = readOnly;
+  const passwordDisabled = readOnly || lockUserPassword;
 
   const handleOpenCompanyLookup = () => {
     openLookup({
       type: 'company',
       multiSelect: true,
+       selectedIds: data.companyIds || [],
+
       onSelect: (companies) => {
         const company = Array.isArray(companies) ? companies : [companies];
         console.log('Selected companies', company);
@@ -85,6 +87,7 @@ export default function UserForm({ data, setData, readOnly = false, lockCustomer
     openLookup({
       type: 'role',
       multiSelect: true,
+       selectedIds: data.roleIds || [],
       onSelect: (role) => {
         const roles = Array.isArray(role) ? role : [role];
         console.log('Selected Roles', roles);
@@ -102,6 +105,8 @@ export default function UserForm({ data, setData, readOnly = false, lockCustomer
     openLookup({
       type: 'cusadminproject',
       multiSelect: true,
+       selectedIds: data.projectIds || [],
+
       onSelect: (projects) => {
         const project = Array.isArray(projects) ? projects : [projects];
         console.log('Selected projects', projects);
@@ -129,31 +134,35 @@ export default function UserForm({ data, setData, readOnly = false, lockCustomer
         <TextField
           fullWidth
           label="First Name"
+          disabled={idDisabled}
           value={data?.first_name || ''}
-          onChange={(e) => setData((prev) => ({ ...prev, first_name: e.target.value }))}
+          onChange={(e) => setData((prev) => ({ ...prev, first_name: (e.target.value).trim() }))}
         />
-
+    
         <TextField
           fullWidth
           label="Last Name"
+          disabled={idDisabled}
           value={data?.last_name || ''}
-          onChange={(e) => setData((prev) => ({ ...prev, last_name: e.target.value }))}
+          onChange={(e) => setData((prev) => ({ ...prev, last_name: (e.target.value).trim() }))}
         />
 
         <TextField
           fullWidth
+          disabled={passwordDisabled}
           label="Email"
           value={data?.email || ''}
-          onChange={(e) => setData((prev) => ({ ...prev, email: e.target.value }))}
+          onChange={(e) => setData((prev) => ({ ...prev, email: (e.target.value).trim() }))}
         />
 
-        <TextField
+        {!passwordDisabled&&<TextField
           fullWidth
+          disabled={idDisabled}
           label="Password"
           type="password"
           value={data?.password || ''}
-          onChange={(e) => setData((prev) => ({ ...prev, password: e.target.value }))}
-        />
+          onChange={(e) => setData((prev) => ({ ...prev, password: (e.target.value).trim() }))}
+        />}
       </Box>
 
       {/* RIGHT */}
@@ -169,12 +178,13 @@ export default function UserForm({ data, setData, readOnly = false, lockCustomer
         <TextField
           fullWidth
           label="Company"
+          disabled={idDisabled}
           value={data?.companyNames || ''}
           InputProps={{
             readOnly: true,
             endAdornment: (
               <InputAdornment position="end">
-                <IconButton onClick={handleOpenCompanyLookup}>
+                <IconButton disabled={idDisabled} onClick={!idDisabled ? handleOpenCompanyLookup : undefined}>
                   <PersonSearchIcon />
                 </IconButton>
               </InputAdornment>
@@ -184,12 +194,13 @@ export default function UserForm({ data, setData, readOnly = false, lockCustomer
         <TextField
           fullWidth
           label="Role"
+          disabled={idDisabled}
           value={data?.roleNames || ''}
           InputProps={{
             readOnly: true,
             endAdornment: (
               <InputAdornment position="end">
-                <IconButton onClick={handleOpenRoleLookup}>
+                <IconButton disabled={idDisabled} onClick={!idDisabled ? handleOpenRoleLookup : undefined}>
                   <PersonSearchIcon />
                 </IconButton>
               </InputAdornment>
@@ -200,12 +211,13 @@ export default function UserForm({ data, setData, readOnly = false, lockCustomer
         <TextField
           fullWidth
           label="Project"
+          disabled={idDisabled}
           value={data?.projectNames || ''}
           InputProps={{
             readOnly: true,
             endAdornment: (
               <InputAdornment position="end">
-                <IconButton onClick={handleOpenProjectLookup}>
+                <IconButton disabled={idDisabled} onClick={!idDisabled ? handleOpenProjectLookup : undefined} >
                   <PersonSearchIcon />
                 </IconButton>
               </InputAdornment>
@@ -222,7 +234,7 @@ export default function UserForm({ data, setData, readOnly = false, lockCustomer
             alignItems: 'center'
           }}
         >
-          <FormControlLabel
+           <FormControlLabel
             control={
               <Android12Switch
                 checked={data?.status === 1}
