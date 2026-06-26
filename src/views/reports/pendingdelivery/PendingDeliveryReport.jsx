@@ -59,10 +59,10 @@ export default function PendingDeliveryReport() {
       filterable: false,
       renderCell: (params) => rows.findIndex((r) => r.mrDocEntry === params.id) + 1
     },
-    { field: 'mrDocNum', headerName: 'MR', width: 110, renderCell: dash },
-    { field: 'prDocNum', headerName: 'PR', width: 110, renderCell: dash },
-    { field: 'poDocNum', headerName: 'PO', width: 110, renderCell: dash },
-    { field: 'grpoDocNum', headerName: 'Goods Receipt PO', width: 150, renderCell: dash },
+    { field: 'mrDocEntry', headerName: 'MR', width: 110, renderCell: dash },
+    { field: 'prDocEntry', headerName: 'PR', width: 110, renderCell: dash },
+    { field: 'poDocEntry', headerName: 'PO', width: 110, renderCell: dash },
+    { field: 'grpoDocEntry', headerName: 'Goods Receipt PO', width: 150, renderCell: dash },
     {
       field: 'project',
       headerName: 'Project',
