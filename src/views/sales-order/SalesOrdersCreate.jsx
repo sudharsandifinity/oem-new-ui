@@ -25,8 +25,6 @@ import AttachmentTab from './AttachmentTab';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 
-// ==============================|| SALES ORDER CREATE ||============================== //
-
 export default function SalesOrdersCreate() {
   const dispatch = useDispatch();
   const { loading, error, saveSuccess } = useSelector(
@@ -97,7 +95,6 @@ export default function SalesOrdersCreate() {
     
 
   const initialState = () => ({
-    // General
     CardCode: '',
     CardName: '',
     ContactPerson: '',
@@ -109,7 +106,6 @@ export default function SalesOrdersCreate() {
 
     Attachments2_Lines: [createAttachmentRow(1)],
 
-    // Content
     DocType: 'dDocument_Items',
     DocCurrency: '',
     Comments: '',
@@ -118,7 +114,6 @@ export default function SalesOrdersCreate() {
     Rounding: false,
     RoundingDiffAmount: 0,
 
-    // Lines
     DocumentLines: [],
     DocumentAdditionalExpenses: []
   });
@@ -183,7 +178,6 @@ export default function SalesOrdersCreate() {
         }))
     };
 
-    // Build FormData here
     const formData = new FormData();
 
     Object.entries(payload).forEach(
@@ -205,7 +199,6 @@ export default function SalesOrdersCreate() {
       }
     );
 
-    // Append attachment files
     (salesOrder.Attachments2_Lines || []).forEach(
       (attachment) => {
         if (attachment.file) {
@@ -250,7 +243,6 @@ export default function SalesOrdersCreate() {
 
   return (
     <Box>
-      {/* ================= HEADER CARD ================= */}
 
       <MainCard
         content={false}
@@ -320,11 +312,7 @@ export default function SalesOrdersCreate() {
         </Box>
       </MainCard>
 
-      {/* ================= CONTENT CARD ================= */}
-
       <MainCard content={false}>
-        {/* ================= TABS ================= */}
-
         <Box
           sx={{
             borderBottom: 1,
@@ -349,8 +337,6 @@ export default function SalesOrdersCreate() {
           </Tabs>
         </Box>
 
-        {/* ================= TAB CONTENT ================= */}
-
         <Box sx={{ p: 3 }}>
           {tabValue === 0 && (
             <GeneralTab
@@ -374,8 +360,6 @@ export default function SalesOrdersCreate() {
               setData={setSalesOrder}
             />
           )}
-
-          {/* ================= FOOTER ================= */}
 
           <Divider sx={{ my: 4 }} />
 

@@ -13,20 +13,14 @@ import {
 import DeleteIcon from '@mui/icons-material/Delete';
 import PreviewIcon from '@mui/icons-material/Preview';
 
-// ==============================|| HELPERS ||============================== //
-
 const createAttachmentRow = (id) => ({
   id,
   file: null,
   fileName: ''
 });
 
-// ==============================|| ATTACHMENT TAB ||============================== //
-
-export default function AttachmentTab({data, setData}) {
+export default function AttachmentTab({ data, setData, readOnly = false }) {
   const attachments = data.Attachments2_Lines || [];
-
-  // ================= FILE CHANGE ================= //
 
   const handleFileChange = (id, event) => {
     const file = event.target.files?.[0];
@@ -49,8 +43,6 @@ export default function AttachmentTab({data, setData}) {
     }));
   };
 
-  // ================= ADD MORE ================= //
-
   const addMoreAttachment = () => {
     setData((prev) => ({
       ...prev,
@@ -63,8 +55,6 @@ export default function AttachmentTab({data, setData}) {
     }));
   };
 
-  // ================= REMOVE ================= //
-
   const removeAttachment = (id) => {
     setData((prev) => ({
       ...prev,
@@ -74,8 +64,6 @@ export default function AttachmentTab({data, setData}) {
         )
     }));
   };
-
-  // ================= PREVIEW ================= //
 
   const previewFile = (file) => {
     if (!file) return;
@@ -88,7 +76,6 @@ export default function AttachmentTab({data, setData}) {
 
   return (
     <Box>
-      {/* ================= ATTACHMENT LIST ================= */}
 
       <Box
         sx={{
@@ -113,27 +100,26 @@ export default function AttachmentTab({data, setData}) {
                 flexWrap: 'wrap'
               }}
             >
-              {/* ================= UPLOAD ================= */}
 
-              <Button
-                variant="outlined"
-                component="label"
-              >
-                Upload
+              {!readOnly && (
+                <Button
+                  variant="outlined"
+                  component="label"
+                >
+                  Upload
 
-                <input
-                  hidden
-                  type="file"
-                  onChange={(e) =>
-                    handleFileChange(
-                      row.id,
-                      e
-                    )
-                  }
-                />
-              </Button>
-
-              {/* ================= FILE NAME ================= */}
+                  <input
+                    hidden
+                    type="file"
+                    onChange={(e) =>
+                      handleFileChange(
+                        row.id,
+                        e
+                      )
+                    }
+                  />
+                </Button>
+              )}
 
               <TextField
                 size="small"
@@ -148,8 +134,6 @@ export default function AttachmentTab({data, setData}) {
                   }
                 }}
               />
-
-              {/* ================= PREVIEW ================= */}
 
               <Button
                 variant="outlined"
@@ -166,33 +150,39 @@ export default function AttachmentTab({data, setData}) {
                 Preview
               </Button>
 
-              {/* ================= REMOVE ================= */}
-
-              <IconButton
-                color="error"
-                onClick={() =>
-                  removeAttachment(
-                    row.id
-                  )
-                }
-              >
-                <DeleteIcon />
-              </IconButton>
+              {!readOnly && (
+                <IconButton
+                  color="error"
+                  onClick={() =>
+                    removeAttachment(
+                      row.id
+                    )
+                  }
+                >
+                  <DeleteIcon />
+                </IconButton>
+              )}
             </Box>
           </Paper>
         ))}
+
+        {readOnly && attachments.length === 0 && (
+          <Paper variant="outlined" sx={{ p: 2 }}>
+            <TextField size="small" fullWidth value="No attachments" disabled />
+          </Paper>
+        )}
       </Box>
 
-      {/* ================= ADD MORE ================= */}
-
-      <Box sx={{ mt: 3 }}>
-        <Button
-          variant="contained"
-          onClick={addMoreAttachment}
-        >
-          Add More
-        </Button>
-      </Box>
+      {!readOnly && (
+        <Box sx={{ mt: 3 }}>
+          <Button
+            variant="contained"
+            onClick={addMoreAttachment}
+          >
+            Add More
+          </Button>
+        </Box>
+      )}
     </Box>
   );
 }

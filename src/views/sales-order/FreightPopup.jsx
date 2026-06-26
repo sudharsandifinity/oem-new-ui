@@ -40,8 +40,7 @@ const createRow = (id) => ({
 export default function FreightPopup({open, onClose, onApply}) {
 
   const [rows, setRows] = useState([
-    createRow(1),
-    // createRow(2)
+    createRow(1)
   ]);
 
   const [openFreightLookup, setOpenFreightLookup] = useState(false);
@@ -50,7 +49,6 @@ export default function FreightPopup({open, onClose, onApply}) {
   const [openTaxLookup, setOpenTaxLookup] = useState(false);
   const [selectedTaxRowId, setSelectedTaxRowId] = useState(null);
 
-  // ================= UPDATE ROW =================
   const updateRow = (id, field, value) => {
     const updatedRows = rows.map((row) => {
       if (row.id === id) {

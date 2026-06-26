@@ -46,6 +46,8 @@ const GoodsReceiptPOView = Loadable(lazy(() => import('views/goods-receipt-po/Go
 //sales order routing
 const SalesOrdersList = Loadable(lazy(() => import('views/sales-order/SalesOrdersList.jsx')));
 const SalesOrdersCreate = Loadable(lazy(() => import('views/sales-order/SalesOrdersCreate.jsx')));
+const SalesOrdersView = Loadable(lazy(() => import('views/sales-order/SalesOrdersView.jsx')));
+const SalesOrdersEdit = Loadable(lazy(() => import('views/sales-order/SalesOrdersEdit.jsx')));
 
 //sales quotation routing
 const SalesQuotationList = Loadable(lazy(() => import('views/sales-quotation/SalesQuotationList.jsx')));
@@ -188,7 +190,9 @@ const MainRoutes = {
       path: 'Sales-Orders',
       children: [
         { path: 'list', element: <SalesOrdersList /> },
-        { path: 'create', element: <SalesOrdersCreate /> }
+        { path: 'create', element: <SalesOrdersCreate /> },
+        { path: 'view/:id', element: <SalesOrdersView /> },
+        { path: 'edit/:id', element: <SalesOrdersEdit /> }
       ]
     },
     {

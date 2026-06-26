@@ -36,8 +36,6 @@ import InputAdornment from '@mui/material/InputAdornment';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { getCurrencies } from '../../store/slices/currencySlice';
 
-// ==============================|| HELPERS ||============================== //
-
 const createRow = (id) => ({
   id,
   itemNo: '',
@@ -59,9 +57,7 @@ const createRow = (id) => ({
   dimension5: ''
 });
 
-// ==============================|| COMPONENT ||============================== //
-
-export default function ContentTab({data, setData, rows, setRows}) {
+export default function ContentTab({ data, setData, rows, setRows, readOnly = false }) {
   const [documentType, setDocumentType] = useState('item');
   const [currency, setCurrency] = useState('');
   const dispatch = useDispatch();
@@ -77,6 +73,14 @@ export default function ContentTab({data, setData, rows, setRows}) {
       dispatch(getCurrencies());
     }
   }, [currencies]);
+
+  useEffect(() => {
+    const exps = data.DocumentAdditionalExpenses || [];
+    if (exps.length) {
+      const total = exps.reduce((sum, e) => sum + Number(e.amount ?? e.LineTotal ?? 0), 0);
+      setFreightTotal(total);
+    }
+  }, [data.DocumentAdditionalExpenses]);
 
   const [openItemPopup, setOpenItemPopup] = useState(false);
   const [selectedRowId, setSelectedRowId] = useState(null);
@@ -109,8 +113,6 @@ export default function ContentTab({data, setData, rows, setRows}) {
       DocumentLines: rows
     }));
   }, [rows, setData]);
-
-    // ================= OPEN ITEM POPUP ================= //
 
     const handleOpenItemPopup = (rowId) => {
       setSelectedRowId(rowId);
@@ -179,7 +181,6 @@ export default function ContentTab({data, setData, rows, setRows}) {
       setOpenWarehousePopup(false);
       setSelectedWarehouseRowId(null);
     };
-  // ==============================|| ROW CALCULATION ||============================== //
 
   const updateRow = (id, field, value) => {
     const updated = rows.map((row) => {
@@ -234,10 +235,11 @@ export default function ContentTab({data, setData, rows, setRows}) {
     return newRow;
   };
 
-  // ==============================|| AUTO ADD ROW ||============================== //
-
   useEffect(() => {
+    if (readOnly) return;
+
     const last = rows[rows.length - 1];
+    if (!last) return;
 
     const hasData =
       last.itemNo ||
@@ -250,9 +252,7 @@ export default function ContentTab({data, setData, rows, setRows}) {
         createRow(Date.now())
       ]);
     }
-  }, [rows]);
-
-  // ==============================|| DELETE ROW ||============================== //
+  }, [rows, readOnly]);
 
   const deleteRow = (id) => {
     if (rows.length <= 1) return;
@@ -261,8 +261,6 @@ export default function ContentTab({data, setData, rows, setRows}) {
       prev.filter((r) => r.id !== id)
     );
   };
-
-  // ==============================|| TOTALS ||============================== //
 
   const totalBeforeDiscount = useMemo(() => {
     return rows.reduce(
@@ -296,11 +294,8 @@ export default function ContentTab({data, setData, rows, setRows}) {
       ? Number(data.RoundingDiffAmount || 0)
       : 0)
 
-  // ==============================|| UI ||============================== //
-
   return (
     <Box>
-      {/* ================= TOP FILTER SECTION ================= */}
 
       <Box
         sx={{
@@ -313,7 +308,6 @@ export default function ContentTab({data, setData, rows, setRows}) {
           marginBottom: 10
         }}
       >
-        {/* ITEM / SERVICE */}
 
         <Box
           sx={{
@@ -332,6 +326,7 @@ export default function ContentTab({data, setData, rows, setRows}) {
             <Select
               label="Item / Service"
               value={data.DocType}
+              disabled={readOnly}
               onChange={(e) => handleChange('DocType', e.target.value)}
             >
               <MenuItem value="dDocument_Items">
@@ -363,7 +358,7 @@ export default function ContentTab({data, setData, rows, setRows}) {
 
             <Select
               label="Currency"
-              disabled={currencyLoading}
+              disabled={readOnly || currencyLoading}
               value={data.DocCurrency || ''}
               onChange={(e) =>
                 handleChange(
@@ -385,8 +380,6 @@ export default function ContentTab({data, setData, rows, setRows}) {
         </Box>
       </Box>
 
-    {/* ================= TABLE ================= */}
-
       <TableContainer
         component={Paper}
         variant="outlined"
@@ -403,7 +396,6 @@ export default function ContentTab({data, setData, rows, setRows}) {
             tableLayout: 'fixed'
           }}
         >
-          {/* ================= HEADER ================= */}
 
           <TableHead>
             <TableRow
@@ -504,16 +496,12 @@ export default function ContentTab({data, setData, rows, setRows}) {
             </TableRow>
           </TableHead>
 
-          {/* ================= BODY ================= */}
-
           <TableBody>
             {rows.map((row, index) => (
               <TableRow
                 key={row.id}
                 hover
               >
-                {/* SERIAL */}
-
                 <TableCell>
                   {index + 1}
                 </TableCell>
@@ -524,6 +512,7 @@ export default function ContentTab({data, setData, rows, setRows}) {
                   <TextField
                     size="small"
                     value={row.itemNo}
+                    disabled={readOnly}
                     onChange={(e) =>
                       updateRow(
                         row.id,
@@ -535,10 +524,12 @@ export default function ContentTab({data, setData, rows, setRows}) {
                       width: '100%'
                     }}
                     InputProps={{
+                      readOnly,
                       endAdornment: (
                         <InputAdornment position="end">
                           <IconButton
                             size="small"
+                            disabled={readOnly}
                             onClick={() =>
                               handleOpenItemPopup(
                                 row.id
@@ -580,6 +571,7 @@ export default function ContentTab({data, setData, rows, setRows}) {
                     size="small"
                     type="number"
                     value={row.quantity}
+                    disabled={readOnly}
                     onChange={(e) =>
                       updateRow(
                         row.id,
@@ -600,6 +592,7 @@ export default function ContentTab({data, setData, rows, setRows}) {
                     size="small"
                     type="number"
                     value={row.unitPrice}
+                    disabled={readOnly}
                     onChange={(e) =>
                       updateRow(
                         row.id,
@@ -620,6 +613,7 @@ export default function ContentTab({data, setData, rows, setRows}) {
                     size="small"
                     type="number"
                     value={row.discount}
+                    disabled={readOnly}
                     onChange={(e) =>
                       updateRow(
                         row.id,
@@ -652,15 +646,18 @@ export default function ContentTab({data, setData, rows, setRows}) {
                   <TextField
                     size="small"
                     value={row.taxCode}
+                    disabled={readOnly}
                     onChange={(e) =>
                       updateRow(row.id, 'taxCode', e.target.value)
                     }
                     sx={{ width: '100%' }}
                     InputProps={{
+                      readOnly,
                       endAdornment: (
                         <InputAdornment position="end">
                           <IconButton
                             size="small"
+                            disabled={readOnly}
                             onClick={() => {
                               setSelectedTaxRowId(row.id);
                               setOpenTaxPopup(true);
@@ -724,15 +721,18 @@ export default function ContentTab({data, setData, rows, setRows}) {
                   <TextField
                     size="small"
                     value={row.project}
+                    disabled={readOnly}
                     onChange={(e) =>
                       updateRow(row.id, 'project', e.target.value)
                     }
                     sx={{ width: '100%' }}
                     InputProps={{
+                      readOnly,
                       endAdornment: (
                         <InputAdornment position="end">
                           <IconButton
                             size="small"
+                            disabled={readOnly}
                             onClick={() => {
                               setSelectedProjectRowId(row.id);
                               setOpenProjectPopup(true);
@@ -754,15 +754,18 @@ export default function ContentTab({data, setData, rows, setRows}) {
                   <TextField
                     size="small"
                     value={row.warehouse}
+                    disabled={readOnly}
                     onChange={(e) =>
                       updateRow(row.id, 'warehouse', e.target.value)
                     }
                     sx={{ width: '100%' }}
                     InputProps={{
+                      readOnly,
                       endAdornment: (
                         <InputAdornment position="end">
                           <IconButton
                             size="small"
+                            disabled={readOnly}
                             onClick={() => {
                               setSelectedWarehouseRowId(row.id);
                               setOpenWarehousePopup(true);
@@ -791,6 +794,7 @@ export default function ContentTab({data, setData, rows, setRows}) {
                     <TextField
                       size="small"
                       value={row[field]}
+                      disabled={readOnly}
                       onChange={(e) =>
                         updateRow(
                           row.id,
@@ -810,6 +814,7 @@ export default function ContentTab({data, setData, rows, setRows}) {
                 <TableCell align="center">
                   <IconButton
                     color="error"
+                    disabled={readOnly}
                     onClick={() =>
                       deleteRow(row.id)
                     }
@@ -823,8 +828,6 @@ export default function ContentTab({data, setData, rows, setRows}) {
         </Table>
       </TableContainer>
 
-      {/* ================= BOTTOM SECTION ================= */}
-
       <Box
         sx={{
           display: 'flex',
@@ -833,8 +836,6 @@ export default function ContentTab({data, setData, rows, setRows}) {
           flexWrap: 'wrap'
         }}
       >
-
-      {/* ================= LEFT SIDE ================= */}
 
       <Box
         sx={{
@@ -859,8 +860,6 @@ export default function ContentTab({data, setData, rows, setRows}) {
             Additional Details
           </Typography>
 
-          {/* ================= OWNER ================= */}
-
           <FormControl
             fullWidth
             size="small"
@@ -873,6 +872,7 @@ export default function ContentTab({data, setData, rows, setRows}) {
             <Select
               label="Owner"
               value={data.SalesPersonCode || ''}
+              disabled={readOnly}
               onChange={(e) =>
                 handleChange(
                   'SalesPersonCode',
@@ -890,14 +890,13 @@ export default function ContentTab({data, setData, rows, setRows}) {
             </Select>
           </FormControl>
 
-          {/* ================= REMARK ================= */}
-
           <TextField
             fullWidth
             multiline
             rows={5}
             label="Remark"
             value={data.Comments || ''}
+            disabled={readOnly}
             onChange={(e) =>
               handleChange(
                 'Comments',
@@ -907,8 +906,6 @@ export default function ContentTab({data, setData, rows, setRows}) {
           />
         </Paper>
       </Box>
-
-        {/* ================= RIGHT SIDE ================= */}
 
         <Paper
           variant="outlined"
@@ -923,8 +920,6 @@ export default function ContentTab({data, setData, rows, setRows}) {
           >
             Total Summary
           </Typography>
-
-          {/* TOTAL BEFORE DISCOUNT */}
 
           <Box
             sx={{
@@ -942,8 +937,6 @@ export default function ContentTab({data, setData, rows, setRows}) {
             </Typography>
           </Box>
 
-          {/* DISCOUNT */}
-
           <Box
             sx={{
               display: 'flex',
@@ -960,6 +953,7 @@ export default function ContentTab({data, setData, rows, setRows}) {
               size="small"
               type="number"
               sx={{ width: 120 }}
+              disabled={readOnly}
               value={
                 data.DiscountPercent || 0
               }
@@ -971,8 +965,6 @@ export default function ContentTab({data, setData, rows, setRows}) {
               }
             />
           </Box>
-
-          {/* DISCOUNT AMOUNT */}
 
           <Box
             sx={{
@@ -990,8 +982,6 @@ export default function ContentTab({data, setData, rows, setRows}) {
             </Typography>
           </Box>
 
-          {/* ================= FREIGHT ================= */}
-
           <Box
             sx={{
               display: 'flex',
@@ -1008,6 +998,7 @@ export default function ContentTab({data, setData, rows, setRows}) {
               variant="outlined"
               color="secondary"
               size="small"
+              disabled={readOnly}
               onClick={() =>
                 setFreightPopupOpen(true)
               }
@@ -1020,9 +1011,6 @@ export default function ContentTab({data, setData, rows, setRows}) {
                 : 'Add Freight'}
             </Button>
           </Box>
-
-          {/* TAX */}
-
           <Box
             sx={{
               display: 'flex',
@@ -1038,9 +1026,6 @@ export default function ContentTab({data, setData, rows, setRows}) {
               {totalTax.toFixed(2)}
             </Typography>
           </Box>
-
-          {/* ROUNDING */}
-
           <Box
             sx={{
               display: 'flex',
@@ -1058,6 +1043,7 @@ export default function ContentTab({data, setData, rows, setRows}) {
               <Checkbox
                 checked={data.Rounding}
                 sx={{padding:0}}
+                disabled={readOnly}
                 onChange={(e) =>
                   handleChange(
                     'Rounding',
@@ -1076,6 +1062,7 @@ export default function ContentTab({data, setData, rows, setRows}) {
                 size="small"
                 type="number"
                 sx={{ width: 120 }}
+                disabled={readOnly}
                 value={data.RoundingDiffAmount}
                 onChange={(e) =>
                   handleChange(
@@ -1086,9 +1073,6 @@ export default function ContentTab({data, setData, rows, setRows}) {
               />
             )}
           </Box>
-
-          {/* FINAL TOTAL */}
-
           <Box
             sx={{
               display: 'flex',

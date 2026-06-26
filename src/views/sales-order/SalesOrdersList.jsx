@@ -145,7 +145,7 @@ export default function SalesOrderList() {
       sortable: false,
       filterable: false,
       minWidth: 130,
-      renderCell: () => (
+      renderCell: (params) => (
         <Stack
           direction="row"
           height={'100%'}
@@ -154,6 +154,7 @@ export default function SalesOrderList() {
           <IconButton
             size="small"
             color="primary"
+            onClick={() => navigate(`/sales-orders/view/${params.row.DocEntry}`)}
           >
             <VisibilityIcon
               fontSize="small"
@@ -163,6 +164,7 @@ export default function SalesOrderList() {
           <IconButton
             size="small"
             color="secondary"
+            onClick={() => navigate(`/sales-orders/edit/${params.row.DocEntry}`)}
           >
             <EditIcon
               fontSize="small"
