@@ -104,14 +104,27 @@ export default function MaterialRequestApprovalView() {
   };
 
   const handleDecision = async () => {
-    const action = confirm.type === 'approve' ? approveMR : rejectMR;
+    const isApprove = confirm.type === 'approve';
+    const action = isApprove ? approveMR : rejectMR;
     try {
-      await dispatch(action({ docEntry: id, remark: aprRemark })).unwrap();
-      setSnackbar({
-        open: true,
-        severity: 'success',
-        message: `Material Request ${confirm.type === 'approve' ? 'approved' : 'rejected'} successfully!`
-      });
+      const result = await dispatch(action({ docEntry: id, remark: aprRemark })).unwrap();
+
+      const pr = isApprove ? result?.purchaseRequest : null;
+      if (isApprove && pr && pr.created === false) {
+        setSnackbar({
+          open: true,
+          severity: 'warning',
+          message: `Material Request approved, but auto Purchase Request failed: ${pr.error || 'unknown error'}`
+        });
+      } else {
+        setSnackbar({
+          open: true,
+          severity: 'success',
+          message: isApprove
+            ? 'Material Request approved and Purchase Request created successfully!'
+            : 'Material Request rejected successfully!'
+        });
+      }
       setConfirm({ open: false, type: null });
       setAprRemark('');
       dispatch(getMRById(id));
