@@ -57,7 +57,6 @@ export default function SalesOrdersEdit() {
   useEffect(() => {
     if (!currentOrder) return;
     setSalesOrder(mapApiToForm(currentOrder));
-    // keep one trailing blank row so the user can append lines
     setDocumentLines([...mapApiToRows(currentOrder), { id: Date.now(), itemNo: '', itemDescription: '', quantity: '', unitPrice: '', discount: '', lineTotal: '', taxCode: '', taxPercentage: '', taxAmount: '', grossTotal: '', project: '', warehouse: '', dimension1: '', dimension2: '', dimension3: '', dimension4: '', dimension5: '' }]);
   }, [currentOrder]);
 
@@ -73,7 +72,7 @@ export default function SalesOrdersEdit() {
     }
   }, [saveSuccess, error, submitting, id, navigate]);
 
-  const isLoading = loading && !salesOrder;
+  const isLoading = !salesOrder;
 
   const handleSubmit = () => {
     const formData = buildSalesOrderFormData(salesOrder, documentLines);

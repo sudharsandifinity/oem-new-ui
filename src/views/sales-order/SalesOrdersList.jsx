@@ -44,7 +44,6 @@ export default function SalesOrderList() {
 
   const [filters, setFilters] =
     useState({
-      DocEntry: '',
       CardCode: '',
       CardName: ''
     });
@@ -61,7 +60,6 @@ export default function SalesOrderList() {
 
   const clearFilters = () => {
     setFilters({
-      DocEntry: '',
       CardCode: '',
       CardName: ''
     });
@@ -70,12 +68,6 @@ export default function SalesOrderList() {
   const filteredRows = useMemo(() => {
     return (orders || []).filter((r) => {
       return (
-        (!filters.DocEntry ||
-          r.DocEntry
-            .toString()
-            .includes(
-              filters.DocEntry
-            )) &&
         (!filters.CardCode ||
           r.CardCode
             .toLowerCase()
@@ -93,12 +85,6 @@ export default function SalesOrderList() {
   }, [orders, filters]);
 
   const columns = [
-    {
-      field: 'DocEntry',
-      headerName: 'Doc Entry',
-      flex: 1,
-      minWidth: 120
-    },
     {
       field: 'CardCode',
       headerName: 'Customer Code',
@@ -176,10 +162,10 @@ export default function SalesOrderList() {
   ];
 
   return (
-    <Box sx={{ p: 2 }}>
+    <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', height: '100%' }}>
       <MainCard
         content={false}
-        sx={{ mb: 3 }}
+        sx={{ mb: 3, flexShrink: 0 }}
       >
         <Box
           sx={{
@@ -242,7 +228,8 @@ export default function SalesOrderList() {
         sx={{
           p: 2,
           mb: 3,
-          borderRadius: 2
+          borderRadius: 2,
+          flexShrink: 0
         }}
       >
         <Box
@@ -268,18 +255,6 @@ export default function SalesOrderList() {
               flex: 1
             }}
           >
-            <TextField
-              size="small"
-              label="Doc Entry"
-              value={filters.DocEntry}
-              onChange={(e) =>
-                handleChange(
-                  'DocEntry',
-                  e.target.value
-                )
-              }
-            />
-
             <TextField
               size="small"
               label="Customer Code"
@@ -330,7 +305,7 @@ export default function SalesOrderList() {
       {error && (
         <Alert
           severity="error"
-          sx={{ mb: 2 }}
+          sx={{ mb: 2, flexShrink: 0 }}
         >
           {error}
         </Alert>
@@ -338,7 +313,8 @@ export default function SalesOrderList() {
       <Paper
         variant="outlined"
         sx={{
-          height: 650,
+          flex: 1,
+          minHeight: 0,
           width: '100%',
           borderRadius: 2,
           overflow: 'hidden'
@@ -367,6 +343,7 @@ export default function SalesOrderList() {
           disableRowSelectionOnClick
           sx={{
             border: 0,
+            height: '100%',
 
             '& .MuiDataGrid-columnHeaders':
               {
