@@ -1,15 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Alert, Box, Breadcrumbs, Button, Chip, IconButton, Paper, Stack, Tooltip, Typography } from '@mui/material';
+import { Alert, Box, Breadcrumbs, Button, Chip, Paper, Typography } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 
 import HomeIcon from '@mui/icons-material/Home';
-import VisibilityIcon from '@mui/icons-material/Visibility';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import RefreshIcon from '@mui/icons-material/Refresh';
 
 import MainCard from 'ui-component/cards/MainCard';
-import { useNavigate } from 'react-router-dom';
 import { getPendingDeliveryReport } from '../../../store/slices/materialRequestSlice';
 import { formatDateDDMMYYYY } from 'utils/dataGridFormatters';
 
@@ -28,7 +26,6 @@ const renderStatusCell = (params) => {
 const dash = (params) => (params.value == null || params.value === '' ? '—' : params.value);
 
 export default function PendingDeliveryReport() {
-  const navigate = useNavigate();
   const dispatch = useDispatch();
   const { pendingDelivery, pendingDeliveryLoading } = useSelector((s) => s.materialRequest);
 
@@ -62,7 +59,7 @@ export default function PendingDeliveryReport() {
     { field: 'mrDocEntry', headerName: 'MR', width: 110, renderCell: dash },
     { field: 'prDocEntry', headerName: 'PR', width: 110, renderCell: dash },
     { field: 'poDocEntry', headerName: 'PO', width: 110, renderCell: dash },
-    { field: 'grpoDocEntry', headerName: 'Goods Receipt PO', width: 150, renderCell: dash },
+    { field: 'grpoDocEntry', headerName: 'GRPO', width: 150, renderCell: dash },
     {
       field: 'project',
       headerName: 'Project',
@@ -73,23 +70,7 @@ export default function PendingDeliveryReport() {
     },
     { field: 'requiredDate', headerName: 'Required Date', flex: 1, minWidth: 140, valueFormatter: formatDateDDMMYYYY },
     { field: 'supplierName', headerName: 'Supplier', flex: 1.3, minWidth: 180, renderCell: dash },
-    { field: 'status', headerName: 'Status', width: 160, sortable: false, renderCell: renderStatusCell },
-    {
-      field: 'action',
-      headerName: 'Action',
-      sortable: false,
-      filterable: false,
-      minWidth: 80,
-      renderCell: (params) => (
-        <Stack direction="row" height="100%" spacing={0.5} alignItems="center">
-          <Tooltip title="View Material Request">
-            <IconButton size="small" color="primary" onClick={() => navigate(`/material-request/view/${params.row.mrDocEntry}`)}>
-              <VisibilityIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-        </Stack>
-      )
-    }
+    { field: 'status', headerName: 'Status', width: 160, sortable: false, renderCell: renderStatusCell }
   ];
 
   return (
