@@ -32,6 +32,7 @@ const MaterialRequestApprovalView = Loadable(lazy(() => import('views/material-r
 
 // Reports routing
 const PendingApprovalReports = Loadable(lazy(() => import('views/reports/pendingreports/PendingApprovalReports')));
+const PendingDeliveryReport = Loadable(lazy(() => import('views/reports/pendingdelivery/PendingDeliveryReport')));
 
 // Purchase Request routing
 const PurchaseRequestsList = Loadable(lazy(() => import('views/purchase-request/PurchaseRequestsList')));
@@ -154,6 +155,10 @@ const MainRoutes = {
     {
       path: 'Pending-Approvals',
       children: [{ path: 'list', element: <PendingApprovalReports /> }]
+    },
+    {
+      path: 'Pending-Delivery',
+      children: [{ path: 'list', element: <PendingDeliveryReport /> }]
     },
     {
       path: 'purchase-request',

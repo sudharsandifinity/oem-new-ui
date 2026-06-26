@@ -108,6 +108,18 @@ export const getMRPendingReport = createAsyncThunk('materialRequest/getPendingRe
   }
 });
 
+export const getPendingDeliveryReport = createAsyncThunk('materialRequest/getPendingDelivery', async (_ = {}, thunkAPI) => {
+  try {
+    const response = await API.get('/sap/mr/pending-delivery');
+    return {
+      list: response.data.value ?? response.data,
+      totalCount: response.data['odata.count'] || 0
+    };
+  } catch (error) {
+    return thunkAPI.rejectWithValue(error.response?.data?.message || 'Failed to fetch pending delivery report');
+  }
+});
+
 export const getBOQList = createAsyncThunk('materialRequest/getBOQList', async ({ U_BPCode = '', U_PrjCode = '' } = {}, thunkAPI) => {
   try {
     const response = await API.get('/sap/boq/active', { params: { U_BPCode, U_PrjCode } });
@@ -138,6 +150,10 @@ const materialRequestSlice = createSlice({
     approvalsLoading: false,
     approvalsRequestId: null,
     decisionLoading: false,
+
+    pendingDelivery: [],
+    pendingDeliveryLoading: false,
+    pendingDeliveryRequestId: null,
 
     pendingReport: [],
     pendingReportCount: 0,
@@ -295,6 +311,22 @@ const materialRequestSlice = createSlice({
       .addCase(getMRPendingReport.rejected, (state, action) => {
         if (action.meta.requestId !== state.pendingReportRequestId) return;
         state.pendingReportLoading = false;
+        state.error = action.payload;
+      })
+
+      .addCase(getPendingDeliveryReport.pending, (state, action) => {
+        state.pendingDeliveryRequestId = action.meta.requestId;
+        state.pendingDeliveryLoading = true;
+        state.error = null;
+      })
+      .addCase(getPendingDeliveryReport.fulfilled, (state, action) => {
+        if (action.meta.requestId !== state.pendingDeliveryRequestId) return;
+        state.pendingDeliveryLoading = false;
+        state.pendingDelivery = action.payload.list;
+      })
+      .addCase(getPendingDeliveryReport.rejected, (state, action) => {
+        if (action.meta.requestId !== state.pendingDeliveryRequestId) return;
+        state.pendingDeliveryLoading = false;
         state.error = action.payload;
       })
 
