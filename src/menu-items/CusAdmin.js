@@ -26,6 +26,14 @@ const CusAdmin = {
       url: '/RoleManagement/list',
       icon: icons.IconDashboard,
       breadcrumbs: false
+    },
+    {
+      id: 'ProjectManagement',
+      title: 'Project Management',
+      type: 'item',
+      url: '/ProjectManagement/list',
+      icon: icons.IconDashboard,
+      breadcrumbs: false
     }
   ]
 };

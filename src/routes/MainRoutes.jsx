@@ -15,6 +15,9 @@ const RoleManagementCreate=Loadable(lazy(()=>import('views/CustomerAdmin/RoleMan
 const RoleManagementView=Loadable(lazy(()=>import('views/CustomerAdmin/RoleManagement/RoleManagementView.jsx')));
 const RoleManagementEdit=Loadable(lazy(()=>import('views/CustomerAdmin/RoleManagement/RoleManagementEdit.jsx')));
 
+//Project management routing
+const ProjectManagementList=Loadable(lazy(()=>import('views/CustomerAdmin/ProjectManagement/ProjectManagementList')));
+
 //User management routing
 const UserManagementList=Loadable(lazy(()=>import('views/CustomerAdmin/UserManagement/UserManagementList')));
 const UserManagementCreate=Loadable(lazy(()=>import('views/CustomerAdmin/UserManagement/UserManagementCreate.jsx')));
@@ -101,6 +104,15 @@ const MainRoutes = {
           element:<UserManagementEdit/>
         }
         
+      ]
+    },
+    {
+      path: 'ProjectManagement',
+      children: [
+        {
+          path: 'list',
+          element: <ProjectManagementList />
+        }
       ]
     },
     {

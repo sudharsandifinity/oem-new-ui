@@ -64,6 +64,24 @@ export const updateAdminUsers = createAsyncThunk('commonCustomer/update', async 
 });
 
 
+export const getCompanyProjects = createAsyncThunk('commonCustomer/getCompanyProjects', async (_, thunkAPI) => {
+  try {
+    const response = await API.get('/company-admin/projects');
+    return response.data.value ?? response.data;
+  } catch (error) {
+    return thunkAPI.rejectWithValue(error.response?.data?.message || 'Failed to fetch projects');
+  }
+});
+
+export const syncCompanyProjects = createAsyncThunk('commonCustomer/syncCompanyProjects', async (payload = {}, thunkAPI) => {
+  try {
+    const response = await API.post('/company-admin/projects/sync', payload);
+    return response.data;
+  } catch (error) {
+    return thunkAPI.rejectWithValue(error.response?.data?.message || 'Failed to sync projects');
+  }
+});
+
 export const getEmployees = createAsyncThunk('commonCustomer/getEmployees', async (_, thunkAPI) => {
   try {
     const response = await API.get('/sap/employees');
@@ -114,6 +132,10 @@ const commonCustomerSlice = createSlice({
     menus:[],
     menuLoading:false,
     menuError:null,
+
+    companyProjects: [],
+    companyProjectsLoading: false,
+    syncLoading: false,
 
     employees: [],
     employeesLoading: false,
@@ -222,6 +244,30 @@ const commonCustomerSlice = createSlice({
       })
 
       
+
+      .addCase(getCompanyProjects.pending, (state) => {
+        state.companyProjectsLoading = true;
+      })
+      .addCase(getCompanyProjects.fulfilled, (state, action) => {
+        state.companyProjectsLoading = false;
+        state.companyProjects = Array.isArray(action.payload) ? action.payload : [];
+      })
+      .addCase(getCompanyProjects.rejected, (state, action) => {
+        state.companyProjectsLoading = false;
+        state.error = action.payload;
+      })
+
+      .addCase(syncCompanyProjects.pending, (state) => {
+        state.syncLoading = true;
+        state.error = null;
+      })
+      .addCase(syncCompanyProjects.fulfilled, (state) => {
+        state.syncLoading = false;
+      })
+      .addCase(syncCompanyProjects.rejected, (state, action) => {
+        state.syncLoading = false;
+        state.error = action.payload;
+      })
 
       .addCase(getEmployees.pending, (state) => {
         state.employeesLoading = true;

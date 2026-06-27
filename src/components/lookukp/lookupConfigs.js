@@ -3,7 +3,7 @@ import { getTaxCodes } from '../../store/slices/taxCodeSlice';
 import { getProjects } from '../../store/slices/projectSlice';
 import { getWarehouses } from '../../store/slices/warehouseSlice';
 import { getCustomers } from '../../store/slices/customerSlice';
-import { getadminCompanies, getmenus } from '../../store/slices/commonCustomerSlice';
+import { getadminCompanies, getmenus, getCompanyProjects } from '../../store/slices/commonCustomerSlice';
 import { getadminRoles } from '../../store/slices/roleSlice';
 
 
@@ -208,19 +208,19 @@ export const LOOKUP_CONFIGS = {
 
   selector: (state) => ({
     data:
-      state.auth.user?.Projects?.map((pr) => ({
+      (state.commonCustomer.companyProjects || []).map((pr) => ({
         id: pr.id,
         Active: pr.Active,
         Code: pr.Code,
         Name: pr.Name,
         ValidFrom: pr.ValidFrom
-      })) || [],
+      })),
 
-    loading: false,
+    loading: state.commonCustomer.companyProjectsLoading,
     error: null
   }),
 
-  loadAction: null,
+  loadAction: getCompanyProjects,
 
   filters: [
     {
