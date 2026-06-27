@@ -25,7 +25,9 @@ export const emptyRow = () => ({
   IssuedQty: '',
   InStock: '',
   RequiredDate: '',
-  Remark: ''
+  Remark: '',
+  IsBOMRow: false,
+  IsChildRow: false
 });
 
 export const buildChildRow = (parentRow) => ({
@@ -39,6 +41,51 @@ export const withTrailingEmptyRow = (rows) => {
   const last = rows[rows.length - 1];
   const isComplete = last && !last.IsChildRow && String(last.ItemCode || '').trim() && String(last.Quantity || '').trim();
   return isComplete ? [...rows, emptyRow()] : rows;
+};
+
+export const withTrailingChildSlot = (rows, childRowId) => {
+  const idx = rows.findIndex((r) => r.id === childRowId);
+  if (idx === -1) return rows;
+  const cur = rows[idx];
+  if (!cur.IsChildRow) return rows;
+  const next = rows[idx + 1];
+  const slotExists = next && next.IsChildRow && next.ParentRowId === cur.ParentRowId && !String(next.ItemCode || '').trim();
+  if (slotExists) return rows;
+  const slot = buildChildRow({ id: cur.ParentRowId, ItemCode: cur.ParentItemCode });
+  return [...rows.slice(0, idx + 1), slot, ...rows.slice(idx + 1)];
+};
+
+export const groupBomLinesWithChildren = (rows, itemMap, childCapableSet) => {
+  const present = new Set(rows.map((r) => r.ItemCode));
+  const childrenByParent = {};
+  const bomRows = [];
+
+  for (const r of rows) {
+    const parentCode = itemMap[r.ItemCode]?.U_HLB_ParItm || '';
+    if (parentCode && present.has(parentCode)) {
+      if (!childrenByParent[parentCode]) childrenByParent[parentCode] = [];
+      childrenByParent[parentCode].push(r);
+    } else {
+      bomRows.push(r);
+    }
+  }
+
+  const result = [];
+  for (const r of bomRows) {
+    const bomRow = { ...r, IsBOMRow: true, IsChildRow: false };
+    result.push(bomRow);
+
+    const kids = childrenByParent[bomRow.ItemCode] || [];
+    kids.forEach((kid) => {
+      result.push({ ...kid, IsBOMRow: false, IsChildRow: true, ParentItemCode: bomRow.ItemCode, ParentRowId: bomRow.id });
+    });
+
+    if (childCapableSet.has(bomRow.ItemCode)) {
+      result.push(buildChildRow(bomRow));
+    }
+  }
+
+  return result;
 };
 
 export const fetchHasChildren = async (dispatch, itemCode) => {

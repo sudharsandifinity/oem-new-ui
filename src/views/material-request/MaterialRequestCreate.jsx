@@ -16,7 +16,7 @@ import BOMSelectModal from './BOMSelectModal';
 import BOMItemSelectModal from './BOMItemSelectModal';
 import { createMR, resetMRState } from '../../store/slices/materialRequestSlice';
 import { createDraft } from '../../store/slices/draftSlice';
-import { buildPayload, buildChildRow, fetchHasChildren, withTrailingEmptyRow } from './mrHelpers';
+import { buildPayload, buildChildRow, fetchHasChildren } from './mrHelpers';
 
 const today = new Date().toISOString().split('T')[0];
 const nowTime = new Date().toTimeString().slice(0, 5);
@@ -55,7 +55,8 @@ const boqLineToRow = (line, projectCode) => ({
   Quantity: line.U_PQty ?? 0,
   ApprovedQuantity: 0,
   MROpenQty: 0,
-  InStock: 0
+  InStock: 0,
+  IsBOMRow: true
 });
 
 export default function MaterialRequestCreate() {
@@ -73,6 +74,7 @@ export default function MaterialRequestCreate() {
   const [snackbar, setSnackbar] = useState({ open: false, severity: 'success', message: '' });
 
   const canCopyFromBOM = !!(form.CardCode?.trim() || form.ProjectCode?.trim());
+  const isBOM = !!(form.BOMDocEntry || form.BOMNo);
 
   useEffect(() => {
     if (saveSuccess) {
@@ -103,7 +105,7 @@ export default function MaterialRequestCreate() {
       }
     }
 
-    setLines(finalRows.length ? withTrailingEmptyRow(finalRows) : [emptyRow()]);
+    setLines(finalRows.length ? finalRows : [emptyRow()]);
     setForm((prev) => ({
       ...prev,
       BOMNo: pendingBOM.DocEntry,
@@ -167,7 +169,7 @@ const handleSubmitasDraft=()=>{
             <MRGeneralTab data={form} setData={setForm} />
           </Box>
           <Box sx={{ display: tabValue === 1 ? 'block' : 'none' }}>
-            <MRContentTab data={form} setData={setForm} rows={lines} setRows={setLines} />
+            <MRContentTab data={form} setData={setForm} rows={lines} setRows={setLines} isBOM={isBOM} />
           </Box>
 
           <Divider sx={{ my: 4 }} />

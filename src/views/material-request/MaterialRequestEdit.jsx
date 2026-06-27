@@ -2,9 +2,9 @@ import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getMRById, updateMR, resetMRState } from '../../store/slices/materialRequestSlice';
-// import { getItems } from '../../store/slices/itemSlice'; // used by Refresh Stock (hidden)
+import { getItems } from '../../store/slices/itemSlice';
 import { getDepartments } from '../../store/slices/commonSlice';
-import { mapApiToForm, mapApiLineToRow, buildPayload } from './mrHelpers';
+import { mapApiToForm, mapApiLineToRow, buildPayload, fetchHasChildren, groupBomLinesWithChildren } from './mrHelpers';
 import { resolveDepartmentName } from 'utils/department';
 
 import { Alert, Box, Breadcrumbs, Button, CircularProgress, Divider, Skeleton, Snackbar, Tab, Tabs, Typography } from '@mui/material';
@@ -46,6 +46,7 @@ export default function MaterialRequestEdit() {
 
   const { currentMR, currentMRLoading, currentMRError, updateLoading, saveSuccess, error } = useSelector((s) => s.materialRequest);
   const { departments } = useSelector((s) => s.common);
+  const { items } = useSelector((s) => s.item);
 
   const [tabValue, setTabValue] = useState(0);
   const [form, setForm] = useState(null);
@@ -62,12 +63,58 @@ export default function MaterialRequestEdit() {
       dispatch(resetMRState());
     };
   }, [dispatch, id]);
-
-  // Seed form whenever currentMR changes (initial load only in practice)
   useEffect(() => {
     if (!currentMR) return;
-    setForm(mapApiToForm(currentMR));
-    setLines((currentMR.HLB_MRQ1Collection || []).map(mapApiLineToRow));
+    const f = mapApiToForm(currentMR);
+    setForm(f);
+
+    const baseRows = (currentMR.HLB_MRQ1Collection || []).map(mapApiLineToRow);
+
+    if (!f.BOMNo) {
+      setLines(baseRows);
+      return;
+    }
+
+    let cancelled = false;
+    (async () => {
+      let itemList = items;
+      if (!itemList.length) {
+        try {
+          itemList = await dispatch(getItems()).unwrap();
+        } catch {
+          itemList = [];
+        }
+      }
+
+      const itemMap = {};
+      itemList.forEach((i) => {
+        itemMap[i.ItemCode] = i;
+      });
+
+      // BOM-level (non-child) item codes that can have children → need an empty child slot.
+      const present = new Set(baseRows.map((r) => r.ItemCode));
+      const bomCodes = [
+        ...new Set(
+          baseRows
+            .filter((r) => {
+              const p = itemMap[r.ItemCode]?.U_HLB_ParItm || '';
+              return !(p && present.has(p));
+            })
+            .map((r) => r.ItemCode)
+        )
+      ];
+
+      const childCapable = new Set();
+      for (const code of bomCodes) {
+        if (await fetchHasChildren(dispatch, code)) childCapable.add(code);
+      }
+
+      if (!cancelled) setLines(groupBomLinesWithChildren(baseRows, itemMap, childCapable));
+    })();
+
+    return () => {
+      cancelled = true;
+    };
   }, [currentMR]);
 
   // Resolve Department display name from id once the departments list is available
@@ -203,7 +250,7 @@ export default function MaterialRequestEdit() {
                 <MRGeneralTab data={form} setData={setForm} lockCustomerProject />
               </Box>
               <Box sx={{ display: tabValue === 1 ? 'block' : 'none' }}>
-                <MRContentTab data={form} setData={setForm} rows={lines} setRows={setLines} />
+                <MRContentTab data={form} setData={setForm} rows={lines} setRows={setLines} isBOM={!!form?.BOMNo} />
               </Box>
             </>
           )}

@@ -27,7 +27,7 @@ import { getItems } from '../../store/slices/itemSlice';
 import RequestorSelectModal from './RequestorSelectModal';
 import UoMSelectModal from './UoMSelectModal';
 import AppDatePicker from 'ui-component/AppDatePicker';
-import { buildChildRow, fetchHasChildren, emptyRow, withTrailingEmptyRow } from './mrHelpers';
+import { buildChildRow, fetchHasChildren, emptyRow, withTrailingEmptyRow, withTrailingChildSlot } from './mrHelpers';
 
 const TABLE_COLUMNS = [
   { key: 'seq', label: '#', width: 50 },
@@ -60,7 +60,7 @@ const DISABLED_COLS = new Set([
   'ApprovedQuantity'
 ]);
 
-export default function MRContentTab({ data, setData, rows, setRows, readOnly = false, canEditApprovedQty = false }) {
+export default function MRContentTab({ data, setData, rows, setRows, readOnly = false, canEditApprovedQty = false, isBOM = false }) {
   const dispatch = useDispatch();
   const { openLookup } = useLookup();
   const { items, loading: itemsLoading } = useSelector((s) => s.item);
@@ -81,7 +81,7 @@ export default function MRContentTab({ data, setData, rows, setRows, readOnly = 
       });
 
       if (field !== 'ItemCode' && field !== 'Quantity') return updated;
-      return withTrailingEmptyRow(updated);
+      return isBOM ? updated : withTrailingEmptyRow(updated);
     });
   };
 
@@ -91,7 +91,6 @@ export default function MRContentTab({ data, setData, rows, setRows, readOnly = 
 
   const handleOpenItemLookup = (rowId) => {
     const row = rows.find((r) => r.id === rowId);
-
     if (row?.IsChildRow) {
       openLookup({
         type: 'itemChild',
@@ -99,10 +98,12 @@ export default function MRContentTab({ data, setData, rows, setRows, readOnly = 
         onSelect: (item) => {
           updateRow(rowId, 'ItemCode', item.ItemCode || '');
           updateRow(rowId, 'ItemDescription', item.ItemName || item.ItemDescription || '');
+          setRows((prev) => withTrailingChildSlot(prev, rowId));
         }
       });
       return;
     }
+    if (isBOM && row?.IsBOMRow) return;
 
     openLookup({
       type: 'item',
@@ -201,20 +202,21 @@ export default function MRContentTab({ data, setData, rows, setRows, readOnly = 
     }
 
     if (col.key === 'ItemCode') {
+      const itemDisabled = isDisabled || (isBOM && row.IsBOMRow);
       return (
         <Box>
           <TextField
             size="small"
             fullWidth
             value={row.ItemCode || ''}
-            disabled={isDisabled}
+            disabled={itemDisabled}
             sx={{ minWidth: 110 }}
             InputProps={{
               readOnly: true,
               endAdornment: (
                 <InputAdornment position="end">
-                  <IconButton size="small" disabled={isDisabled} onClick={() => handleOpenItemLookup(row.id)}>
-                    <SearchIcon sx={{ fontSize: 16, color: isDisabled ? 'text.disabled' : '#2196f3' }} />
+                  <IconButton size="small" disabled={itemDisabled} onClick={() => handleOpenItemLookup(row.id)}>
+                    <SearchIcon sx={{ fontSize: 16, color: itemDisabled ? 'text.disabled' : '#2196f3' }} />
                   </IconButton>
                 </InputAdornment>
               )
@@ -375,7 +377,12 @@ export default function MRContentTab({ data, setData, rows, setRows, readOnly = 
                 ))}
                 {!readOnly && (
                   <TableCell align="center">
-                    <IconButton color="error" size="small" onClick={() => deleteRow(row.id)}>
+                    <IconButton
+                      color="error"
+                      size="small"
+                      disabled={isBOM && row.IsBOMRow}
+                      onClick={() => deleteRow(row.id)}
+                    >
                       <DeleteIcon fontSize="small" />
                     </IconButton>
                   </TableCell>
