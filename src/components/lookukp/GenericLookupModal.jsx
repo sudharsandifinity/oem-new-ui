@@ -38,29 +38,22 @@ export default function GenericLookupModal({
 }) {
   const [filterValues, setFilterValues] = useState({});
   const [selectedRows, setSelectedRows] = useState([]);
-  // ================= LOAD DATA =================
+
   useEffect(() => {
     if (!open) return;
 
-    setSelectedRows([]);
-
     const initialFilters = {};
-
     filters.forEach((f) => {
       initialFilters[f.key] = '';
     });
-
     setFilterValues(initialFilters);
-     if (multiSelect) {
-    const preSelected = data.filter((row) =>
-      selectedIds.includes(row.id)
-    );
-
-    setSelectedRows(preSelected);
-  } else {
     setSelectedRows([]);
-  }
-  }, [open ,data, selectedIds, multiSelect]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
+  useEffect(() => {
+    if (!open || !multiSelect || !selectedIds.length) return;
+    setSelectedRows((prev) => (prev.length ? prev : data.filter((row) => selectedIds.includes(row.id))));
+  }, [open, multiSelect, data, selectedIds]);
   const handleRowSelection = (row) => {
     console.log('handlerowselection', multiSelect);
     if (!multiSelect) {
