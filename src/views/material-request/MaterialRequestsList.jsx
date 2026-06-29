@@ -76,7 +76,6 @@ export default function MaterialRequestsList() {
   const clearFilters = () => setFilters(emptyFilters());
 
   const columns = [
-    { field: 'DocEntry', headerName: 'Doc Entry', width: 100 },
     {
       field: 'sno',
       headerName: '#',
@@ -85,6 +84,7 @@ export default function MaterialRequestsList() {
       filterable: false,
       renderCell: (params) => filteredRows.findIndex((r) => r.DocEntry === params.id) + 1
     },
+    { field: 'DocEntry', headerName: 'Doc No.', width: 100 },
     { field: 'U_PrjCode', headerName: 'Project Code', flex: 1, minWidth: 150 },
     { field: 'U_PrjDesc', headerName: 'Project Name', flex: 1.5, minWidth: 200 },
     { field: 'U_SQDocNum', headerName: 'BOM No', flex: 1, minWidth: 120 },

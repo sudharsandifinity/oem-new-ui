@@ -15,8 +15,7 @@ const STATUS_META = {
   'PR Pending': { color: 'warning' },
   'PO Pending': { color: 'warning' },
   'Delivery Pending': { color: 'info' },
-  'Partially Delivered': { color: 'secondary' },
-  Completed: { color: 'success' }
+  'Partially Delivered': { color: 'secondary' }
 };
 
 const renderStatusCell = (params) => {
