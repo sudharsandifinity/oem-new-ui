@@ -15,7 +15,8 @@ const STATUS_META = {
   'PR Pending': { color: 'warning' },
   'PO Pending': { color: 'warning' },
   'Delivery Pending': { color: 'info' },
-  'Partially Delivered': { color: 'secondary' }
+  'Partially Delivered': { color: 'secondary' },
+  Completed: { color: 'success' }
 };
 
 const renderStatusCell = (params) => {
@@ -87,14 +88,14 @@ export default function PendingDeliveryReport() {
             gap: 2
           }}
         >
-          <Typography variant="h4">Pending Delivery Report</Typography>
+          <Typography variant="h4">Delivery Report</Typography>
           <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />}>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <HomeIcon sx={{ fontSize: 18, color: 'secondary.main' }} />
             </Box>
             <Typography variant="body2">Reports</Typography>
             <Typography variant="body2" color="secondary" fontWeight={600}>
-              Pending Delivery
+              Delivery
             </Typography>
           </Breadcrumbs>
         </Box>

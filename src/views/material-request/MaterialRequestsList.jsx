@@ -76,6 +76,7 @@ export default function MaterialRequestsList() {
   const clearFilters = () => setFilters(emptyFilters());
 
   const columns = [
+    { field: 'DocEntry', headerName: 'Doc Entry', width: 100 },
     {
       field: 'sno',
       headerName: '#',

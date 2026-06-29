@@ -98,7 +98,7 @@ export const fetchHasChildren = async (dispatch, itemCode) => {
 };
 
 export const mapApiToForm = (mr) => ({
-  RequisitionNo: mr.DocNum ?? mr.DocEntry ?? '',
+  RequisitionNo: mr.DocEntry ?? '',
   RequisitionDate: mr.U_DocDate?.split('T')[0] ?? '',
   RequisitionTime: mr.U_ReqTime?.slice(0, 5) ?? '',
   RequiredDate: mr.U_ReqDate?.split('T')[0] ?? '',
