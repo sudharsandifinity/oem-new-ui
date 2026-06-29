@@ -25,21 +25,21 @@ import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import ClearIcon from '@mui/icons-material/Clear';
 import MainCard from 'ui-component/cards/MainCard';
 import { useDispatch } from 'react-redux';
-import {
-  getSalesOrders
-} from 'store/slices/salesOrderSlice';
-import { useNavigate } from 'react-router-dom';
 
-export default function SalesOrderList() {
+import { useNavigate } from 'react-router-dom';
+import { getPurchaseQuotations } from '../../store/slices/purchaseQuotationSlice';
+import { MaterialReactTable } from 'material-react-table';
+
+export default function PurchaseQuotationList() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   useEffect(() => {
-    dispatch(getSalesOrders());
+    dispatch(getPurchaseQuotations());
   }, []);
 
   const { loading, error, orders } = useSelector(
-    (state) => state.salesOrder
+    (state) => state.PurchaseQuotation
   );
 
   const [filters, setFilters] =
@@ -49,12 +49,12 @@ export default function SalesOrderList() {
     });
 
   const handleChange = (
-    field,
+    accessorKey,
     value
   ) => {
     setFilters((prev) => ({
       ...prev,
-      [field]: value
+      [accessorKey]: value
     }));
   };
 
@@ -85,45 +85,42 @@ export default function SalesOrderList() {
   }, [orders, filters]);
 
   const columns = [
-     {
-    field: 'slNo',
-    headerName: 'Sl No',
-    width: 80,
-    sortable: false,
-    filterable: false,
-    renderCell: (params) => params.api.getRowIndexRelativeToVisibleRows(params.id) + 1,
-  },
     {
-      field: 'CardCode',
-      headerName: 'Customer Code',
+        id: 'slNo',
+        header: 'Sl No',
+        size: 80,
+        Cell: ({ row }) => row.index + 1
+      },
+    {
+      accessorKey: 'CardCode',
+      header: 'Customer Code',
       flex: 1,
       minWidth: 150
     },
     {
-      field: 'CardName',
-      headerName: 'Customer Name',
+      accessorKey: 'CardName',
+      header: 'Customer Name',
       flex: 1.5,
       minWidth: 220
     },
     {
-      field: 'projectCode',
-      headerName: 'Project Code',
+      accessorKey: 'projectCode',
+      header: 'Project Code',
       flex: 1,
       minWidth: 150
     },
     {
-      field: 'DocDate',
-      headerName: 'Posting Date',
+      accessorKey: 'DocDate',
+      header: 'Posting Date',
       flex: 1,
       minWidth: 150
     },
     {
-      field: 'DocumentStatus',
-      headerName: 'Status',
+      accessorKey: 'DocumentStatus',
+      header: 'Status',
       flex: 1,
       minWidth: 120,
       renderCell: (params) => {
-        console.log("params",params)
         const isOpen = params.value === 'bost_Open';
         return (
           <Chip
@@ -135,38 +132,22 @@ export default function SalesOrderList() {
       }
     },
     {
-      field: 'action',
-      headerName: 'Action',
+      accessorKey: 'action',
+      header: 'Action',
       sortable: false,
       filterable: false,
       minWidth: 130,
-      renderCell: (params) => (
-        <Stack
-          direction="row"
-          height={'100%'}
-          spacing={1}
-        >
-          <IconButton
-            size="small"
-            color="primary"
-            onClick={() => navigate(`/sales-order/view/${params.row.DocEntry}`)}
-          >
-            <VisibilityIcon
-              fontSize="small"
-            />
-          </IconButton>
+      Cell: ({ row }) => (
+          <Stack direction="row" spacing={1}>
+            <IconButton size="small" color="primary" onClick={() => navigate(`/Purchase-Quotation/view/${row.original.DocEntry}`)}>
+              <VisibilityIcon fontSize="small" />
+            </IconButton>
 
-          <IconButton
-            size="small"
-            color="secondary"
-            onClick={() => navigate(`/sales-order/edit/${params.row.DocEntry}`)}
-          >
-            <EditIcon
-              fontSize="small"
-            />
-          </IconButton>
-        </Stack>
-      )
+            <IconButton size="small" color="secondary" onClick={() => navigate(`/Purchase-Quotation/edit/${row.original.DocEntry}`)}>
+              <EditIcon fontSize="small" />
+            </IconButton>
+          </Stack>
+        )
     }
   ];
 
@@ -195,7 +176,7 @@ export default function SalesOrderList() {
           }}
         >
           <Typography variant="h3" sx={{color:'theme.vars.palette.grey[100]'}} >
-            Sales Orders
+            Purchase Quotations
           </Typography>
           <Breadcrumbs
             separator={
@@ -218,7 +199,7 @@ export default function SalesOrderList() {
             </Box>
 
             <Typography variant="body2">
-              Sales Orders
+              Purchase Quotations
             </Typography>
 
             <Typography
@@ -256,7 +237,7 @@ export default function SalesOrderList() {
             gap: 2
           }}
         >
-          <Box
+         <Box
             sx={{
               display: 'flex',
               gap: 2,
@@ -264,7 +245,7 @@ export default function SalesOrderList() {
               flex: 1
             }}
           >
-            <TextField
+            {/*  <TextField
               size="small"
               label="Customer Code"
               value={filters.CardCode}
@@ -295,13 +276,13 @@ export default function SalesOrderList() {
               onClick={clearFilters}
             >
               Clear
-            </Button>
+            </Button> */}
           </Box>
           <Button
             variant="contained"
             color="secondary"
             startIcon={<AddIcon />}
-            onClick={() => navigate('/sales-order/create')}
+            onClick={() => navigate('/purchase-quotation/create')}
             sx={{
               minWidth: 140,
               whiteSpace: 'nowrap'
@@ -329,27 +310,26 @@ export default function SalesOrderList() {
           overflow: 'hidden'
         }}
       >
-        <DataGrid
-          rows={(filteredRows || []).map((row) => ({
+        <MaterialReactTable
+          data={(filteredRows || []).map((row) => ({
             ...row,
             id: row.DocEntry
           }))}
           columns={columns}
-          loading={loading}
-          pageSizeOptions={[
-            10,
-            25,
-            50,
-            100
-          ]}
+          enableColumnResizing={true}
+          layoutMode={'grid'}
+          defaultColumn={{
+            minSize: 80,
+            size: 150,
+            maxSize: 500
+          }}
           initialState={{
             pagination: {
-              paginationModel: {
-                pageSize: 10
-              }
+              pageIndex: 0,
+              pageSize: 8
             }
           }}
-          disableRowSelectionOnClick
+          loading={loading}
           sx={{
             border: 0,
             height: '100%',

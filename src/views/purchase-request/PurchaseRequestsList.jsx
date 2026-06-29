@@ -10,6 +10,7 @@ import ClearIcon from '@mui/icons-material/Clear';
 
 import MainCard from 'ui-component/cards/MainCard';
 import { useNavigate } from 'react-router-dom';
+import AddIcon from '@mui/icons-material/Add';
 import { getMyPRList } from '../../store/slices/purchaseRequestSlice';
 import { formatDateDDMMYYYY, renderNoWrapCell } from 'utils/dataGridFormatters';
 
@@ -122,8 +123,38 @@ export default function PurchaseRequestsList() {
         </Box>
       </MainCard>
 
-      <Paper variant="outlined" sx={{ p: 2, mb: 3, borderRadius: 2, flexShrink: 0 }}>
-        <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'center' }}>
+      <Paper
+        variant="outlined"
+        sx={{
+          p: 2,
+          mb: 3,
+          borderRadius: 2,
+          flexShrink: 0
+        }}
+      >
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: {
+              xs: 'flex-start',
+              md: 'center'
+            },
+            flexDirection: {
+              xs: 'column',
+              md: 'row'
+            },
+            gap: 2
+          }}
+        >
+          <Box
+            sx={{
+              display: 'flex',
+              gap: 2,
+              flexWrap: 'wrap',
+              flex: 1
+            }}
+          >
           <TextField
             size="small"
             label="MR No"
@@ -144,6 +175,19 @@ export default function PurchaseRequestsList() {
           />
           <Button variant="outlined" color="error" startIcon={<ClearIcon />} onClick={clearFilters}>
             Clear
+          </Button>
+        </Box>
+         <Button
+            variant="contained"
+            color="secondary"
+            startIcon={<AddIcon />}
+            onClick={() => navigate('/purchase-request/create')}
+            sx={{
+              minWidth: 140,
+              whiteSpace: 'nowrap'
+            }}
+          >
+            Create
           </Button>
         </Box>
       </Paper>

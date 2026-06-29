@@ -86,6 +86,12 @@ export default function SalesQuotationList() {
   const columns = useMemo(
     () => [
       {
+        id: 'slNo',
+        header: 'Sl No',
+        size: 80,
+        Cell: ({ row }) => row.index + 1
+      },
+      {
         accessorKey: 'DocEntry',
         header: 'Doc Entry',
         size: 120
@@ -127,7 +133,7 @@ export default function SalesQuotationList() {
     ],
     [navigate]
   );
- 
+
   return (
     <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', height: 'calc(100vh - 176px)' }}>
       <MainCard content={false} sx={{ mb: 3, flexShrink: 0 }}>
@@ -203,18 +209,18 @@ export default function SalesQuotationList() {
       </Paper>
 
       <Paper
-        variant="outlined"
-        sx={{
-          height: '100%',
-          display: 'flex',
-          flexDirection: 'column'
-        }}
+        // variant="outlined"
+        // sx={{
+        //   height: '100%',
+        //   display: 'flex',
+        //   flexDirection: 'column'
+        // }}
       >
         <MaterialReactTable
           columns={columns}
           data={filteredRows}
-          enableColumnResizing={true}
-          layoutMode={'grid'}
+          enableColumnResizing
+          layoutMode="grid"
           defaultColumn={{
             minSize: 80,
             size: 150,
@@ -231,7 +237,20 @@ export default function SalesQuotationList() {
               fontWeight: 'bold',
               color: '#4527a0',
               background: 'linear-gradient(135deg,#ede7f6,#d1c4e9)',
-              borderBottom: '1px solid grey'
+              borderBottom: '1px solid #bdbdbd',
+              borderRight: '1px solid #d0d0d0', // Vertical separator
+              '&:last-child': {
+                borderRight: 'none'
+              }
+            }
+          }}
+          muiTableBodyCellProps={{
+            sx: {
+              borderBottom: '1px solid #e0e0e0',
+              borderRight: '1px solid #e0e0e0', // Vertical separator
+              '&:last-child': {
+                borderRight: 'none'
+              }
             }
           }}
           muiTableBodyRowProps={{
@@ -241,9 +260,15 @@ export default function SalesQuotationList() {
               }
             }
           }}
-          muiTableBodyCellProps={{
+          muiTableProps={{
             sx: {
-              borderColor: '#f1f1f1'
+              border: '1px solid #d0d0d0',
+              '& th, & td': {
+                borderRight: '1px solid #e0e0e0'
+              },
+              '& th:last-child, & td:last-child': {
+                borderRight: 'none'
+              }
             }
           }}
           muiBottomToolbarProps={{
