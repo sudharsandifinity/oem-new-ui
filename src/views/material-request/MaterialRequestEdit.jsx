@@ -4,15 +4,13 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { getMRById, updateMR, resetMRState } from '../../store/slices/materialRequestSlice';
 import { getItems } from '../../store/slices/itemSlice';
 import { getDepartments } from '../../store/slices/commonSlice';
-import { mapApiToForm, mapApiLineToRow, buildPayload, fetchHasChildren, groupBomLinesWithChildren } from './mrHelpers';
+import { mapApiToForm, mapApiLineToRow, buildPayload, groupBomLinesWithChildren } from './mrHelpers';
 import { resolveDepartmentName } from 'utils/department';
 
 import { Alert, Box, Breadcrumbs, Button, CircularProgress, Divider, Skeleton, Snackbar, Tab, Tabs, Typography } from '@mui/material';
 
 import HomeIcon from '@mui/icons-material/Home';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
-// import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-// import RefreshIcon from '@mui/icons-material/Refresh';
 
 import MainCard from 'ui-component/cards/MainCard';
 import MRGeneralTab from './GeneralTab';
@@ -91,33 +89,13 @@ export default function MaterialRequestEdit() {
         itemMap[i.ItemCode] = i;
       });
 
-      // BOM-level (non-child) item codes that can have children → need an empty child slot.
-      const present = new Set(baseRows.map((r) => r.ItemCode));
-      const bomCodes = [
-        ...new Set(
-          baseRows
-            .filter((r) => {
-              const p = itemMap[r.ItemCode]?.U_HLB_ParItm || '';
-              return !(p && present.has(p));
-            })
-            .map((r) => r.ItemCode)
-        )
-      ];
-
-      const childCapable = new Set();
-      for (const code of bomCodes) {
-        if (await fetchHasChildren(dispatch, code)) childCapable.add(code);
-      }
-
-      if (!cancelled) setLines(groupBomLinesWithChildren(baseRows, itemMap, childCapable));
+      if (!cancelled) setLines(groupBomLinesWithChildren(baseRows, itemMap));
     })();
 
     return () => {
       cancelled = true;
     };
   }, [currentMR]);
-
-  // Resolve Department display name from id once the departments list is available
   useEffect(() => {
     if (!form?.DeptId || !departments.length) return;
     const name = resolveDepartmentName(departments, form.DeptId);
@@ -126,7 +104,6 @@ export default function MaterialRequestEdit() {
     }
   }, [departments, form?.DeptId]);
 
-  // Handle save result
   useEffect(() => {
     if (saveSuccess) {
       setSnackbar({ open: true, severity: 'success', message: 'Material Request updated successfully!' });

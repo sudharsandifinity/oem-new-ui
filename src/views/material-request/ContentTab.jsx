@@ -27,7 +27,7 @@ import { getItems } from '../../store/slices/itemSlice';
 import RequestorSelectModal from './RequestorSelectModal';
 import UoMSelectModal from './UoMSelectModal';
 import AppDatePicker from 'ui-component/AppDatePicker';
-import { buildChildRow, fetchHasChildren, emptyRow, withTrailingEmptyRow, withTrailingChildSlot } from './mrHelpers';
+import { buildChildRow, fetchHasChildren, emptyRow, withTrailingEmptyRow, withTrailingChildSlot, withTrailingBomChildPicker } from './mrHelpers';
 
 const TABLE_COLUMNS = [
   { key: 'seq', label: '#', width: 50 },
@@ -91,6 +91,33 @@ export default function MRContentTab({ data, setData, rows, setRows, readOnly = 
 
   const handleOpenItemLookup = (rowId) => {
     const row = rows.find((r) => r.id === rowId);
+
+    // Combined BOM child picker: choose from all the BOM's parents' children at once,
+    // and auto-stamp the chosen child's parent BOM line.
+    if (row?.IsBomChildPicker) {
+      openLookup({
+        type: 'bomChild',
+        loadParams: row.BomParentCodes,
+        onSelect: (item) => {
+          setRows((prev) => {
+            const bomLine = row.BomParentLineMap?.[item.U_HLB_ParItm] ?? '';
+            const updated = prev.map((r) =>
+              r.id === rowId
+                ? {
+                    ...r,
+                    ItemCode: item.ItemCode || '',
+                    ItemDescription: item.ItemName || item.ItemDescription || '',
+                    BOMLineNum: bomLine
+                  }
+                : r
+            );
+            return withTrailingBomChildPicker(updated);
+          });
+        }
+      });
+      return;
+    }
+
     if (row?.IsChildRow) {
       openLookup({
         type: 'itemChild',

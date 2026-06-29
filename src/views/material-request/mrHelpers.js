@@ -56,36 +56,64 @@ export const withTrailingChildSlot = (rows, childRowId) => {
   return [...rows.slice(0, idx + 1), slot, ...rows.slice(idx + 1)];
 };
 
-export const groupBomLinesWithChildren = (rows, itemMap, childCapableSet) => {
-  const present = new Set(rows.map((r) => r.ItemCode));
-  const childrenByParent = {};
+// A single combined child picker for a BOM: lets the user pick from the children
+// of all the BOM's parent items at once. Each pick auto-takes its parent's BOM line
+// (resolved via parentLineMap keyed by U_HLB_ParItm).
+export const buildBomChildPicker = (parentCodes, parentLineMap) => ({
+  ...emptyRow(),
+  IsChildRow: true,
+  IsBomChildPicker: true,
+  BomParentCodes: parentCodes,
+  BomParentLineMap: parentLineMap
+});
+
+// Ensure exactly one trailing empty combined picker exists (so the user can keep
+// adding children). Appended at the end, after the filled picker rows.
+export const withTrailingBomChildPicker = (rows) => {
+  const pickers = rows.filter((r) => r.IsBomChildPicker);
+  if (!pickers.length) return rows;
+  if (pickers.some((r) => !String(r.ItemCode || '').trim())) return rows;
+  const last = pickers[pickers.length - 1];
+  return [...rows, buildBomChildPicker(last.BomParentCodes, last.BomParentLineMap)];
+};
+
+// Rebuild rows for a BOM-based MR loaded from SAP (Edit). Parent items are never
+// stored as lines — only their children are. A line is a child when its item has a
+// U_HLB_ParItm (parent) in the item master. All such children become combined-picker
+// rows (one shared picker scope across the BOM's parents); each maps back to its
+// parent's BOM line. Non-parent lines stay as locked BOM rows. One empty picker is
+// appended so more children can be added.
+export const groupBomLinesWithChildren = (rows, itemMap) => {
   const bomRows = [];
+  const childRows = [];
+  const parentLineMap = {};
+  const parentCodesSet = new Set();
 
   for (const r of rows) {
     const parentCode = itemMap[r.ItemCode]?.U_HLB_ParItm || '';
-    if (parentCode && present.has(parentCode)) {
-      if (!childrenByParent[parentCode]) childrenByParent[parentCode] = [];
-      childrenByParent[parentCode].push(r);
+    if (parentCode) {
+      parentCodesSet.add(parentCode);
+      if (parentLineMap[parentCode] === undefined) parentLineMap[parentCode] = r.BOMLineNum ?? '';
+      childRows.push(r);
     } else {
-      bomRows.push(r);
+      bomRows.push({ ...r, IsBOMRow: true, IsChildRow: false });
     }
   }
 
-  const result = [];
-  for (const r of bomRows) {
-    const bomRow = { ...r, IsBOMRow: true, IsChildRow: false };
-    result.push(bomRow);
+  const parentCodes = [...parentCodesSet];
+  const childPickerRows = childRows.map((r) => ({
+    ...r,
+    IsBOMRow: false,
+    IsChildRow: true,
+    IsBomChildPicker: true,
+    BomParentCodes: parentCodes,
+    BomParentLineMap: parentLineMap
+  }));
 
-    const kids = childrenByParent[bomRow.ItemCode] || [];
-    kids.forEach((kid) => {
-      result.push({ ...kid, IsBOMRow: false, IsChildRow: true, ParentItemCode: bomRow.ItemCode, ParentRowId: bomRow.id });
-    });
-
-    if (childCapableSet.has(bomRow.ItemCode)) {
-      result.push(buildChildRow(bomRow));
-    }
+  const result = [...bomRows, ...childPickerRows];
+  if (parentCodes.length) {
+    result.push(buildBomChildPicker(parentCodes, parentLineMap));
   }
-
   return result;
 };
 

@@ -16,7 +16,7 @@ import BOMSelectModal from './BOMSelectModal';
 import BOMItemSelectModal from './BOMItemSelectModal';
 import { createMR, resetMRState } from '../../store/slices/materialRequestSlice';
 import { createDraft } from '../../store/slices/draftSlice';
-import { buildPayload, buildChildRow, fetchHasChildren } from './mrHelpers';
+import { buildPayload, buildBomChildPicker, fetchHasChildren } from './mrHelpers';
 
 const today = new Date().toISOString().split('T')[0];
 const nowTime = new Date().toTimeString().slice(0, 5);
@@ -98,11 +98,21 @@ export default function MaterialRequestCreate() {
     const mapped = selectedLines.map((l) => boqLineToRow(l, projCode));
 
     const finalRows = [];
+    const parentCodes = [];
+    const parentLineMap = {};
     for (const row of mapped) {
-      finalRows.push(row);
+      // Parent BOM items are not added as rows; collect them for one shared child picker.
       if (row.ItemCode && (await fetchHasChildren(dispatch, row.ItemCode))) {
-        finalRows.push(buildChildRow(row));
+        if (!parentCodes.includes(row.ItemCode)) parentCodes.push(row.ItemCode);
+        if (parentLineMap[row.ItemCode] === undefined) parentLineMap[row.ItemCode] = row.BOMLineNum;
+      } else {
+        finalRows.push(row);
       }
+    }
+
+    // A single combined picker for all the BOM's parents' children.
+    if (parentCodes.length) {
+      finalRows.push(buildBomChildPicker(parentCodes, parentLineMap));
     }
 
     setLines(finalRows.length ? finalRows : [emptyRow()]);
