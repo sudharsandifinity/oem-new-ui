@@ -115,7 +115,12 @@ export default function MRContentTab({ data, setData, rows, setRows, readOnly = 
           setRows((prev) => {
             const idx = prev.findIndex((r) => r.id === rowId);
             if (idx === -1) return prev;
-            return [...prev.slice(0, idx + 1), buildChildRow({ id: rowId, ItemCode: item.ItemCode }), ...prev.slice(idx + 1)];
+            const parent = prev[idx];
+            return [
+              ...prev.slice(0, idx + 1),
+              buildChildRow({ id: rowId, ItemCode: item.ItemCode, BOMLineNum: parent.BOMLineNum }),
+              ...prev.slice(idx + 1)
+            ];
           });
         }
       }

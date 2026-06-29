@@ -33,6 +33,7 @@ export const emptyRow = () => ({
 export const buildChildRow = (parentRow) => ({
   ...emptyRow(),
   IsChildRow: true,
+  BOMLineNum: parentRow.BOMLineNum ?? '',
   ParentItemCode: parentRow.ItemCode,
   ParentRowId: parentRow.id
 });
@@ -51,7 +52,7 @@ export const withTrailingChildSlot = (rows, childRowId) => {
   const next = rows[idx + 1];
   const slotExists = next && next.IsChildRow && next.ParentRowId === cur.ParentRowId && !String(next.ItemCode || '').trim();
   if (slotExists) return rows;
-  const slot = buildChildRow({ id: cur.ParentRowId, ItemCode: cur.ParentItemCode });
+  const slot = buildChildRow({ id: cur.ParentRowId, ItemCode: cur.ParentItemCode, BOMLineNum: cur.BOMLineNum });
   return [...rows.slice(0, idx + 1), slot, ...rows.slice(idx + 1)];
 };
 
