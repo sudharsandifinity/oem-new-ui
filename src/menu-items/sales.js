@@ -7,15 +7,15 @@ const icons = { IconDashboard };
 // ==============================|| DASHBOARD MENU ITEMS ||============================== //
 
 const sales = { 
-  id: 'sales',
-  title: 'Sales',
+  id: 'Sales-Order',
+  title: 'Sales-Order',
   type: 'group',
   children: [
     {
       id: 'list',
       title: 'Sales',
       type: 'item',
-      url: '/sales-orders/list',
+      url: '/sales-order/list',
       icon: icons.IconDashboard,
       breadcrumbs: false
     },
@@ -23,7 +23,7 @@ const sales = {
       id: 'create',
       title: 'Create Sales Order',
       type: 'item',
-      url: '/sales-orders/create',
+      url: '/sales-order/create',
       icon: icons.IconDashboard,
       breadcrumbs: false
     }

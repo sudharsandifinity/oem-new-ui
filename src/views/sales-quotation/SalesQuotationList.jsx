@@ -15,6 +15,8 @@ import MainCard from 'ui-component/cards/MainCard';
 import { useNavigate } from 'react-router-dom';
 import { getSalesQuotations } from '../../store/slices/salesQuotationSlice';
 
+import { MaterialReactTable, useMaterialReactTable } from 'material-react-table';
+
 const emptyFilters = () => ({ DocEntry: '', CardCode: '', CardName: '', U_PrjCode: '', U_PrjDesc: '' });
 
 export default function SalesQuotationList() {
@@ -23,16 +25,19 @@ export default function SalesQuotationList() {
   const { quotationlist, totalCount, listLoading } = useSelector((s) => s.salesQuotation);
 
   const [filters, setFilters] = useState(emptyFilters());
-  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 25 });
+  const [pagination, setPagination] = useState({
+    pageIndex: 0,
+    pageSize: 10
+  });
 
   useEffect(() => {
     dispatch(
       getSalesQuotations({
-        top: paginationModel.pageSize,
-        skip: paginationModel.page * paginationModel.pageSize
+        page: pagination.pageIndex + 1,
+        limit: pagination.pageSize
       })
     );
-  }, [paginationModel, dispatch]);
+  }, [pagination]);
 
   const filteredRows = useMemo(() => {
     const { DocEntry, CardCode, CardName, U_PrjCode, U_PrjDesc } = filters;
@@ -78,36 +83,51 @@ export default function SalesQuotationList() {
 
   const clearFilters = () => setFilters(emptyFilters());
 
-  const columns = [
-    { field: 'DocEntry', headerName: 'Doc Entry', flex: 1, minWidth: 120 },
-    { field: 'CardCode', headerName: 'Customer Code', flex: 1, minWidth: 130 },
-    { field: 'CardName', headerName: 'Customer Name', flex: 1.5, minWidth: 200 },
-    {
-      field: 'DocDate',
-      headerName: 'Posting Date',
-      flex: 1,
-      minWidth: 140,
-      valueFormatter: (value) => (value ? value.substring(0, 10) : '')
-    },
-    {
-      field: 'action',
-      headerName: 'Action',
-      sortable: false,
-      filterable: false,
-      minWidth: 80,
-      renderCell: (params) => (
-        <Stack direction="row" height="100%" spacing={1}>
-          <IconButton size="small" color="primary" onClick={() => navigate(`/Sales-Quotation/view/${params.row.DocEntry}`)}>
-            <VisibilityIcon fontSize="small" />
-          </IconButton>
-           <IconButton size="small" color="secondary" onClick={() => navigate(`/Sales-Quotation/edit/${params.row.DocEntry}`)}>
-                      <EditIcon fontSize="small" />
-                    </IconButton>
-        </Stack>
-      )
-    }
-  ];
+  const columns = useMemo(
+    () => [
+      {
+        accessorKey: 'DocEntry',
+        header: 'Doc Entry',
+        size: 120
+      },
+      {
+        accessorKey: 'CardCode',
+        header: 'Customer Code',
+        size: 150
+      },
+      {
+        accessorKey: 'CardName',
+        header: 'Customer Name',
+        size: 220
+      },
+      {
+        accessorKey: 'DocDate',
+        header: 'Posting Date',
+        size: 140,
+        Cell: ({ cell }) => cell.getValue()?.substring(0, 10) || ''
+      },
+      {
+        id: 'action',
+        header: 'Action',
+        size: 100,
+        enableSorting: false,
+        enableColumnFilter: false,
+        Cell: ({ row }) => (
+          <Stack direction="row" spacing={1}>
+            <IconButton size="small" color="primary" onClick={() => navigate(`/Sales-Quotation/view/${row.original.DocEntry}`)}>
+              <VisibilityIcon fontSize="small" />
+            </IconButton>
 
+            <IconButton size="small" color="secondary" onClick={() => navigate(`/Sales-Quotation/edit/${row.original.DocEntry}`)}>
+              <EditIcon fontSize="small" />
+            </IconButton>
+          </Stack>
+        )
+      }
+    ],
+    [navigate]
+  );
+ 
   return (
     <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', height: 'calc(100vh - 176px)' }}>
       <MainCard content={false} sx={{ mb: 3, flexShrink: 0 }}>
@@ -145,7 +165,8 @@ export default function SalesQuotationList() {
             gap: 2
           }}
         >
-          <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', flex: 1 }}>
+          <Box></Box>
+          {/* <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', flex: 1 }}>
             <TextField
               size="small"
               label="Doc Entry"
@@ -164,11 +185,11 @@ export default function SalesQuotationList() {
               value={filters.CardName}
               onChange={(e) => setFilters((p) => ({ ...p, CardName: e.target.value }))}
             />
-            
+
             <Button variant="outlined" color="error" startIcon={<ClearIcon />} onClick={clearFilters}>
               Clear
             </Button>
-          </Box>
+          </Box> */}
           <Button
             variant="contained"
             color="secondary"
@@ -181,36 +202,55 @@ export default function SalesQuotationList() {
         </Box>
       </Paper>
 
-      <Paper variant="outlined" sx={{ flex: 1, minHeight: 0, width: '100%', borderRadius: 2, overflow: 'hidden' }}>
-        <DataGrid
-          rows={filteredRows}
+      <Paper
+        variant="outlined"
+        sx={{
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column'
+        }}
+      >
+        <MaterialReactTable
           columns={columns}
-          getRowId={(row) => row.DocEntry}
-          loading={listLoading}
-          paginationMode="server"
-          rowCount={totalCount}
-          paginationModel={paginationModel}
-          onPaginationModelChange={setPaginationModel}
-          pageSizeOptions={[10, 25, 50, 100]}
-          disableRowSelectionOnClick
-          sx={{
-            border: 0,
-            height: '100%',
-            '& .MuiDataGrid-columnHeaders': {
-              background: 'linear-gradient(135deg,#ede7f6,#d1c4e9)',
+          data={filteredRows}
+          enableColumnResizing={true}
+          layoutMode={'grid'}
+          defaultColumn={{
+            minSize: 80,
+            size: 150,
+            maxSize: 500
+          }}
+          initialState={{
+            pagination: {
+              pageIndex: 0,
+              pageSize: 8
+            }
+          }}
+          muiTableHeadCellProps={{
+            sx: {
+              fontWeight: 'bold',
               color: '#4527a0',
-              fontWeight: 700,
+              background: 'linear-gradient(135deg,#ede7f6,#d1c4e9)',
               borderBottom: '1px solid grey'
-            },
-            '& .MuiDataGrid-columnHeaderTitle': { fontWeight: 700 },
-            '& .MuiDataGrid-row:hover': { backgroundColor: '#f3e5f5' },
-            '& .MuiDataGrid-cell': { borderColor: '#f1f1f1' },
-            '& .MuiDataGrid-footerContainer': {
+            }
+          }}
+          muiTableBodyRowProps={{
+            sx: {
+              '&:hover': {
+                backgroundColor: '#f3e5f5'
+              }
+            }
+          }}
+          muiTableBodyCellProps={{
+            sx: {
+              borderColor: '#f1f1f1'
+            }
+          }}
+          muiBottomToolbarProps={{
+            sx: {
               borderTop: '1px solid #e0e0e0',
-              backgroundColor: '#fafafa',
-              overflow: 'hidden'
-            },
-            '& .MuiDataGrid-scrollbarFiller': { display: 'none' }
+              backgroundColor: '#fafafa'
+            }
           }}
         />
       </Paper>

@@ -136,7 +136,7 @@ export default function SalesOrdersView() {
               variant="contained"
               color="secondary"
               disabled={isLoading || !!error}
-              onClick={() => navigate(`/sales-orders/edit/${id}`)}
+              onClick={() => navigate(`/sales-order/edit/${id}`)}
             >
               Edit
             </Button>

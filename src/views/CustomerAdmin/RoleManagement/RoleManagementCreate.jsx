@@ -11,7 +11,7 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 
 import MainCard from 'ui-component/cards/MainCard';
 import { resetCustomerState } from '../../../store/slices/customerSlice';
-import { createAdminRoles, resetAdminRoleState } from '../../../store/slices/roleSlice';
+import { createAdminRoles, resetAdminRoleState } from '../../../store/slices/cusAdminroleSlice';
 import RoleForm from './RoleForm';
 import { buildPayload } from './RMHelpers';
 
@@ -42,7 +42,7 @@ const initialForm = () => ({
 export default function RoleManagementCreate() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-    const {  roleloading,rolesaveSuccess,roleerror,createroleLoading } = useSelector((s) => s.role); 
+    const {  roleloading,rolesaveSuccess,roleerror,createroleLoading } = useSelector((s) => s.cusAdminrole); 
   
 
   const [tabValue, setTabValue] = useState(0);

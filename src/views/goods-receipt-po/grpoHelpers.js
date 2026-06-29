@@ -1,6 +1,7 @@
 const today = new Date().toISOString().split('T')[0];
 
 export const mapApiToForm = (grpo) => ({
+  DocEntry:grpo.DocEntry,
   VendorCode: grpo.CardCode ?? '',
   VendorName: grpo.CardName ?? '',
   ContactPerson: grpo.ContactPersonCode ?? '',

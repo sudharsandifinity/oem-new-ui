@@ -37,6 +37,15 @@ const [filterModel, setFilterModel] = useState({
 
 
 const columns = [
+   {
+    field: 'slNo',
+    headerName: 'SL No',
+    width: 80,
+    sortable: false,
+    filterable: false,
+    renderCell: (params) =>
+      params.api.getRowIndexRelativeToVisibleRows(params.id) + 1,
+  },
   {
     field: "name",
     headerName: "Name",

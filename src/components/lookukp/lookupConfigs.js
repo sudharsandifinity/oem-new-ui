@@ -4,7 +4,7 @@ import { getProjects } from '../../store/slices/projectSlice';
 import { getWarehouses } from '../../store/slices/warehouseSlice';
 import { getCustomers } from '../../store/slices/customerSlice';
 import { getadminCompanies, getmenus } from '../../store/slices/commonCustomerSlice';
-import { getadminRoles } from '../../store/slices/roleSlice';
+import { getadminRoles } from '../../store/slices/cusAdminroleSlice';
 
 
 export const LOOKUP_CONFIGS = {

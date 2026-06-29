@@ -140,7 +140,7 @@ export default function SalesOrderList() {
           <IconButton
             size="small"
             color="primary"
-            onClick={() => navigate(`/sales-orders/view/${params.row.DocEntry}`)}
+            onClick={() => navigate(`/sales-order/view/${params.row.DocEntry}`)}
           >
             <VisibilityIcon
               fontSize="small"
@@ -150,7 +150,7 @@ export default function SalesOrderList() {
           <IconButton
             size="small"
             color="secondary"
-            onClick={() => navigate(`/sales-orders/edit/${params.row.DocEntry}`)}
+            onClick={() => navigate(`/sales-order/edit/${params.row.DocEntry}`)}
           >
             <EditIcon
               fontSize="small"
@@ -292,7 +292,7 @@ export default function SalesOrderList() {
             variant="contained"
             color="secondary"
             startIcon={<AddIcon />}
-            onClick={() => navigate('/sales-orders/create')}
+            onClick={() => navigate('/sales-order/create')}
             sx={{
               minWidth: 140,
               whiteSpace: 'nowrap'

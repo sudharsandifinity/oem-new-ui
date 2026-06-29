@@ -4,10 +4,50 @@ import { lazy } from 'react';
 import MainLayout from 'layout/MainLayout';
 import Loadable from 'ui-component/Loadable';
 import PrivateRoute from './PrivateRoute';
+import Admin from '../views/Admin/Admin';
 
 // dashboard routing
 const DashboardDefault = Loadable(lazy(() => import('views/dashboard/Default')));
 const CusDashboard = Loadable(lazy(() => import('views/CustomerAdmin/dashboard/CusDashboard')));
+
+//Admin routing
+const AdminDashboard = Loadable(lazy(() => import('views/Admin/Admin.jsx')));
+const MenuManagementList = Loadable(lazy(() => import('views/Admin/MenuManagement/MenuManagementList.jsx')));
+const AdminRoleManagementList = Loadable(lazy(() => import('views/Admin/RoleManagement/AdminRoleManagementList.jsx')));
+const AdminUserManagementList = Loadable(lazy(() => import('views/Admin/UserManagement/AdminUserManagementList.jsx')));
+
+//Form routing
+const MenuList = Loadable(lazy(() => import('views/Admin/MenuManagement/MenuList.jsx')));
+const MenuCreate = Loadable(lazy(() => import('views/Admin/MenuManagement/MenuCreate.jsx')));
+const MenuEdit = Loadable(lazy(() => import('views/Admin/MenuManagement/MenuEdit.jsx')));
+const MenuView = Loadable(lazy(() => import('views/Admin/MenuManagement/MenuView.jsx')));
+
+//Form routing
+const FormList = Loadable(lazy(() => import('views/Admin/FormManagement/FormList.jsx')));
+const FormCreate = Loadable(lazy(() => import('views/Admin/FormManagement/FormCreate.jsx')));
+const FormEdit = Loadable(lazy(() => import('views/Admin/FormManagement/FormEdit.jsx')));
+const FormView = Loadable(lazy(() => import('views/Admin/FormManagement/FormView.jsx')));
+
+//Role routing
+const RoleList = Loadable(lazy(() => import('views/Admin/RoleManagement/RoleList.jsx')));
+const RoleCreate = Loadable(lazy(() => import('views/Admin/RoleManagement/RoleCreate.jsx')));
+const RoleEdit = Loadable(lazy(() => import('views/Admin/FormManagement/FormEdit.jsx')));
+const RoleView = Loadable(lazy(() => import('views/Admin/FormManagement/FormView.jsx')));
+
+
+//Companies routing
+const CompaniesList = Loadable(lazy(() => import('views/Admin/Companies/CompaniesList.jsx')));
+const CompanyCreate=Loadable(lazy(()=>import('views/Admin/Companies/CompaniesCreate.jsx')));
+const CompanyView=Loadable(lazy(()=>import('views/Admin/Companies/CompaniesView.jsx')));
+const CompanyEdit=Loadable(lazy(()=>import('views/Admin/Companies/CompaniesEdit.jsx')));
+
+//User routing
+const UserList = Loadable(lazy(() => import('views/Admin/UserManagement/Userlist.jsx')));
+const UserCreate=Loadable(lazy(()=>import('views/Admin/UserManagement/UserCreate.jsx')));
+const UserView=Loadable(lazy(()=>import('views/Admin/UserManagement/UserView.jsx')));
+const UserEdit=Loadable(lazy(()=>import('views/Admin/UserManagement/UserEdit.jsx')));
+
+
 
 //Role management routing
 const RoleManagementList = Loadable(lazy(()=>import('views/CustomerAdmin/RoleManagement/RoleManagementList')));
@@ -51,9 +91,9 @@ const SalesOrdersEdit = Loadable(lazy(() => import('views/sales-order/SalesOrder
 
 //sales quotation routing
 const SalesQuotationList = Loadable(lazy(() => import('views/sales-quotation/SalesQuotationList.jsx')));
-//const SalesQuotationCreate = Loadable(lazy(() => import('views/Sales-Quotation/SalesQuotationCreate.jsx')));
-//  const SalesQuotationView = Loadable(lazy(() => import('views/Sales-Quotation/SalesQuotationView.jsx')));
-//  const SalesQuotationEdit = Loadable(lazy(() => import('views/Sales-Quotation/SalesQuotationEdit.jsx')));
+const SalesQuotationCreate = Loadable(lazy(() => import('views/Sales-Quotation/SalesQuotationCreate.jsx')));
+ const SalesQuotationView = Loadable(lazy(() => import('views/Sales-Quotation/SalesQuotationView.jsx')));
+ const SalesQuotationEdit = Loadable(lazy(() => import('views/Sales-Quotation/SalesQuotationEdit.jsx')));
 
 // utilities routing
 const UtilsTypography = Loadable(lazy(() => import('views/utilities/Typography')));
@@ -86,46 +126,184 @@ const MainRoutes = {
       element: <CusDashboard />,
       
     },
+    //Admin
     {
-      path: 'UserManagement',
+      path: 'admin',
+      element: <Admin />,
+      
+    },
+    {
+      path: 'Companies',
       children: [
         {
           path: 'list',
-          element: <UserManagementList />
+          element: <CompaniesList />
         },
         {
           path:'create',
-          element:<UserManagementCreate/>
+          element:<CompanyCreate/>
         },
         {
           path:'view/:id',
-          element:<UserManagementView/>
+          element:<CompanyView/>
         },
         {
           path:'edit/:id',
-          element:<UserManagementEdit/>
+          element:<CompanyEdit/>
         }
         
       ]
     },
     {
-      path: 'RoleManagement',
+      path: 'Forms',
       children: [
         {
           path: 'list',
-          element: <RoleManagementList />
+          element: <FormList />
         },
         {
           path:'create',
-          element:<RoleManagementCreate/>
+          element:<FormCreate/>
         },
         {
           path:'view/:id',
-          element:<RoleManagementView/>
+          element:<FormView/>
         },
         {
           path:'edit/:id',
-          element:<RoleManagementEdit/>
+          element:<FormEdit/>
+        }
+        
+      ]
+    },
+    {
+      path: 'Menu',
+      children: [
+        {
+          path: 'list',
+          element: <MenuList />
+        },
+        {
+          path:'create',
+          element:<MenuCreate/>
+        },
+        {
+          path:'view/:id',
+          element:<MenuView/>
+        },
+        {
+          path:'edit/:id',
+          element:<MenuEdit/>
+        }
+        
+      ]
+    },
+    {
+      path: 'AdminRoleManagement',
+      children: [
+        {
+          path: 'list',
+          element: <RoleList />
+        },
+        {
+          path:'create',
+          element:<RoleCreate/>
+        },
+        {
+          path:'view/:id',
+          element:<RoleView/>
+        },
+        {
+          path:'edit/:id',
+          element:<RoleEdit/>
+        }
+        
+      ]
+    },
+    {
+      path: 'AdminUserManagement',
+      children: [
+        {
+          path: 'list',
+          element: <AdminUserManagementList />
+        },
+        // {
+        //   path:'create',
+        //   element:<AdminUserManagementCreate/>
+        // },
+        // {
+        //   path:'view/:id',
+        //   element:<AdminUserManagementView/>
+        // },
+        // {
+        //   path:'edit/:id',
+        //   element:<AdminUserManagementEdit/>
+        // }
+        
+      ]
+    },
+    //Admin
+    {
+      path: 'Users',
+      children: [
+        {
+          path: 'list',
+          element: <UserList />
+        },
+        {
+          path:'create',
+          element:<UserCreate/>
+        },
+        {
+          path:'view/:id',
+          element:<UserEdit/>
+        },
+        {
+          path:'edit/:id',
+          element:<UserView/>
+        }
+        
+      ]
+    },
+    {
+      path: 'Roles',
+      children: [
+        {
+          path: 'list',
+          element: <RoleList />
+        },
+        {
+          path:'create',
+          element:<RoleCreate/>
+        },
+        {
+          path:'view/:id',
+          element:<RoleView/>
+        },
+        {
+          path:'edit/:id',
+          element:<RoleEdit/>
+        }
+      ]
+    },
+    {
+      path: 'User',
+      children: [
+        {
+          path: 'list',
+          element: <UserList />
+        },
+        {
+          path:'create',
+          element:<UserCreate/>
+        },
+        {
+          path:'view/:id',
+          element:<UserView/>
+        },
+        {
+          path:'edit/:id',
+          element:<UserEdit/>
         }
       ]
     },
@@ -187,7 +365,7 @@ const MainRoutes = {
       ]
     },
     {
-      path: 'Sales-Orders',
+      path: 'Sales-Order',
       children: [
         { path: 'list', element: <SalesOrdersList /> },
         { path: 'create', element: <SalesOrdersCreate /> },
@@ -198,10 +376,10 @@ const MainRoutes = {
     {
       path: 'Sales-Quotation',
       children: [
-        { path: 'list', element: <SalesQuotationList /> }
-        // { path: 'create', element: <SalesQuotationCreate /> },
-        //  { path: 'view/:id', element: <SalesQuotationView /> },
-        //  { path: 'view/:id', element: <SalesQuotationEdit /> },
+        { path: 'list', element: <SalesQuotationList /> },
+        { path: 'create', element: <SalesQuotationCreate /> },
+         { path: 'view/:id', element: <SalesQuotationView /> },
+         { path: 'edit/:id', element: <SalesQuotationEdit /> },
       ]
     },
     {

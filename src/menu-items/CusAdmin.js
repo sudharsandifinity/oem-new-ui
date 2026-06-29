@@ -1,8 +1,10 @@
 // assets
-import { IconDashboard } from '@tabler/icons-react';
+import { IconClipboardList, IconClipboardListFilled, IconDashboard } from '@tabler/icons-react';
+import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
+import SupervisedUserCircleIcon from '@mui/icons-material/SupervisedUserCircle';
 
 // constant
-const icons = { IconDashboard };
+const icons = { IconDashboard,ManageAccountsIcon,SupervisedUserCircleIcon };
 
 // ==============================|| DASHBOARD MENU ITEMS ||============================== //
 
@@ -16,7 +18,7 @@ const CusAdmin = {
       title: 'UserManagement',
       type: 'item',
       url: '/UserManagement/list',
-      icon: icons.IconDashboard,
+      icon: icons.ManageAccountsIcon,
       breadcrumbs: false
     },
     {
@@ -24,7 +26,7 @@ const CusAdmin = {
       title: ' Role Management',
       type: 'item',
       url: '/RoleManagement/list',
-      icon: icons.IconDashboard,
+      icon: icons.SupervisedUserCircleIcon,
       breadcrumbs: false
     }
   ]

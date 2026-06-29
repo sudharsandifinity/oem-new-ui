@@ -6,10 +6,11 @@ export default function PublicRoute({ children }) {
 
   if (user && token) {
     const isCompAdmin = Boolean(user?.is_com_admin);
+    const isSuperUser=Boolean(user?.is_super_user);
 
     return (
       <Navigate
-        to={isCompAdmin ? "/CustomerAdmin" : "/dashboard"}
+        to={isCompAdmin ? "/CustomerAdmin" :(isSuperUser?"/admin": "/dashboard")}
         replace
       />
     );

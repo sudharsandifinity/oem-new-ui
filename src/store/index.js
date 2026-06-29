@@ -17,11 +17,21 @@ import commonReducer from './slices/commonSlice';
 import attachmentReducer from './slices/attachmentSlice';
 import commonCustomerReducer from './slices/commonCustomerSlice'
 import draftReducer from './slices/draftSlice';
-import roleReducer from './slices/roleSlice';
+import cusAdminroleReducer from './slices/cusAdminroleSlice';
+import companyReducer from './slices/companySlice';
+import FormReducer from './slices/FormSlice';
+import MenuReducer from './slices/MenuSlice';
+import RoleReducer from './slices/roleSlice';
+import UserReducer from './slices/userSlice';
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
+    companies:companyReducer,
+    forms:FormReducer,
+    roles:RoleReducer,
+    menus:MenuReducer,
+    users:UserReducer,
     salesOrder: salesOrderReducer,
     salesQuotation:salesQuotationReducer,
     customer: customerReducer,
@@ -39,7 +49,7 @@ export const store = configureStore({
     common: commonReducer,
     attachment: attachmentReducer,
     commonCustomer:commonCustomerReducer,
-    role:roleReducer,
+    cusAdminrole:cusAdminroleReducer,
   }
 });
 

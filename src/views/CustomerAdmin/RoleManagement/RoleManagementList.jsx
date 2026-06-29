@@ -12,7 +12,7 @@ import ClearIcon from '@mui/icons-material/Clear';
 
 import MainCard from 'ui-component/cards/MainCard';
 import { useNavigate } from 'react-router-dom';
-import {  getadminRoles } from '../../../store/slices/roleSlice';
+import {  getadminRoles } from '../../../store/slices/cusAdminroleSlice';
 import { getadminCompanies } from '../../../store/slices/commonCustomerSlice';
 
 const emptyFilters = () => ({ DocEntry: '', ProjectCode: '', ProjectName: '' });
@@ -21,7 +21,7 @@ export default function RoleManagementList() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { companies } = useSelector((s) => s.commonCustomer);
-  const { roles, rolesLoading } = useSelector((s) => s.role);
+  const { roles, rolesLoading } = useSelector((s) => s.cusAdminrole);
 
 
 
@@ -40,6 +40,15 @@ export default function RoleManagementList() {
 
 
 const columns = [
+   {
+    field: 'slNo',
+    headerName: 'SL No',
+    width: 100,
+    sortable: false,
+    filterable: false,
+    renderCell: (params) =>
+      params.api.getRowIndexRelativeToVisibleRows(params.id) + 1,
+  },
   {
     field: "name",
     headerName: "Name",

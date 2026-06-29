@@ -64,7 +64,7 @@ export default function SalesOrdersEdit() {
     if (saveSuccess && submitting) {
       setSnackbar({ open: true, severity: 'success', message: 'Sales Order updated successfully' });
       setSubmitting(false);
-      setTimeout(() => navigate(`/sales-orders/view/${id}`), 1500);
+      setTimeout(() => navigate(`/sales-order/view/${id}`), 1500);
     }
     if (error && submitting) {
       setSnackbar({ open: true, severity: 'error', message: error });

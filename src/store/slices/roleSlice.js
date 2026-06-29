@@ -1,17 +1,18 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import API from 'api/axios';
+import axios from '../../api/axios';
 
-export const getadminRoles = createAsyncThunk('role/getRoles', async (_, thunkAPI) => {
+
+export const getroles = createAsyncThunk('role/getroles', async (_, thunkAPI) => {
   try {
-    const response = await API.get('/company-admin/roles');
-    return response.data.value ?? response.data;
+    const response = await axios.get('/admin/roles');
+    return response?.data;
   } catch (error) {
-    return thunkAPI.rejectWithValue(error.response?.data?.message || 'Failed to fetch roles');
+    return thunkAPI.rejectWithValue(error?.response?.data?.message || 'Failed to load roles');
   }
 });
-export const createAdminRoles = createAsyncThunk('role/create', async (payload, thunkAPI) => {
+export const createRole = createAsyncThunk('role/create', async (payload, thunkAPI) => {
   try {
-    const response = await API.post('/company-admin/roles', payload);
+    const response = await axios.post('/admin/roles', payload);
     return response.data;
   } catch (error) {
     const d = error.response?.data;
@@ -23,18 +24,18 @@ export const createAdminRoles = createAsyncThunk('role/create', async (payload, 
   }
 });
 
-export const getAdminRoleById = createAsyncThunk('role/getById', async (id, thunkAPI) => {
+export const getRoleId = createAsyncThunk('role/getById', async (id, thunkAPI) => {
   try {
-    const response = await API.get(`/company-admin/roles/${id}`);
+    const response = await axios.get(`/admin/roles/${id}`);
     return response.data;
   } catch (error) {
-    return thunkAPI.rejectWithValue(error.response?.data?.message || 'Failed to fetch Roles ');
+    return thunkAPI.rejectWithValue(error.response?.data?.message || 'Failed to fetch Role');
   }
 });
 
-export const updateAdminRoles = createAsyncThunk('role/update', async ({ id, payload }, thunkAPI) => {
+export const updateRole = createAsyncThunk('role/update', async ({ id, payload }, thunkAPI) => {
   try {
-    const response = await API.put(`/company-admin/roles/${id}`, payload);
+    const response = await axios.patch(`/admin/roles/${id}`, payload);
     return response.data;
   } catch (error) {
     const d = error.response?.data;
@@ -45,91 +46,91 @@ export const updateAdminRoles = createAsyncThunk('role/update', async ({ id, pay
     });
   }
 });
+const initialState = {
+  roles: [],
+  listLoading: false,
+  createLoading:false,
+  updateloading:false,
+  savesuccess:false,
+  totalCount:0,
+  error: null,
+
+  currentRole:null,
+  currentRoleloading:false,
+  currentRoleError:null,
+};
 
 const roleSlice = createSlice({
   name: 'role',
-  initialState: {
-    roles:[],
-    roleloading:false,
-    roleerror:null,
-    roletotalCount: 0,
-     rolesaveSuccess: false,
-     createroleLoading: false,
-    updateroleLoading: false,
-
-     currentAdminRole: null,
-    currentAdminRoleLoading: false,
-    currentAdminRoleError: null,
-  },
+  initialState,
   reducers: {
-     resetAdminRoleState: (state) => {
-      state.createroleLoading = false;
-      state.updateroleLoading = false;
-      state.rolesaveSuccess = false;
-      state.roleerror = null;
-      state.currentAdminRole = null;
-      state.currentAdminRoleError = null;
+    resetRoleState: (state) => {
+      state.createLoading = false;
+      state.updateLoading = false;
+      state.saveSuccess = false;
+      state.error = null;
+      state.currentRole = null;
+      state.currentRoleError = null;
     },
   },
   extraReducers: (builder) => {
     builder
-      .addCase(createAdminRoles.pending, (state) => {
-              state.createroleLoading = true;
-              state.roleerror = null;
-              state.rolesaveSuccess = false;
+      .addCase(getroles.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getroles.fulfilled, (state, action) => {
+        state.loading = false;
+        state.roles = action.payload || [];
+      })
+      .addCase(getroles.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(getRoleId.pending, (state) => {
+              state.currentRoleloading = true;
+              state.currentRole = null;
+              state.currentRoleError = null;
             })
-            .addCase(createAdminRoles.fulfilled, (state) => {
-              state.createroleLoading = false;
-              state.rolesaveSuccess = true;
+            .addCase(getRoleId.fulfilled, (state, action) => {
+              state.currentRoleloading = false;
+              state.currentRole = action.payload;
             })
-            .addCase(createAdminRoles.rejected, (state, action) => {
-              state.createroleLoading = false;
-              state.roleerror = action.payload?.message || action.payload;
-            })
-      
-            .addCase(updateAdminRoles.pending, (state) => {
-              state.updateroleLoading = true;
-              state.roleerror = null;
-              state.rolesaveSuccess = false;
-            })
-            .addCase(updateAdminRoles.fulfilled, (state) => {
-              state.updateroleLoading = false;
-              state.rolesaveSuccess = true;
-            })
-            .addCase(updateAdminRoles.rejected, (state, action) => {
-              state.updateroleLoading = false;
-              state.roleerror = action.payload?.message || action.payload;
+            .addCase(getRoleId.rejected, (state, action) => {
+              state.currentRoleloading = false;
+              state.currentRoleError = action.payload || 'Failed to load';
             })
       
-            .addCase(getadminRoles.pending, (state) => {
-              state.roleloading = true;
+            .addCase(createRole.pending, (state) => {
+              state.createLoading = true;
+              state.error = null;
+              state.saveSuccess = false;
             })
-            .addCase(getadminRoles.fulfilled, (state, action) => {
-              state.roleloading = false;
-              state.roles = action.payload;
-              state.totalCount = action.payload.totalCount;
+            .addCase(createRole.fulfilled, (state) => {
+              state.createLoading = false;
+              state.saveSuccess = true;
+            })
+            .addCase(createRole.rejected, (state, action) => {
+              state.createLoading = false;
+              state.error = action.payload?.message || action.payload;
+            })
       
+            .addCase(updateRole.pending, (state) => {
+              state.updateLoading = true;
+              state.error = null;
+              state.saveSuccess = false;
             })
-            .addCase(getadminRoles.rejected, (state) => {
-              state.roleloading = false;
-              state.roleerror = action.payload;
+            .addCase(updateRole.fulfilled, (state) => {
+              state.updateLoading = false;
+              state.saveSuccess = true;
             })
-      
-            .addCase(getAdminRoleById.pending, (state) => {
-              state.currentAdminRoleLoading = true;
-              state.currentAdminRole = null;
-              state.currentAdminRoleError = null;
+            .addCase(updateRole.rejected, (state, action) => {
+              state.updateLoading = false;
+              state.error = action.payload?.message || action.payload;
             })
-            .addCase(getAdminRoleById.fulfilled, (state, action) => {
-              state.currentAdminRoleLoading = false;
-              state.currentAdminRole = action.payload;
-            })
-            .addCase(getAdminRoleById.rejected, (state, action) => {
-              state.currentAdminRoleLoading = false;
-              state.currentAdminRoleError = action.payload || 'Failed to load';
-            })
+          
   }
 });
-export const { resetAdminRoleState } = roleSlice.actions;
+export const { resetRoleState } = roleSlice.actions;
 
 export default roleSlice.reducer;

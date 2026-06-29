@@ -20,9 +20,15 @@ import {
   IconBuilding,
   IconBriefcase,
   IconClipboardCheck,
-  IconReportAnalytics,
-  IconReceipt2
+  
 } from '@tabler/icons-react';
+import AdminMenu from '../../../menu-items/adminMenu';
+import DocumentScannerIcon from '@mui/icons-material/DocumentScanner';
+import EditDocumentIcon from '@mui/icons-material/EditDocument';
+import AssignmentIcon from '@mui/icons-material/Assignment';
+import TextSnippetIcon from '@mui/icons-material/TextSnippet';
+import ArticleIcon from '@mui/icons-material/Article';
+import DescriptionIcon from '@mui/icons-material/Description';
 
 const menuIcons = {
   Dashboard: IconDashboard,
@@ -32,8 +38,13 @@ const menuIcons = {
   'GRPO': IconBriefcase,
   'Contracting Management': IconBuilding,
   'Approvals': IconClipboardCheck,
-  'Pending Approvals': IconReportAnalytics,
-  'Sales Orders': IconReceipt2
+  'Sales Quotation':DocumentScannerIcon,
+  'Sales Order':EditDocumentIcon,
+  'A/R Invoice':AssignmentIcon,
+  'Purchase Quotation':TextSnippetIcon,
+  'Purchase Order':ArticleIcon,
+  'Purchase Request':DescriptionIcon,
+  'A/P Invoice':AssignmentIcon,
 };
 
 // ==============================|| SIDEBAR MENU LIST ||============================== //
@@ -49,45 +60,58 @@ function MenuList() {
 
   const authUserMenus = user ? [...new Map(user.Roles.flatMap((role) => role.UserMenus).map((menu) => [menu.id, menu])).values()] : [];
 
- const menuItems = Boolean(user?.is_com_admin)?cusmenuItems:{
-  items: [
-    {
-      id: 'dashboard',
-      title: 'Dashboard',
-      type: 'group',
-      children: [
-        {
-          id: 'dashboard-item',
-          title: 'Dashboard',
-          type: 'item',
-          url: '/dashboard',
-          icon: IconDashboard,
-          breadcrumbs: false
-        }
-      ]
-    },
+ const isSuperUser = Number(user?.is_super_user) === 1;
+const isCompanyAdmin = Number(user?.is_com_admin) === 1;
+const isSapUser = Number(user?.is_sap_user) === 1;
 
-    ...authUserMenus
-      .filter((menu) => menu.status === 1)
-      .map((menu) => ({
-        id: menu.id,
-        title: menu.display_name,
+let menuItems;
+
+if (isCompanyAdmin) {
+  menuItems = cusmenuItems;
+} else if (isSapUser) {
+  menuItems = AdminMenu;
+} else {
+  menuItems = {
+    items: [
+      {
+        id: 'dashboard',
+        title: 'Dashboard',
         type: 'group',
-        children: (menu.children || [])
-          .filter((child) => child.status === 1)
-          .map((child) => ({
-            id: child.id,
-            title: child.display_name,
+        children: [
+          {
+            id: 'dashboard-item',
+            title: 'Dashboard',
             type: 'item',
-            url: `/${child.display_name.replace(/\s+/g, '-')}/list`,
-            icon:
-              menuIcons[child.display_name] ||
-              IconDashboard,
+            url: '/dashboard',
+            icon: IconDashboard,
             breadcrumbs: false
-          }))
-      }))
-  ]
-};
+          }
+        ]
+      },
+
+      ...authUserMenus
+        .filter((menu) => menu.status === 1)
+        .map((menu) => ({
+          id: menu.id,
+          title: menu.display_name,
+          type: 'group',
+          children: (menu.children || [])
+            .filter((child) => child.status === 1)
+            .map((child) => ({
+              id: child.id,
+              title: child.display_name,
+              type: 'item',
+              url: `/${child.display_name.replace(/\s+/g, '-')}/list`,
+              icon: menuIcons[child.display_name] || IconDashboard,
+              breadcrumbs: false
+            }))
+        })),
+
+      // Add Admin section only for Super User
+      ...(isSuperUser ? AdminMenu.items : [])
+    ]
+  };
+}
 
 console.log('menuItems', menuItems);
 

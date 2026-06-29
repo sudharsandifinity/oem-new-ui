@@ -1,83 +1,311 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
+import { createSalesQuotation, resetSalesQuotationState } from '../../store/slices/salesQuotationSlice';
 
-import { Alert, Box, Breadcrumbs, Button, CircularProgress, Divider, Snackbar, Tab, Tabs, Typography } from '@mui/material';
+import {
+  Box,
+  Breadcrumbs,
+  Button,
+  Divider,
+  Tab,
+  Tabs,
+  Typography
+} from '@mui/material';
 
+// icons
 import HomeIcon from '@mui/icons-material/Home';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 
+// project imports
 import MainCard from 'ui-component/cards/MainCard';
-import SalesQuoatationGeneralTab from './GeneralTab';
-import { createSalesQuotation, resetSalesQuotationState } from '../../store/slices/salesQuotationSlice';
-import SalesQuotationContentTab from './ContentTab';
+import GeneralTab from './GeneralTab';
+import ContentTab from './ContentTab';
+import AttachmentTab from './AttachmentTab';
 
-const today = new Date().toISOString().split('T')[0];
-
-const initialForm = () => ({
-  seq: '',
-  ItemCode: '',
-  ItemDescription: '',
-  FullDescription: today,
-  UoMCode: '',
-  POQty: '',
-  Comments: ''
-});
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
 
 export default function SalesQuotationCreate() {
-  const navigate = useNavigate();
   const dispatch = useDispatch();
+  const { loading, error, saveSuccess } = useSelector(
+    (state) => state.salesQuotation
+  );
 
-  const { loading, saveSuccess, error } = useSelector((s) => s.salesQuotation);
-
-  const [tabValue, setTabValue] = useState(0);
-  const [form, setForm] = useState(initialForm());
-  const [lines, setLines] = useState([]);
-  const [snackbar, setSnackbar] = useState({ open: false, severity: 'success', message: '' });
-
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    severity: 'success',
+    message: ''
+  });
 
   useEffect(() => {
     if (saveSuccess) {
-      setSnackbar({ open: true, severity: 'success', message: 'Sales Quotation created successfully!' });
-      dispatch(resetSalesQuotationState());
-      setTimeout(() => navigate('/GRPO/list'), 1500);
+      setSnackbar({
+        open: true,
+        severity: 'success',
+        message: 'Sales Quotation created successfully'
+      });
     }
-    if (error) {
-      setSnackbar({ open: true, severity: 'error', message: error });
-      dispatch(resetSalesQuotationState());
-    }
-  }, [saveSuccess, error, dispatch, navigate]);
 
+    if (error) {
+      setSnackbar({
+        open: true,
+        severity: 'error',
+        message: error
+      });
+    }
+  }, [saveSuccess, error]);
+
+  useEffect(() => {
+    return () => {
+      dispatch(resetSalesQuotationState());
+    };
+  }, [dispatch]);
+
+  const createRow = (id) => ({
+    id,
+    itemNo: '',
+    itemDescription: '',
+    quantity: '',
+    unitPrice: '',
+    discount: '',
+    lineTotal: '',
+    taxCode: '',
+    taxPercentage: '',
+    taxAmount: '',
+    grossTotal: '',
+    project: '',
+    warehouse: '',
+    dimension1: '',
+    dimension2: '',
+    dimension3: '',
+    dimension4: '',
+    dimension5: ''
+  });
+
+  const [documentLines, setDocumentLines] = useState([
+    createRow(1),
+    createRow(2),
+  ]);
+
+  const createAttachmentRow = (id) => ({
+    id,
+    file: null,
+    fileName: ''
+  });
+    
+
+  const initialState = () => ({
+    CardCode: '',
+    CardName: '',
+    ContactPerson: '',
+    NumAtCard: '',
+
+    DocDate: today,
+    DocDueDate: today,
+    TaxDate: today,
+
+    Attachments2_Lines: [createAttachmentRow(1)],
+
+    DocType: 'dDocument_Items',
+    DocCurrency: '',
+    Comments: '',
+    SalesPersonCode: '',
+    DiscountPercent: 0,
+    Rounding: false,
+    RoundingDiffAmount: 0,
+
+    DocumentLines: [],
+    DocumentAdditionalExpenses: []
+  });
+  const today = new Date().toISOString().split('T')[0];
+  const [salesQuotation, setSalesQuotation] = useState(initialState());
   
 
-  const handleSubmit = () => {
-    dispatch(createSalesQuotation(buildSalesQuoatationPayload(form, lines)));
+  const [tabValue, setTabValue] =
+    useState(0);
+
+  const handleTabChange = (
+    event,
+    newValue
+  ) => {
+    setTabValue(newValue);
+  };
+
+  const handleSubmit = async () => {
+    const payload = {
+      DocType: salesQuotation.DocType,
+      CardCode: salesQuotation.CardCode,
+      CardName: salesQuotation.CardName,
+      NumAtCard: salesQuotation.NumAtCard,
+      DocDate: salesQuotation.DocDate,
+      DocDueDate: salesQuotation.DocDueDate,
+      DocCurrency: salesQuotation.DocCurrency,
+      Comments: salesQuotation.Comments,
+      ContactPersonCode: salesQuotation.ContactPersonCode,
+      RequriedDate: salesQuotation.DocDueDate,
+      Rounding:
+        salesQuotation.Rounding
+          ? 'tYES'
+          : 'tNO',
+      RoundingDiffAmount: salesQuotation.RoundingDiffAmount,
+      DocumentLines: documentLines
+        .filter(
+          row =>
+            row.itemNo &&
+            Number(row.quantity) > 0
+        )
+        .map((row, index) => ({
+          LineNum: index,
+          ItemCode: row.itemNo,
+          ItemDescription:
+            row.itemDescription,
+          Quantity: Number(row.quantity),
+          Price: Number(row.unitPrice),
+          WarehouseCode:
+            row.warehouse || null,
+          ProjectCode:
+            row.project || null,
+          VatGroup:
+            row.taxCode || null
+        })),
+        DocumentAdditionalExpenses:
+        (salesQuotation.DocumentAdditionalExpenses || [])
+          .map(exp => ({
+            ExpenseCode: Number(exp.freightCode),
+            Remarks: exp.remark || '',
+            VatGroup: exp.taxGroup || null,
+            LineTotal: Number(exp.amount || 0)
+        }))
+    };
+
+    const formData = new FormData();
+
+    Object.entries(payload).forEach(
+      ([key, value]) => {
+        if (
+          key === 'DocumentLines' ||
+          key === 'DocumentAdditionalExpenses'
+        ) {
+          formData.append(
+            key,
+            JSON.stringify(value)
+          );
+        } else {
+          formData.append(
+            key,
+            value ?? ''
+          );
+        }
+      }
+    );
+
+    (salesQuotation.Attachments2_Lines || []).forEach(
+      (attachment) => {
+        if (attachment.file) {
+          formData.append(
+            'Attachments2_Lines',
+            attachment.file
+          );
+        }
+      }
+    );
+
+    console.log(
+      'Attachments:',
+      salesQuotation.Attachments2_Lines
+    );
+    console.log('entire',[...formData.entries()]);
+
+    try {
+      const resultAction = await dispatch(
+        createSalesQuotation(formData)
+      );
+
+      if (createSalesQuotation.fulfilled.match(resultAction)) {
+        setSalesQuotation(initialState());
+
+        setDocumentLines([
+          createRow(1),
+          createRow(2)
+        ]);
+
+        setTabValue(0);
+      } else {
+        console.error(
+          'Create failed:',
+          resultAction.payload
+        );
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (
     <Box>
-      <MainCard content={false} sx={{ mb: 3 }}>
+
+      <MainCard
+        content={false}
+        sx={{ mb: 3 }}
+      >
         <Box
           sx={{
             px: 3,
-            py: 1.5,
+            py: 2.5,
             display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: { xs: 'flex-start', md: 'center' },
-            flexDirection: { xs: 'column', md: 'row' },
+            justifyContent:
+              'space-between',
+            alignItems: {
+              xs: 'flex-start',
+              md: 'center'
+            },
+            flexDirection: {
+              xs: 'column',
+              md: 'row'
+            },
             gap: 2
           }}
         >
-          <Typography variant="h4">Sales Quotation</Typography>
-          <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />}>
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <HomeIcon sx={{ fontSize: 18, color: 'secondary.main' }} />
+          {/* TITLE */}
+
+          <Typography variant="h3">
+            Sales Quotations
+          </Typography>
+
+          {/* BREADCRUMB */}
+
+          <Breadcrumbs
+            separator={
+              <NavigateNextIcon fontSize="small" />
+            }
+          >
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 0.5
+              }}
+            >
+              <HomeIcon
+                color="secondary"
+                sx={{
+                  fontSize: 18
+                }}
+              />
             </Box>
-            <Typography variant="body2" color="text.primary">
-             Sales Quotation
+
+            <Typography
+              variant="body2"
+              color="text.primary"
+            >
+              Sales Quotations
             </Typography>
-            <Typography variant="body2" color="secondary" fontWeight={600}>
+
+            <Typography
+              variant="body2"
+              color="secondary"
+              fontWeight={600}
+            >
               Create
             </Typography>
           </Breadcrumbs>
@@ -85,53 +313,106 @@ export default function SalesQuotationCreate() {
       </MainCard>
 
       <MainCard content={false}>
-        <Box sx={{ borderBottom: 1, borderColor: 'divider', px: 3, pt: 1 }}>
-          <Tabs value={tabValue} onChange={(_, v) => setTabValue(v)}>
+        <Box
+          sx={{
+            borderBottom: 1,
+            borderColor: 'divider',
+            px: 3,
+            pt: 1
+          }}
+        >
+          <Tabs
+            value={tabValue}
+            onChange={
+              handleTabChange
+            }
+            variant="scrollable"
+            scrollButtons="auto"
+          >
             <Tab label="General" />
+
             <Tab label="Contents" />
+
+            <Tab label="Attachments" />
           </Tabs>
         </Box>
 
         <Box sx={{ p: 3 }}>
-          <Box sx={{ display: tabValue === 0 ? 'block' : 'none' }}>
-            <SalesQuoatationGeneralTab data={form} setData={setForm} />
-          </Box>
-          <Box sx={{ display: tabValue === 1 ? 'block' : 'none' }}>
-            <SalesQuotationContentTab data={form} setData={setForm} rows={lines} setRows={setLines} />
-          </Box>
+          {tabValue === 0 && (
+            <GeneralTab
+              data={salesQuotation}
+              setData={setSalesQuotation}
+            />
+          )}
+
+          {tabValue === 1 && (
+            <ContentTab
+              data={salesQuotation}
+              setData={setSalesQuotation}
+              rows={documentLines}
+              setRows={setDocumentLines}
+            />
+          )}
+
+          {tabValue === 2 && (
+            <AttachmentTab 
+              data={salesQuotation}
+              setData={setSalesQuotation}
+            />
+          )}
 
           <Divider sx={{ my: 4 }} />
 
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
-            
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent:
+                'flex-end',
+              gap: 2,
+              flexWrap: 'wrap'
+            }}
+          >
+            <Button
+              variant="outlined"
+              color="error"
+            >
+              Cancel
+            </Button>
 
-            <Box sx={{ display: 'flex', gap: 2 }}>
-              <Button variant="outlined" color="error" onClick={() => navigate('/Sales-Quotation/list')}>
-                Cancel
-              </Button>
-              <Button
-                variant="contained"
-                color="secondary"
-                onClick={handleSubmit}
-                disabled={loading}
-                startIcon={loading ? <CircularProgress size={16} color="inherit" /> : null}
-              >
-                Submit
-              </Button>
-            </Box>
+            <Button
+              variant="contained"
+              color="secondary"
+              onClick={handleSubmit}
+            >
+              {loading ? 'Saving...' : 'Submit'}
+            </Button>
           </Box>
         </Box>
       </MainCard>
-
-      
-
       <Snackbar
         open={snackbar.open}
         autoHideDuration={5000}
-        onClose={() => setSnackbar((p) => ({ ...p, open: false }))}
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        onClose={() =>
+          setSnackbar((prev) => ({
+            ...prev,
+            open: false
+          }))
+        }
+        anchorOrigin={{
+          vertical: 'top',
+          horizontal: 'right'
+        }}
       >
-        <Alert severity={snackbar.severity} onClose={() => setSnackbar((p) => ({ ...p, open: false }))}>
+        <Alert
+          severity={snackbar.severity}
+          variant="standard"
+          onClose={() =>
+            setSnackbar((prev) => ({
+              ...prev,
+              open: false
+            }))
+          }
+        >
           {snackbar.message}
         </Alert>
       </Snackbar>

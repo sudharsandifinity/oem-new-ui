@@ -11,7 +11,7 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import RefreshIcon from '@mui/icons-material/Refresh';
 
 import MainCard from 'ui-component/cards/MainCard';
-import { getAdminRoleById, resetAdminRoleState, updateAdminRoles } from '../../../store/slices/roleSlice';
+import { getAdminRoleById, resetAdminRoleState, updateAdminRoles } from '../../../store/slices/cusAdminroleSlice';
 import RoleForm from './RoleForm';
 
 function ContentSkeleton() {
@@ -39,7 +39,7 @@ export default function RoleManagementView() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const { currentAdminRole, currentAdminRoleLoading, currentAdminRoleError, updateroleLoading, rolesaveSuccess, roleerror } = useSelector((s) => s.role);
+  const { currentAdminRole, currentAdminRoleLoading, currentAdminRoleError, updateroleLoading, rolesaveSuccess, roleerror } = useSelector((s) => s.cusAdminrole);
     const { companies } = useSelector((s) => s.commonCustomer);
 
 
