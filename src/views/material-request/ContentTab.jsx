@@ -222,11 +222,6 @@ export default function MRContentTab({ data, setData, rows, setRows, readOnly = 
               )
             }}
           />
-          {row.IsChildRow && (
-            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>
-              ↳ child of {row.ParentItemCode}
-            </Typography>
-          )}
         </Box>
       );
     }

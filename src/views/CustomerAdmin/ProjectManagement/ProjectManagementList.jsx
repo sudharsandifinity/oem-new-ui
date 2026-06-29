@@ -57,8 +57,6 @@ export default function ProjectManagementList() {
     },
     { field: 'Code', headerName: 'Code', flex: 1, minWidth: 120 },
     { field: 'Name', headerName: 'Name', flex: 2, minWidth: 220 },
-    { field: 'ValidFrom', headerName: 'Valid From', flex: 1, minWidth: 140 },
-    { field: 'ValidTo', headerName: 'Valid To', flex: 1, minWidth: 140 },
     { field: 'Active', headerName: 'Status', width: 120, sortable: false, renderCell: renderActiveCell }
   ];
 
