@@ -2,7 +2,7 @@ const splitDate = (value) => (value ? String(value).split('T')[0] : '');
 
 export const mapApiLineToRow = (line, index) => {
   const isServiceLine = !line.ItemCode && !!line.AccountCode;
-  const quantity = isServiceLine ? line.Quantity || 1 : line.Quantity ?? '';
+  const quantity = line.Quantity ?? '';
   const unitPrice = isServiceLine ? line.UnitPrice ?? line.Price ?? '' : line.Price ?? '';
   const discount = line.DiscountPercent ?? 0;
   const taxPercentage = line.TaxPercentagePerRow ?? 0;
