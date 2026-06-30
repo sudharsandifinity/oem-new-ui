@@ -96,13 +96,14 @@ export const buildSalesOrderFormData = (salesOrder, documentLines) => {
     Rounding: salesOrder.Rounding ? 'tYES' : 'tNO',
     RoundingDiffAmount: salesOrder.RoundingDiffAmount,
     DocumentLines: documentLines
-      .filter((row) => row.itemNo && (isService ? Number(row.unitPrice) > 0 : Number(row.quantity) > 0))
+      .filter((row) => row.itemNo && Number(row.quantity) > 0)
       .map((row, index) =>
         isService
           ? {
               LineNum: index,
               AccountCode: row.itemNo,
               ItemDescription: row.itemDescription,
+              Quantity: Number(row.quantity),
               UnitPrice: Number(row.unitPrice),
               DiscountPercent: Number(row.discount) || 0,
               ProjectCode: row.project || null,

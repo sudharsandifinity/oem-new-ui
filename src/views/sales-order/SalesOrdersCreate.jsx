@@ -155,9 +155,7 @@ export default function SalesOrdersCreate() {
         .filter(
           row =>
             row.itemNo &&
-            (isService
-              ? Number(row.unitPrice) > 0
-              : Number(row.quantity) > 0)
+            Number(row.quantity) > 0
         )
         .map((row, index) =>
           isService
@@ -165,6 +163,7 @@ export default function SalesOrdersCreate() {
                 LineNum: index,
                 AccountCode: row.itemNo,
                 ItemDescription: row.itemDescription,
+                Quantity: Number(row.quantity),
                 UnitPrice: Number(row.unitPrice),
                 DiscountPercent: Number(row.discount) || 0,
                 ProjectCode: row.project || null,

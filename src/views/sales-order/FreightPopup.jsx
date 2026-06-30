@@ -43,8 +43,6 @@ export default function FreightPopup({open, onClose, onApply, initialExpenses}) 
     createRow(1)
   ]);
 
-  // Seed the grid from already-saved expenses each time the dialog opens
-  // (so edit shows freight + tax, and create shows what was applied earlier).
   useEffect(() => {
     if (!open) return;
     const seeded = (initialExpenses || []).map((exp, i) => ({
