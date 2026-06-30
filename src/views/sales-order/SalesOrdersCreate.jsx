@@ -175,7 +175,7 @@ export default function SalesOrdersCreate() {
                 ItemCode: row.itemNo,
                 ItemDescription: row.itemDescription,
                 Quantity: Number(row.quantity),
-                Price: Number(row.unitPrice),
+                UnitPrice: Number(row.unitPrice),
                 DiscountPercent: Number(row.discount) || 0,
                 WarehouseCode: row.warehouse || null,
                 ProjectCode: row.project || null,

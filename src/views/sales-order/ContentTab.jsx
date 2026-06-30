@@ -1154,6 +1154,7 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
       />
       <FreightPopup
         open={freightPopupOpen}
+        initialExpenses={data.DocumentAdditionalExpenses}
         onClose={() =>
           setFreightPopupOpen(false)
         }
