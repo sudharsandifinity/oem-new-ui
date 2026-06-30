@@ -24,9 +24,11 @@ import AttachmentTab from './AttachmentTab';
 
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
+import { useNavigate } from 'react-router';
 
 export default function SalesQuotationCreate() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { loading, error, saveSuccess } = useSelector(
     (state) => state.salesQuotation
   );
@@ -142,12 +144,16 @@ export default function SalesQuotationCreate() {
       DocCurrency: salesQuotation.DocCurrency,
       Comments: salesQuotation.Comments,
       ContactPersonCode: salesQuotation.ContactPersonCode,
-      RequriedDate: salesQuotation.DocDueDate,
+      TaxDate: salesQuotation.TaxDate,
+
       Rounding:
         salesQuotation.Rounding
           ? 'tYES'
           : 'tNO',
       RoundingDiffAmount: salesQuotation.RoundingDiffAmount,
+        DiscountPercent: salesQuotation.DiscountPercent || 0,
+          TotalDiscount: salesQuotation.discountAmt || 0,
+          DocumentsOwner:salesQuotation.SalesPersonCode||'',
       DocumentLines: documentLines
         .filter(
           row =>
@@ -160,7 +166,8 @@ export default function SalesQuotationCreate() {
           ItemDescription:
             row.itemDescription,
           Quantity: Number(row.quantity),
-          Price: Number(row.unitPrice),
+          DiscountPercent:Number(row.discount),
+          UnitPrice: Number(row.unitPrice),
           WarehouseCode:
             row.warehouse || null,
           ProjectCode:
@@ -375,6 +382,8 @@ export default function SalesQuotationCreate() {
             <Button
               variant="outlined"
               color="error"
+              onClick={() => navigate(-1)}
+
             >
               Cancel
             </Button>

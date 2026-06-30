@@ -35,6 +35,7 @@ import LookupModal from '../modules/master-data/LookupModal';
 import InputAdornment from '@mui/material/InputAdornment';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { getCurrencies } from '../../store/slices/currencySlice';
+import { getEmployees } from '../../store/slices/commonSlice';
 
 const createRow = (id) => ({
   id,
@@ -67,11 +68,14 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
   } = useSelector(
     (state) => state.currency
   );
+  const {  employees, employeesLoading } = useSelector((s) => s.common);
 
   useEffect(() => {
     if (currencies.length === 0) {
       dispatch(getCurrencies());
     }
+         if (!employees.length) dispatch(getEmployees());
+    
   }, [currencies]);
 
   useEffect(() => {
@@ -880,13 +884,16 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
                 )
               }
             >
-              <MenuItem value="u1">
-                User 1
-              </MenuItem>
-
-              <MenuItem value="u2">
-                User 2
-              </MenuItem>
+               {(employees || []).map((emp) => (
+                <MenuItem
+                  key={emp.EmployeeID}
+                  value={emp.EmployeeID}
+                >
+                  {[emp.FirstName, emp.LastName]
+                    .filter(Boolean)
+                    .join(' ')}
+                </MenuItem>
+              ))}
             </Select>
           </FormControl>
 

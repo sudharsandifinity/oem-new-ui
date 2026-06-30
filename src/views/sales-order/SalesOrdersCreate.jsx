@@ -24,9 +24,11 @@ import AttachmentTab from './AttachmentTab';
 
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
+import { useNavigate } from 'react-router';
 
 export default function SalesOrdersCreate() {
   const dispatch = useDispatch();
+  const navigate=useNavigate();
   const { loading, error, saveSuccess } = useSelector(
     (state) => state.salesOrder
   );
@@ -146,11 +148,16 @@ export default function SalesOrdersCreate() {
       ContactPersonCode: salesOrder.ContactPersonCode,
       RequriedDate: salesOrder.DocDueDate,
       DiscountPercent: Number(salesOrder.DiscountPercent) || 0,
+      TaxDate: salesOrder.TaxDate,
       Rounding:
         salesOrder.Rounding
           ? 'tYES'
           : 'tNO',
       RoundingDiffAmount: salesOrder.RoundingDiffAmount,
+       
+          DiscountPercent: salesOrder.DiscountPercent || 0,
+          TotalDiscount: salesOrder.discountAmt || 0,
+          DocumentsOwner:salesOrder.SalesPersonCode||'',
       DocumentLines: documentLines
         .filter(
           row =>
@@ -175,7 +182,7 @@ export default function SalesOrdersCreate() {
                 ItemCode: row.itemNo,
                 ItemDescription: row.itemDescription,
                 Quantity: Number(row.quantity),
-                Price: Number(row.unitPrice),
+                UnitPrice: Number(row.unitPrice),
                 DiscountPercent: Number(row.discount) || 0,
                 WarehouseCode: row.warehouse || null,
                 ProjectCode: row.project || null,
@@ -188,7 +195,8 @@ export default function SalesOrdersCreate() {
             ExpenseCode: Number(exp.freightCode),
             Remarks: exp.remark || '',
             VatGroup: exp.taxGroup || null,
-            LineTotal: Number(exp.amount || 0)
+            LineTotal: Number(exp.amount || 0),
+
         }))
     };
 
@@ -229,7 +237,7 @@ export default function SalesOrdersCreate() {
       salesOrder.Attachments2_Lines
     );
     console.log('entire',[...formData.entries()]);
-
+console.log("salescreate",formData)
     try {
       const resultAction = await dispatch(
         createSalesOrder(formData)
@@ -289,7 +297,7 @@ export default function SalesOrdersCreate() {
           {/* BREADCRUMB */}
 
           <Breadcrumbs
-            separator={
+            separator={ 
               <NavigateNextIcon fontSize="small" />
             }
           >
@@ -389,6 +397,7 @@ export default function SalesOrdersCreate() {
             <Button
               variant="outlined"
               color="error"
+              onClick={() => navigate(-1)}
             >
               Cancel
             </Button>

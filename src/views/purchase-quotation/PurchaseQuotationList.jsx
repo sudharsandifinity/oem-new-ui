@@ -93,22 +93,17 @@ export default function PurchaseQuotationList() {
       },
     {
       accessorKey: 'CardCode',
-      header: 'Customer Code',
+      header: 'Vendor Code',
       flex: 1,
       minWidth: 150
     },
     {
       accessorKey: 'CardName',
-      header: 'Customer Name',
+      header: 'Vendor Name',
       flex: 1.5,
       minWidth: 220
     },
-    {
-      accessorKey: 'projectCode',
-      header: 'Project Code',
-      flex: 1,
-      minWidth: 150
-    },
+    
     {
       accessorKey: 'DocDate',
       header: 'Posting Date',
@@ -330,45 +325,21 @@ export default function PurchaseQuotationList() {
             }
           }}
           loading={loading}
-          sx={{
-            border: 0,
-            height: '100%',
-
-            '& .MuiDataGrid-columnHeaders':
-              {
-                background:
-                  'linear-gradient(135deg,#ede7f6,#d1c4e9)',
-                color: '#4527a0',
-                fontWeight: 700,
-                borderBottom:
-                  '1px solid grey'
-              },
-
-            '& .MuiDataGrid-columnHeaderTitle':
-              {
-                fontWeight: 700
-              },
-
-            '& .MuiDataGrid-row:hover':
-              {
-                backgroundColor:
-                  '#f3e5f5'
-              },
-
-            '& .MuiDataGrid-cell':
-              {
-                borderColor:
-                  '#f1f1f1'
-              },
-
-            '& .MuiDataGrid-footerContainer':
-              {
-                borderTop:
-                  '1px solid #e0e0e0',
-                backgroundColor:
-                  '#fafafa'
+           muiTableHeadCellProps={{
+            sx: {
+              fontWeight: 'bold',
+              // color: '#eef2f6',
+              background: '#e7e7e7',
+              //borderBottom: '1px solid #bdbdbd',
+              //borderRight: '1px solid #d0d0d0', // Vertical separator
+              '&:last-child': {
+                borderRight: 'none'
               }
+            }
           }}
+          muiTableBodyRowProps={{ sx: { '&:hover': { backgroundColor: '#f3e5f5' } } }}
+          muiTableBodyCellProps={{ sx: { borderColor: '#f1f1f1' } }}
+          muiBottomToolbarProps={{ sx: { borderTop: '1px solid #e0e0e0', backgroundColor: '#fafafa' } }}
         />
       </Paper>
     </Box>

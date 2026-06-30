@@ -90,7 +90,7 @@ export default function SalesQuoatationGeneralTab({ data, setData, readOnly = fa
           <AppDatePicker label="Posting Date" value={data.DocDate} disabled={readOnly} onChange={(val) => handleChange('DocDate', val)} />
 
           <AppDatePicker
-            label="Valid Till"
+            label="Delivery Date"
             value={data.DocDueDate}
             disabled={readOnly}
             onChange={(val) => handleChange('DocDueDate', val)}

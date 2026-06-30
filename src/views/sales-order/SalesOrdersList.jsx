@@ -1,21 +1,9 @@
 import { useMemo, useState, useEffect } from 'react';
 import { Alert } from '@mui/material';
-import {
-  Box,
-  Breadcrumbs,
-  Button,
-  Chip,
-  IconButton,
-  Paper,
-  Stack,
-  TextField,
-  Typography
-} from '@mui/material';
+import { Box, Breadcrumbs, Button, Chip, IconButton, Paper, Stack, TextField, Typography } from '@mui/material';
 
 // mui x
-import {
-  DataGrid
-} from '@mui/x-data-grid';
+import { DataGrid } from '@mui/x-data-grid';
 import { useSelector } from 'react-redux';
 import HomeIcon from '@mui/icons-material/Home';
 import AddIcon from '@mui/icons-material/Add';
@@ -25,10 +13,9 @@ import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import ClearIcon from '@mui/icons-material/Clear';
 import MainCard from 'ui-component/cards/MainCard';
 import { useDispatch } from 'react-redux';
-import {
-  getSalesOrders
-} from 'store/slices/salesOrderSlice';
+import { getSalesOrders } from 'store/slices/salesOrderSlice';
 import { useNavigate } from 'react-router-dom';
+import { MaterialReactTable } from 'material-react-table';
 
 export default function SalesOrderList() {
   const dispatch = useDispatch();
@@ -38,23 +25,17 @@ export default function SalesOrderList() {
     dispatch(getSalesOrders());
   }, []);
 
-  const { loading, error, orders } = useSelector(
-    (state) => state.salesOrder
-  );
+  const { loading, error, orders } = useSelector((state) => state.salesOrder);
 
-  const [filters, setFilters] =
-    useState({
-      CardCode: '',
-      CardName: ''
-    });
+  const [filters, setFilters] = useState({
+    CardCode: '',
+    CardName: ''
+  });
 
-  const handleChange = (
-    field,
-    value
-  ) => {
+  const handleChange = (accessorKey, value) => {
     setFilters((prev) => ({
       ...prev,
-      [field]: value
+      [accessorKey]: value
     }));
   };
 
@@ -68,102 +49,68 @@ export default function SalesOrderList() {
   const filteredRows = useMemo(() => {
     return (orders || []).filter((r) => {
       return (
-        (!filters.CardCode ||
-          r.CardCode
-            .toLowerCase()
-            .includes(
-              filters.CardCode.toLowerCase()
-            )) &&
-        (!filters.CardName ||
-          r.CardName
-            .toLowerCase()
-            .includes(
-              filters.CardName.toLowerCase()
-            ))
+        (!filters.CardCode || r.CardCode.toLowerCase().includes(filters.CardCode.toLowerCase())) &&
+        (!filters.CardName || r.CardName.toLowerCase().includes(filters.CardName.toLowerCase()))
       );
     });
   }, [orders, filters]);
 
   const columns = [
-     {
-    field: 'slNo',
-    headerName: 'Sl No',
-    width: 80,
-    sortable: false,
-    filterable: false,
-    renderCell: (params) => params.api.getRowIndexRelativeToVisibleRows(params.id) + 1,
-  },
     {
-      field: 'CardCode',
-      headerName: 'Customer Code',
+      id: 'slNo',
+      header: 'Sl No',
+      size: 80,
+      Cell: ({ row }) => row.index + 1
+    },
+    {
+      accessorKey: 'CardCode',
+      header: 'Customer Code',
       flex: 1,
       minWidth: 150
     },
     {
-      field: 'CardName',
-      headerName: 'Customer Name',
+      accessorKey: 'CardName',
+      header: 'Customer Name',
       flex: 1.5,
       minWidth: 220
     },
     {
-      field: 'projectCode',
-      headerName: 'Project Code',
+      accessorKey: 'projectCode',
+      header: 'Project Code',
       flex: 1,
       minWidth: 150
     },
     {
-      field: 'DocDate',
-      headerName: 'Posting Date',
+      accessorKey: 'DocDate',
+      header: 'Posting Date',
       flex: 1,
       minWidth: 150
     },
     {
-      field: 'DocumentStatus',
-      headerName: 'Status',
+      accessorKey: 'DocumentStatus',
+      header: 'Status',
       flex: 1,
       minWidth: 120,
-      renderCell: (params) => {
-        console.log("params",params)
-        const isOpen = params.value === 'bost_Open';
-        return (
-          <Chip
-            label={isOpen ? 'Open' : 'Closed'}
-            size="small"
-            color={isOpen ? 'success' : 'default'}
-          />
-        );
+      Cell: ({ row }) => {
+        console.log('params', row);
+        const isOpen = row.original.DocumentStatus === 'bost_Open';
+        return <Chip label={isOpen ? 'Open' : 'Closed'} size="small" color={isOpen ? 'success' : 'default'} />;
       }
     },
     {
-      field: 'action',
-      headerName: 'Action',
+      accessorKey: 'action',
+      header: 'Action',
       sortable: false,
       filterable: false,
       minWidth: 130,
-      renderCell: (params) => (
-        <Stack
-          direction="row"
-          height={'100%'}
-          spacing={1}
-        >
-          <IconButton
-            size="small"
-            color="primary"
-            onClick={() => navigate(`/sales-order/view/${params.row.DocEntry}`)}
-          >
-            <VisibilityIcon
-              fontSize="small"
-            />
+      Cell: ({ row }) => (
+        <Stack direction="row" spacing={1}>
+          <IconButton size="small" color="primary" onClick={() => navigate(`/sales-order/view/${ row.original.DocEntry}`)}>
+            <VisibilityIcon fontSize="small" />
           </IconButton>
 
-          <IconButton
-            size="small"
-            color="secondary"
-            onClick={() => navigate(`/sales-order/edit/${params.row.DocEntry}`)}
-          >
-            <EditIcon
-              fontSize="small"
-            />
+          <IconButton size="small" color="secondary" onClick={() => navigate(`/sales-order/edit/${ row.original.DocEntry}`)}>
+            <EditIcon fontSize="small" />
           </IconButton>
         </Stack>
       )
@@ -172,17 +119,13 @@ export default function SalesOrderList() {
 
   return (
     <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', height: '100%' }}>
-      <MainCard
-        content={false}
-        sx={{ mb: 3, flexShrink: 0 }}
-      >
+      <MainCard content={false} sx={{ mb: 3, flexShrink: 0 }}>
         <Box
           sx={{
             px: 3,
             py: 2.5,
             display: 'flex',
-            justifyContent:
-              'space-between',
+            justifyContent: 'space-between',
             alignItems: {
               xs: 'flex-start',
               md: 'center'
@@ -194,14 +137,10 @@ export default function SalesOrderList() {
             gap: 2
           }}
         >
-          <Typography variant="h3" sx={{color:'theme.vars.palette.grey[100]'}} >
+          <Typography variant="h3" sx={{ color: 'theme.vars.palette.grey[100]' }}>
             Sales Orders
           </Typography>
-          <Breadcrumbs
-            separator={
-              <NavigateNextIcon fontSize="small" />
-            }
-          >
+          <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />}>
             <Box
               sx={{
                 display: 'flex',
@@ -211,21 +150,14 @@ export default function SalesOrderList() {
               <HomeIcon
                 sx={{
                   fontSize: 18,
-                  color:
-                    'secondary.main'
+                  color: 'secondary.main'
                 }}
               />
             </Box>
 
-            <Typography variant="body2">
-              Sales Orders
-            </Typography>
+            <Typography variant="body2">Sales Orders</Typography>
 
-            <Typography
-              variant="body2"
-              color="secondary"
-              fontWeight={600}
-            >
+            <Typography variant="body2" color="secondary" fontWeight={600}>
               List
             </Typography>
           </Breadcrumbs>
@@ -264,38 +196,23 @@ export default function SalesOrderList() {
               flex: 1
             }}
           >
-            <TextField
+            {/* <TextField
               size="small"
               label="Customer Code"
               value={filters.CardCode}
-              onChange={(e) =>
-                handleChange(
-                  'CardCode',
-                  e.target.value
-                )
-              }
+              onChange={(e) => handleChange('CardCode', e.target.value)}
             />
 
             <TextField
               size="small"
               label="Customer Name"
               value={filters.CardName}
-              onChange={(e) =>
-                handleChange(
-                  'CardName',
-                  e.target.value
-                )
-              }
+              onChange={(e) => handleChange('CardName', e.target.value)}
             />
 
-            <Button
-              variant="outlined"
-              color="error"
-              startIcon={<ClearIcon />}
-              onClick={clearFilters}
-            >
+            <Button variant="outlined" color="error" startIcon={<ClearIcon />} onClick={clearFilters}>
               Clear
-            </Button>
+            </Button> */}
           </Box>
           <Button
             variant="contained"
@@ -312,10 +229,7 @@ export default function SalesOrderList() {
         </Box>
       </Paper>
       {error && (
-        <Alert
-          severity="error"
-          sx={{ mb: 2, flexShrink: 0 }}
-        >
+        <Alert severity="error" sx={{ mb: 2, flexShrink: 0 }}>
           {error}
         </Alert>
       )}
@@ -329,66 +243,42 @@ export default function SalesOrderList() {
           overflow: 'hidden'
         }}
       >
-        <DataGrid
-          rows={(filteredRows || []).map((row) => ({
+        <MaterialReactTable
+          data={(filteredRows || []).map((row) => ({
             ...row,
             id: row.DocEntry
           }))}
           columns={columns}
           loading={loading}
-          pageSizeOptions={[
-            10,
-            25,
-            50,
-            100
-          ]}
+          enableColumnResizing
+          layoutMode="grid"
+          defaultColumn={{
+            minSize: 80,
+            size: 150,
+            maxSize: 500
+          }}
           initialState={{
             pagination: {
-              paginationModel: {
-                pageSize: 10
+              pageIndex: 0,
+              pageSize: 8
+            }
+          }}
+           muiTableHeadCellProps={{
+            sx: {
+              fontWeight: 'bold',
+              // color: '#eef2f6',
+              background: '#e7e7e7',
+              //borderBottom: '1px solid #bdbdbd',
+              //borderRight: '1px solid #d0d0d0', // Vertical separator
+              '&:last-child': {
+                borderRight: 'none'
               }
             }
           }}
-          disableRowSelectionOnClick
-          sx={{
-            border: 0,
-            height: '100%',
-
-            '& .MuiDataGrid-columnHeaders':
-              {
-                background:
-                  'linear-gradient(135deg,#ede7f6,#d1c4e9)',
-                color: '#4527a0',
-                fontWeight: 700,
-                borderBottom:
-                  '1px solid grey'
-              },
-
-            '& .MuiDataGrid-columnHeaderTitle':
-              {
-                fontWeight: 700
-              },
-
-            '& .MuiDataGrid-row:hover':
-              {
-                backgroundColor:
-                  '#f3e5f5'
-              },
-
-            '& .MuiDataGrid-cell':
-              {
-                borderColor:
-                  '#f1f1f1'
-              },
-
-            '& .MuiDataGrid-footerContainer':
-              {
-                borderTop:
-                  '1px solid #e0e0e0',
-                backgroundColor:
-                  '#fafafa'
-              }
-          }}
+          muiTableBodyRowProps={{ sx: { '&:hover': { backgroundColor: '#f3e5f5' } } }}
+          muiTableBodyCellProps={{ sx: { borderColor: '#f1f1f1' } }}
+          muiBottomToolbarProps={{ sx: { borderTop: '1px solid #e0e0e0', backgroundColor: '#fafafa' } }}
+        
         />
       </Paper>
     </Box>

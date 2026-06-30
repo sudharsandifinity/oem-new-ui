@@ -209,74 +209,43 @@ export default function SalesQuotationList() {
       </Paper>
 
       <Paper
-        // variant="outlined"
-        // sx={{
-        //   height: '100%',
-        //   display: 'flex',
-        //   flexDirection: 'column'
-        // }}
+      // variant="outlined"
+      // sx={{
+      //   height: '100%',
+      //   display: 'flex',
+      //   flexDirection: 'column'
+      // }}
       >
         <MaterialReactTable
           columns={columns}
           data={filteredRows}
-          enableColumnResizing
-          layoutMode="grid"
-          defaultColumn={{
-            minSize: 80,
-            size: 150,
-            maxSize: 500
-          }}
-          initialState={{
-            pagination: {
-              pageIndex: 0,
-              pageSize: 8
-            }
-          }}
+          enableColumnResizing={true}
+          layoutMode={'grid'}
+          defaultColumn={{ minSize: 80, size: 150, maxSize: 500 }}
+          initialState={{ pagination: { pageIndex: 0, pageSize: 8 } }}
+          // muiTableHeadCellProps={{
+          //   sx: {
+          //     fontWeight: 'bold',
+          //     color: '#e7e7e7',
+          //     //background: 'linear-gradient(135deg,#ede7f6,#d1c4e9)',
+          //     borderBottom: '1px solid grey'
+          //   }
+          // }}
           muiTableHeadCellProps={{
             sx: {
               fontWeight: 'bold',
-              color: '#4527a0',
-              background: 'linear-gradient(135deg,#ede7f6,#d1c4e9)',
-              borderBottom: '1px solid #bdbdbd',
-              borderRight: '1px solid #d0d0d0', // Vertical separator
+              // color: '#eef2f6',
+              background: '#e7e7e7',
+              //borderBottom: '1px solid #bdbdbd',
+              //borderRight: '1px solid #d0d0d0', // Vertical separator
               '&:last-child': {
                 borderRight: 'none'
               }
             }
           }}
-          muiTableBodyCellProps={{
-            sx: {
-              borderBottom: '1px solid #e0e0e0',
-              borderRight: '1px solid #e0e0e0', // Vertical separator
-              '&:last-child': {
-                borderRight: 'none'
-              }
-            }
-          }}
-          muiTableBodyRowProps={{
-            sx: {
-              '&:hover': {
-                backgroundColor: '#f3e5f5'
-              }
-            }
-          }}
-          muiTableProps={{
-            sx: {
-              border: '1px solid #d0d0d0',
-              '& th, & td': {
-                borderRight: '1px solid #e0e0e0'
-              },
-              '& th:last-child, & td:last-child': {
-                borderRight: 'none'
-              }
-            }
-          }}
-          muiBottomToolbarProps={{
-            sx: {
-              borderTop: '1px solid #e0e0e0',
-              backgroundColor: '#fafafa'
-            }
-          }}
+          muiTableBodyRowProps={{ sx: { '&:hover': { backgroundColor: '#f3e5f5' } } }}
+          muiTableBodyCellProps={{ sx: { borderColor: '#f1f1f1' } }}
+          muiBottomToolbarProps={{ sx: { borderTop: '1px solid #e0e0e0', backgroundColor: '#fafafa' } }}
         />
       </Paper>
     </Box>

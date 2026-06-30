@@ -12,9 +12,9 @@ const CusDashboard = Loadable(lazy(() => import('views/CustomerAdmin/dashboard/C
 
 //Admin routing
 const AdminDashboard = Loadable(lazy(() => import('views/Admin/Admin.jsx')));
-const MenuManagementList = Loadable(lazy(() => import('views/Admin/MenuManagement/MenuManagementList.jsx')));
-const AdminRoleManagementList = Loadable(lazy(() => import('views/Admin/RoleManagement/AdminRoleManagementList.jsx')));
-const AdminUserManagementList = Loadable(lazy(() => import('views/Admin/UserManagement/AdminUserManagementList.jsx')));
+const MenuManagementList = Loadable(lazy(() => import('views/Admin/MenuManagement/MenuList.jsx')));
+const AdminRoleManagementList = Loadable(lazy(() => import('views/Admin/RoleManagement/RoleList.jsx')));
+const AdminUserManagementList = Loadable(lazy(() => import('views/Admin/UserManagement/Userlist.jsx')));
 
 //Form routing
 const MenuList = Loadable(lazy(() => import('views/Admin/MenuManagement/MenuList.jsx')));
@@ -74,9 +74,15 @@ const MaterialRequestApprovalView = Loadable(lazy(() => import('views/material-r
 const PendingApprovalReports = Loadable(lazy(() => import('views/reports/pendingreports/PendingApprovalReports')));
 
 // Purchase Request routing
-const PurchaseRequestsList = Loadable(lazy(() => import('views/purchase-request/PurchaseRequestsList')));
-const PurchaseRequestCreate = Loadable(lazy(() => import('views/purchase-request/PurchaseRequestCreate')));
-const PurchaseRequestView = Loadable(lazy(() => import('views/purchase-request/PurchaseRequestView')));
+const PurchaseRequestsList = Loadable(lazy(() => import('views/purchase-request-Amit/PurchaseRequestsList')));
+const PurchaseRequestCreate = Loadable(lazy(() => import('views/purchase-request-Amit/PurchaseRequestCreate')));
+const PurchaseRequestView = Loadable(lazy(() => import('views/purchase-request-Amit/PurchaseRequestView')));
+
+//purchase Quotation routing
+const PurchaseQuotationList = Loadable(lazy(() => import('views/purchase-quotation/PurchaseQuotationList.jsx')));
+const PurchaseQuotationsCreate = Loadable(lazy(() => import('views/purchase-quotation/PurchaseQuotationCreate.jsx')));
+const PurchaseQuotationsView = Loadable(lazy(() => import('views/purchase-quotation/PurchaseQuotationView.jsx')));
+const PurchaseQuotationsEdit = Loadable(lazy(() => import('views/purchase-quotation/PurchaseQuotationEdit.jsx')));
 
 // Goods Receipt PO routing
 const GoodsReceiptPOList = Loadable(lazy(() => import('views/goods-receipt-po/GoodsReceiptPOList')));
@@ -354,6 +360,15 @@ const MainRoutes = {
           path: 'view/:id',
           element: <PurchaseRequestView />
         }
+      ]
+    },
+    {
+      path: 'Purchase-Quotation',
+      children: [
+        { path: 'list', element: <PurchaseQuotationList /> },
+        { path: 'create', element: <PurchaseQuotationsCreate /> },
+         { path: 'view/:id', element: <PurchaseQuotationsView /> },
+         { path: 'edit/:id', element: <PurchaseQuotationsEdit /> },
       ]
     },
     {

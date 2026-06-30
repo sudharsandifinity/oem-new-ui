@@ -49,7 +49,7 @@ export default function PurchaseQuotationsCreate() {
     }
 
     if (error) {
-      setSnackbar({
+      setSnackbar({ 
         open: true,
         severity: 'error',
         message: error
@@ -97,14 +97,15 @@ export default function PurchaseQuotationsCreate() {
     
 
   const initialState = () => ({
-    CardCode: '',
-    CardName: '',
+    VendorCode: '',
+    VendorName: '',
     ContactPerson: '',
     NumAtCard: '',
 
     DocDate: today,
     DocDueDate: today,
     TaxDate: today,
+    ReqDate:today,
 
     Attachments2_Lines: [createAttachmentRow(1)],
 
@@ -136,20 +137,24 @@ export default function PurchaseQuotationsCreate() {
   const handleSubmit = async () => {
     const payload = {
       DocType: purchaseQuotation.DocType,
-      CardCode: purchaseQuotation.CardCode,
-      CardName: purchaseQuotation.CardName,
+      CardCode: purchaseQuotation.VendorCode,
+      CardName: purchaseQuotation.VendorName,
       NumAtCard: purchaseQuotation.NumAtCard,
       DocDate: purchaseQuotation.DocDate,
       DocDueDate: purchaseQuotation.DocDueDate,
       DocCurrency: purchaseQuotation.DocCurrency,
       Comments: purchaseQuotation.Comments,
       ContactPersonCode: purchaseQuotation.ContactPersonCode,
-      RequriedDate: purchaseQuotation.DocDueDate,
+      RequriedDate: purchaseQuotation.ReqDate,
+      TaxDate:purchaseQuotation.TaxDate,
       Rounding:
         purchaseQuotation.Rounding
           ? 'tYES'
           : 'tNO',
       RoundingDiffAmount: purchaseQuotation.RoundingDiffAmount,
+       DiscountPercent: purchaseQuotation.DiscountPercent || 0,
+          TotalDiscount: purchaseQuotation.discountAmt || 0,
+          DocumentsOwner:purchaseQuotation.SalesPersonCode||'',
       DocumentLines: documentLines
         .filter(
           row =>
@@ -162,7 +167,7 @@ export default function PurchaseQuotationsCreate() {
           ItemDescription:
             row.itemDescription,
           Quantity: Number(row.quantity),
-          Price: Number(row.unitPrice),
+          UnitPrice: Number(row.unitPrice),
           WarehouseCode:
             row.warehouse || null,
           ProjectCode:

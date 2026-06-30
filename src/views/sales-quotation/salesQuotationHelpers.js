@@ -2,7 +2,7 @@ const splitDate = (value) => (value ? String(value).split('T')[0] : '');
 
 export const mapApiLineToRow = (line, index) => {
   const quantity = line.Quantity ?? '';
-  const unitPrice = line.Price ?? '';
+  const unitPrice = line.UnitPrice ?? '';
   const discount = line.DiscountPercent ?? 0;
   const taxPercentage = line.TaxPercentagePerRow ?? 0;
 
@@ -61,24 +61,28 @@ export const mapApiToForm = (order) => ({
     freightCode: exp.ExpenseCode,
     remark: exp.Remarks ?? '',
     taxGroup: exp.VatGroup ?? null,
-    amount: exp.LineTotal ?? 0
+    amount: exp.LineTotalFC ?? 0
   }))
 });
 
-export const buildSalesQuotationFormData = (salesOrder, documentLines) => {
+export const buildSalesQuotationFormData = (salesQuotation, documentLines) => {
   const payload = {
-    DocType: salesOrder.DocType,
-    CardCode: salesOrder.CardCode,
-    CardName: salesOrder.CardName,
-    NumAtCard: salesOrder.NumAtCard,
-    DocDate: salesOrder.DocDate,
-    DocDueDate: salesOrder.DocDueDate,
-    DocCurrency: salesOrder.DocCurrency,
-    Comments: salesOrder.Comments,
-    ContactPersonCode: salesOrder.ContactPersonCode,
-    RequriedDate: salesOrder.DocDueDate,
-    Rounding: salesOrder.Rounding ? 'tYES' : 'tNO',
-    RoundingDiffAmount: salesOrder.RoundingDiffAmount,
+    DocType: salesQuotation.DocType,
+    CardCode: salesQuotation.CardCode,
+    CardName: salesQuotation.CardName,
+    NumAtCard: salesQuotation.NumAtCard,
+    DocDate: salesQuotation.DocDate,
+      TaxDate: salesQuotation.TaxDate,
+    DocDueDate: salesQuotation.DocDueDate,
+    DocCurrency: salesQuotation.DocCurrency,
+    Comments: salesQuotation.Comments,
+    ContactPersonCode: salesQuotation.ContactPersonCode,
+    RequriedDate: salesQuotation.DocDueDate,
+    Rounding: salesQuotation.Rounding ? 'tYES' : 'tNO',
+    RoundingDiffAmount: salesQuotation.RoundingDiffAmount,
+      DiscountPercent: salesQuotation.DiscountPercent || 0,
+          TotalDiscount: salesQuotation.discountAmt || 0,
+          DocumentsOwner:salesQuotation.SalesPersonCode||'',
     DocumentLines: documentLines
       .filter((row) => row.itemNo && Number(row.quantity) > 0)
       .map((row, index) => ({
@@ -86,12 +90,12 @@ export const buildSalesQuotationFormData = (salesOrder, documentLines) => {
         ItemCode: row.itemNo,
         ItemDescription: row.itemDescription,
         Quantity: Number(row.quantity),
-        Price: Number(row.unitPrice),
+        UnitPrice: Number(row.unitPrice),
         WarehouseCode: row.warehouse || null,
         ProjectCode: row.project || null,
         VatGroup: row.taxCode || null
       })),
-    DocumentAdditionalExpenses: (salesOrder.DocumentAdditionalExpenses || []).map((exp) => ({
+    DocumentAdditionalExpenses: (salesQuotation.DocumentAdditionalExpenses || []).map((exp) => ({
       ExpenseCode: Number(exp.freightCode),
       Remarks: exp.remark || '',
       VatGroup: exp.taxGroup || null,
@@ -108,7 +112,7 @@ export const buildSalesQuotationFormData = (salesOrder, documentLines) => {
     }
   });
 
-  (salesOrder.Attachments2_Lines || []).forEach((attachment) => {
+  (salesQuotation.Attachments2_Lines || []).forEach((attachment) => {
     if (attachment.file) {
       formData.append('Attachments2_Lines', attachment.file);
     }

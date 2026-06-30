@@ -98,7 +98,7 @@ export default function GeneralTab({ data, setData, readOnly = false }) {
         >
           <AppDatePicker label="Posting Date" value={data.DocDate} disabled={readOnly} onChange={(val) => handleChange('DocDate', val)} />
 
-          <AppDatePicker label="Valid Till" value={data.DocDueDate} disabled={readOnly} onChange={(val) => handleChange('DocDueDate', val)} />
+          <AppDatePicker label="Delivery Date" value={data.DocDueDate} disabled={readOnly} onChange={(val) => handleChange('DocDueDate', val)} />
 
           <AppDatePicker label="Document Date" value={data.TaxDate} disabled={readOnly} onChange={(val) => handleChange('TaxDate', val)} />
 

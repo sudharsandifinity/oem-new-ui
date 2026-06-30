@@ -68,6 +68,7 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
   } = useSelector(
     (state) => state.currency
   );
+  const {  employees, employeesLoading } = useSelector((s) => s.common);
 
   const { employees, employeesLoading } = useSelector((state) => state.common);
 
@@ -77,6 +78,7 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
     if (currencies.length === 0) {
       dispatch(getCurrencies());
     }
+     if (!employees.length) dispatch(getEmployees());
   }, [currencies]);
 
   useEffect(() => {

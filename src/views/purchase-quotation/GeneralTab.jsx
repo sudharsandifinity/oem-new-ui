@@ -5,6 +5,7 @@ import { Box, IconButton, InputAdornment, TextField } from '@mui/material';
 import PersonSearchIcon from '@mui/icons-material/PersonSearch';
 import CustomerSelectPopup from '../modules/master-data/CustomerLookup';
 import AppDatePicker from 'ui-component/AppDatePicker';
+import VendorSelectPopup from '../modules/master-data/VendorLookup';
 
 export default function GeneralTab({ data, setData, readOnly = false }) {
   const handleChange = (field, value) => {
@@ -13,11 +14,11 @@ export default function GeneralTab({ data, setData, readOnly = false }) {
 
   const [openCustomerPopup, setOpenCustomerPopup] = useState(false);
 
-  const handleSelectCustomer = (customerData) => {
+  const handleSelectVendor = (customerData) => {
     setData({
       ...data,
-      CardCode: customerData.CardCode,
-      CardName: customerData.CardName,
+      VendorCode: customerData.VendorCode,
+      VendorName: customerData.VendorName,
       ContactPerson: customerData.ContactPerson
     });
     setOpenCustomerPopup(false);
@@ -46,10 +47,10 @@ export default function GeneralTab({ data, setData, readOnly = false }) {
 
           <TextField
             fullWidth
-            label="Customer"
-            value={data.CardCode}
+            label="Vendor"
+            value={data.VendorCode}
             disabled={readOnly}
-            onChange={(e) => handleChange('CardCode', e.target.value)}
+            onChange={(e) => handleChange('VendorCode', e.target.value)}
             InputProps={{
               readOnly,
               endAdornment: (
@@ -65,9 +66,9 @@ export default function GeneralTab({ data, setData, readOnly = false }) {
           <TextField
             fullWidth
             label="Name"
-            value={data.CardName}
+            value={data.VendorName}
             disabled={readOnly}
-            onChange={(e) => handleChange('CardName', e.target.value)}
+            onChange={(e) => handleChange('VendorName', e.target.value)}
           />
 
           <TextField
@@ -80,8 +81,8 @@ export default function GeneralTab({ data, setData, readOnly = false }) {
 
           <TextField
             fullWidth
-            label="Customer Ref No"
-            value={data.NumAtCard}
+            label="Vendor Ref. No."
+            value={data.NumAtVendor}
             disabled={readOnly}
             onChange={(e) => handleChange('NumAtCard', e.target.value)}
           />
@@ -101,11 +102,13 @@ export default function GeneralTab({ data, setData, readOnly = false }) {
           <AppDatePicker label="Valid Till" value={data.DocDueDate} disabled={readOnly} onChange={(val) => handleChange('DocDueDate', val)} />
 
           <AppDatePicker label="Document Date" value={data.TaxDate} disabled={readOnly} onChange={(val) => handleChange('TaxDate', val)} />
+          <AppDatePicker label="Required Date" value={data.ReqDate} disabled={readOnly} onChange={(val) => handleChange('ReqDate', val)} />
+
 
           <TextField fullWidth label="Status" value={data.StatusLabel || 'Open'} disabled />
         </Box>
       </Box>
-      <CustomerSelectPopup open={openCustomerPopup} onClose={() => setOpenCustomerPopup(false)} onSelectCustomer={handleSelectCustomer} />
+      <VendorSelectPopup open={openCustomerPopup} onClose={() => setOpenCustomerPopup(false)} onSelectVendor={handleSelectVendor} />
     </>
   );
 }

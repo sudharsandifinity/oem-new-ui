@@ -76,6 +76,7 @@ export const buildSalesOrderFormData = (salesOrder, documentLines) => {
     NumAtCard: salesOrder.NumAtCard,
     DocDate: salesOrder.DocDate,
     DocDueDate: salesOrder.DocDueDate,
+      TaxDate: salesOrder.TaxDate,
     DocCurrency: salesOrder.DocCurrency,
     Comments: salesOrder.Comments,
     ContactPersonCode: salesOrder.ContactPersonCode,
@@ -83,6 +84,9 @@ export const buildSalesOrderFormData = (salesOrder, documentLines) => {
     DiscountPercent: Number(salesOrder.DiscountPercent) || 0,
     Rounding: salesOrder.Rounding ? 'tYES' : 'tNO',
     RoundingDiffAmount: salesOrder.RoundingDiffAmount,
+     DiscountPercent: salesOrder.DiscountPercent || 0,
+          TotalDiscount: salesOrder.discountAmt || 0,
+          DocumentsOwner:salesOrder.SalesPersonCode||'',
     DocumentLines: documentLines
       .filter((row) => row.itemNo && (isService ? Number(row.unitPrice) > 0 : Number(row.quantity) > 0))
       .map((row, index) =>
@@ -101,7 +105,7 @@ export const buildSalesOrderFormData = (salesOrder, documentLines) => {
               ItemCode: row.itemNo,
               ItemDescription: row.itemDescription,
               Quantity: Number(row.quantity),
-              Price: Number(row.unitPrice),
+              UnitPrice: Number(row.unitPrice),
               DiscountPercent: Number(row.discount) || 0,
               WarehouseCode: row.warehouse || null,
               ProjectCode: row.project || null,

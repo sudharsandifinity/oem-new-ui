@@ -23,7 +23,7 @@ import FormReducer from './slices/FormSlice';
 import MenuReducer from './slices/MenuSlice';
 import RoleReducer from './slices/roleSlice';
 import UserReducer from './slices/userSlice';
-
+import purchaseQuotationReducer from './slices/purchaseQuotationSlice'
 export const store = configureStore({
   reducer: {
     auth: authReducer,
@@ -44,6 +44,7 @@ export const store = configureStore({
     draft:draftReducer,
     materialRequest: materialRequestReducer,
     purchaseRequest: purchaseRequestReducer,
+    PurchaseQuotation:purchaseQuotationReducer,
     goodsReceiptPO: goodsReceiptPOReducer,
     purchaseOrder: purchaseOrderReducer,
     common: commonReducer,

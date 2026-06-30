@@ -1,8 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import {
-  useDispatch,
-  useSelector
-} from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import {
   Box,
   Button,
@@ -35,6 +32,7 @@ import LookupModal from '../modules/master-data/LookupModal';
 import InputAdornment from '@mui/material/InputAdornment';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { getCurrencies } from '../../store/slices/currencySlice';
+import { getEmployees } from '../../store/slices/commonSlice';
 
 const createRow = (id) => ({
   id,
@@ -61,17 +59,14 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
   const [documentType, setDocumentType] = useState('item');
   const [currency, setCurrency] = useState('');
   const dispatch = useDispatch();
-  const {
-    currencies,
-    loading: currencyLoading
-  } = useSelector(
-    (state) => state.currency
-  );
+  const { currencies, loading: currencyLoading } = useSelector((state) => state.currency);
+  const { employees, employeesLoading } = useSelector((s) => s.common);
 
   useEffect(() => {
     if (currencies.length === 0) {
       dispatch(getCurrencies());
     }
+    if (!employees.length) dispatch(getEmployees());
   }, [currencies]);
 
   useEffect(() => {
@@ -97,10 +92,7 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
   const [freightPopupOpen, setFreightPopupOpen] = useState(false);
   const [freightTotal, setFreightTotal] = useState(0);
 
-  const handleChange = (
-    field,
-    value
-  ) => {
+  const handleChange = (field, value) => {
     setData({
       ...data,
       [field]: value
@@ -108,79 +100,78 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
   };
 
   useEffect(() => {
-    setData(prev => ({
+    setData((prev) => ({
       ...prev,
       DocumentLines: rows
     }));
   }, [rows, setData]);
 
-    const handleOpenItemPopup = (rowId) => {
-      setSelectedRowId(rowId);
-      setOpenItemPopup(true);
-    };
+  const handleOpenItemPopup = (rowId) => {
+    setSelectedRowId(rowId);
+    setOpenItemPopup(true);
+  };
 
-    const handleSelectItem = (item) => {
-      setRows((prev) =>
-        prev.map((row) =>
-          row.id === selectedRowId
-            ? {
-                ...row,
-                itemNo: item.ItemCode,
-                itemDescription:
-                  item.ItemName
-              }
-            : row
-        )
-      );
-    };
-    
-    const handleSelectTax = (tax) => {
-      setOpenTaxPopup(false);
-      setSelectedTaxRowId(null);
+  const handleSelectItem = (item) => {
+    setRows((prev) =>
+      prev.map((row) =>
+        row.id === selectedRowId
+          ? {
+              ...row,
+              itemNo: item.ItemCode,
+              itemDescription: item.ItemName
+            }
+          : row
+      )
+    );
+  };
 
-      setRows((prev) =>
-        prev.map((row) =>
-          row.id === selectedTaxRowId
-            ? updateRowLocal(row, {
-                taxCode: tax.taxCode,
-                taxPercentage: tax.taxPercentage
-              })
-            : row
-        )
-      );
-    };
+  const handleSelectTax = (tax) => {
+    setOpenTaxPopup(false);
+    setSelectedTaxRowId(null);
 
-    const handleSelectProject = (project) => {
-      setRows((prev) =>
-        prev.map((row) =>
-          row.id === selectedProjectRowId
-            ? {
-                ...row,
-                project: project.projectCode
-              }
-            : row
-        )
-      );
+    setRows((prev) =>
+      prev.map((row) =>
+        row.id === selectedTaxRowId
+          ? updateRowLocal(row, {
+              taxCode: tax.taxCode,
+              taxPercentage: tax.taxPercentage
+            })
+          : row
+      )
+    );
+  };
 
-      setOpenProjectPopup(false);
-      setSelectedProjectRowId(null);
-    };
+  const handleSelectProject = (project) => {
+    setRows((prev) =>
+      prev.map((row) =>
+        row.id === selectedProjectRowId
+          ? {
+              ...row,
+              project: project.projectCode
+            }
+          : row
+      )
+    );
 
-    const handleSelectWarehouse = (warehouse) => {
-      setRows((prev) =>
-        prev.map((row) =>
-          row.id === selectedWarehouseRowId
-            ? {
-                ...row,
-                warehouse: warehouse.warehouseCode
-              }
-            : row
-        )
-      );
+    setOpenProjectPopup(false);
+    setSelectedProjectRowId(null);
+  };
 
-      setOpenWarehousePopup(false);
-      setSelectedWarehouseRowId(null);
-    };
+  const handleSelectWarehouse = (warehouse) => {
+    setRows((prev) =>
+      prev.map((row) =>
+        row.id === selectedWarehouseRowId
+          ? {
+              ...row,
+              warehouse: warehouse.warehouseCode
+            }
+          : row
+      )
+    );
+
+    setOpenWarehousePopup(false);
+    setSelectedWarehouseRowId(null);
+  };
 
   const updateRow = (id, field, value) => {
     const updated = rows.map((row) => {
@@ -241,62 +232,34 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
     const last = rows[rows.length - 1];
     if (!last) return;
 
-    const hasData =
-      last.itemNo ||
-      last.quantity ||
-      last.unitPrice;
+    const hasData = last.itemNo || last.quantity || last.unitPrice;
 
     if (hasData) {
-      setRows(prev => [
-        ...prev,
-        createRow(Date.now())
-      ]);
+      setRows((prev) => [...prev, createRow(Date.now())]);
     }
   }, [rows, readOnly]);
 
   const deleteRow = (id) => {
     if (rows.length <= 1) return;
 
-    setRows((prev) =>
-      prev.filter((r) => r.id !== id)
-    );
+    setRows((prev) => prev.filter((r) => r.id !== id));
   };
 
   const totalBeforeDiscount = useMemo(() => {
-    return rows.reduce(
-      (sum, r) =>
-        sum + parseFloat(r.lineTotal || 0),
-      0
-    );
+    return rows.reduce((sum, r) => sum + parseFloat(r.lineTotal || 0), 0);
   }, [rows]);
 
   const totalTax = useMemo(() => {
-    return rows.reduce(
-      (sum, r) =>
-        sum + parseFloat(r.taxAmount || 0),
-      0
-    );
+    return rows.reduce((sum, r) => sum + parseFloat(r.taxAmount || 0), 0);
   }, [rows]);
 
-  const discountAmt =
-    (totalBeforeDiscount *
-      Number(
-        data.DiscountPercent || 0
-      )) /
-    100;
+  const discountAmt = (totalBeforeDiscount * Number(data.DiscountPercent || 0)) / 100;
 
   const finalTotal =
-    totalBeforeDiscount -
-    discountAmt +
-    totalTax +
-    freightTotal +
-    (data.Rounding
-      ? Number(data.RoundingDiffAmount || 0)
-      : 0)
+    totalBeforeDiscount - discountAmt + totalTax + freightTotal + (data.Rounding ? Number(data.RoundingDiffAmount || 0) : 0);
 
   return (
     <Box>
-
       <Box
         sx={{
           display: 'flex',
@@ -308,7 +271,6 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
           marginBottom: 10
         }}
       >
-
         <Box
           sx={{
             minWidth: {
@@ -319,9 +281,7 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
           }}
         >
           <FormControl fullWidth size="small">
-            <InputLabel>
-              Item / Service
-            </InputLabel>
+            <InputLabel>Item / Service</InputLabel>
 
             <Select
               label="Item / Service"
@@ -329,13 +289,9 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
               disabled={readOnly}
               onChange={(e) => handleChange('DocType', e.target.value)}
             >
-              <MenuItem value="dDocument_Items">
-                Item
-              </MenuItem>
+              <MenuItem value="dDocument_Items">Item</MenuItem>
 
-              <MenuItem value="dDocument_Service">
-                Service
-              </MenuItem>
+              <MenuItem value="dDocument_Service">Service</MenuItem>
             </Select>
           </FormControl>
         </Box>
@@ -352,26 +308,16 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
           }}
         >
           <FormControl fullWidth size="small">
-            <InputLabel>
-              Currency
-            </InputLabel>
+            <InputLabel>Currency</InputLabel>
 
             <Select
               label="Currency"
               disabled={readOnly || currencyLoading}
               value={data.DocCurrency || ''}
-              onChange={(e) =>
-                handleChange(
-                  'DocCurrency',
-                  e.target.value
-                )
-              }
+              onChange={(e) => handleChange('DocCurrency', e.target.value)}
             >
               {(currencies || []).map((curr) => (
-                <MenuItem
-                  key={curr.Code}
-                  value={curr.Code}
-                >
+                <MenuItem key={curr.Code} value={curr.Code}>
                   {curr.Code} - {curr.Name}
                 </MenuItem>
               ))}
@@ -396,12 +342,10 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
             tableLayout: 'fixed'
           }}
         >
-
           <TableHead>
             <TableRow
               sx={{
-                backgroundColor:
-                  'grey.100'
+                backgroundColor: 'grey.100'
               }}
             >
               {[
@@ -498,13 +442,8 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
 
           <TableBody>
             {rows.map((row, index) => (
-              <TableRow
-                key={row.id}
-                hover
-              >
-                <TableCell>
-                  {index + 1}
-                </TableCell>
+              <TableRow key={row.id} hover>
+                <TableCell>{index + 1}</TableCell>
 
                 {/* ITEM NO */}
 
@@ -513,13 +452,7 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
                     size="small"
                     value={row.itemNo}
                     disabled={readOnly}
-                    onChange={(e) =>
-                      updateRow(
-                        row.id,
-                        'itemNo',
-                        e.target.value
-                      )
-                    }
+                    onChange={(e) => updateRow(row.id, 'itemNo', e.target.value)}
                     sx={{
                       width: '100%'
                     }}
@@ -527,15 +460,7 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
                       readOnly,
                       endAdornment: (
                         <InputAdornment position="end">
-                          <IconButton
-                            size="small"
-                            disabled={readOnly}
-                            onClick={() =>
-                              handleOpenItemPopup(
-                                row.id
-                              )
-                            }
-                          >
+                          <IconButton size="small" disabled={readOnly} onClick={() => handleOpenItemPopup(row.id)}>
                             <SearchIcon
                               sx={{
                                 color: '#2196f3',
@@ -555,9 +480,7 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
                   <TextField
                     size="small"
                     disabled
-                    value={
-                      row.itemDescription
-                    }
+                    value={row.itemDescription}
                     sx={{
                       width: '100%'
                     }}
@@ -572,13 +495,7 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
                     type="number"
                     value={row.quantity}
                     disabled={readOnly}
-                    onChange={(e) =>
-                      updateRow(
-                        row.id,
-                        'quantity',
-                        e.target.value
-                      )
-                    }
+                    onChange={(e) => updateRow(row.id, 'quantity', e.target.value)}
                     sx={{
                       width: '100%'
                     }}
@@ -593,13 +510,7 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
                     type="number"
                     value={row.unitPrice}
                     disabled={readOnly}
-                    onChange={(e) =>
-                      updateRow(
-                        row.id,
-                        'unitPrice',
-                        e.target.value
-                      )
-                    }
+                    onChange={(e) => updateRow(row.id, 'unitPrice', e.target.value)}
                     sx={{
                       width: '100%'
                     }}
@@ -614,13 +525,7 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
                     type="number"
                     value={row.discount}
                     disabled={readOnly}
-                    onChange={(e) =>
-                      updateRow(
-                        row.id,
-                        'discount',
-                        e.target.value
-                      )
-                    }
+                    onChange={(e) => updateRow(row.id, 'discount', e.target.value)}
                     sx={{
                       width: '100%'
                     }}
@@ -647,9 +552,7 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
                     size="small"
                     value={row.taxCode}
                     disabled={readOnly}
-                    onChange={(e) =>
-                      updateRow(row.id, 'taxCode', e.target.value)
-                    }
+                    onChange={(e) => updateRow(row.id, 'taxCode', e.target.value)}
                     sx={{ width: '100%' }}
                     InputProps={{
                       readOnly,
@@ -663,9 +566,7 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
                               setOpenTaxPopup(true);
                             }}
                           >
-                            <SearchIcon
-                              sx={{ color: '#2196f3', fontSize: 16 }}
-                            />
+                            <SearchIcon sx={{ color: '#2196f3', fontSize: 16 }} />
                           </IconButton>
                         </InputAdornment>
                       )
@@ -679,9 +580,7 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
                   <TextField
                     size="small"
                     type="number"
-                    value={
-                      row.taxPercentage
-                    }
+                    value={row.taxPercentage}
                     disabled
                     sx={{
                       width: '100%'
@@ -722,9 +621,7 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
                     size="small"
                     value={row.project}
                     disabled={readOnly}
-                    onChange={(e) =>
-                      updateRow(row.id, 'project', e.target.value)
-                    }
+                    onChange={(e) => updateRow(row.id, 'project', e.target.value)}
                     sx={{ width: '100%' }}
                     InputProps={{
                       readOnly,
@@ -738,9 +635,7 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
                               setOpenProjectPopup(true);
                             }}
                           >
-                            <SearchIcon
-                              sx={{ color: '#2196f3', fontSize: 16 }}
-                            />
+                            <SearchIcon sx={{ color: '#2196f3', fontSize: 16 }} />
                           </IconButton>
                         </InputAdornment>
                       )
@@ -755,9 +650,7 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
                     size="small"
                     value={row.warehouse}
                     disabled={readOnly}
-                    onChange={(e) =>
-                      updateRow(row.id, 'warehouse', e.target.value)
-                    }
+                    onChange={(e) => updateRow(row.id, 'warehouse', e.target.value)}
                     sx={{ width: '100%' }}
                     InputProps={{
                       readOnly,
@@ -771,9 +664,7 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
                               setOpenWarehousePopup(true);
                             }}
                           >
-                            <SearchIcon
-                              sx={{ color: '#2196f3', fontSize: 16 }}
-                            />
+                            <SearchIcon sx={{ color: '#2196f3', fontSize: 16 }} />
                           </IconButton>
                         </InputAdornment>
                       )
@@ -783,25 +674,13 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
 
                 {/* DIMENSIONS */}
 
-                {[
-                  'dimension1',
-                  'dimension2',
-                  'dimension3',
-                  'dimension4',
-                  'dimension5'
-                ].map((field) => (
+                {['dimension1', 'dimension2', 'dimension3', 'dimension4', 'dimension5'].map((field) => (
                   <TableCell key={field}>
                     <TextField
                       size="small"
                       value={row[field]}
                       disabled={readOnly}
-                      onChange={(e) =>
-                        updateRow(
-                          row.id,
-                          field,
-                          e.target.value
-                        )
-                      }
+                      onChange={(e) => updateRow(row.id, field, e.target.value)}
                       sx={{
                         width: '100%'
                       }}
@@ -812,13 +691,7 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
                 {/* DELETE */}
 
                 <TableCell align="center">
-                  <IconButton
-                    color="error"
-                    disabled={readOnly}
-                    onClick={() =>
-                      deleteRow(row.id)
-                    }
-                  >
+                  <IconButton color="error" disabled={readOnly} onClick={() => deleteRow(row.id)}>
                     <DeleteIcon />
                   </IconButton>
                 </TableCell>
@@ -836,76 +709,59 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
           flexWrap: 'wrap'
         }}
       >
-
-      <Box
-        sx={{
-          flex: {
-            xs: '1 1 100%',
-            md: '1 1 calc(50% - 16px)'
-          }
-        }}
-      >
-        <Paper
-          variant="outlined"
+        <Box
           sx={{
-            p: 3,
-            height: '100%',
-            borderRadius: 2
+            flex: {
+              xs: '1 1 100%',
+              md: '1 1 calc(50% - 16px)'
+            }
           }}
         >
-          <Typography
-            variant="h5"
-            sx={{ mb: 3 }}
+          <Paper
+            variant="outlined"
+            sx={{
+              p: 3,
+              height: '100%',
+              borderRadius: 2
+            }}
           >
-            Additional Details
-          </Typography>
+            <Typography variant="h5" sx={{ mb: 3 }}>
+              Additional Details
+            </Typography>
 
-          <FormControl
-            fullWidth
-            size="small"
-            sx={{ mb: 3 }}
-          >
-            <InputLabel>
-              Owner
-            </InputLabel>
+            <FormControl fullWidth size="small" sx={{ mb: 3 }}>
+              <InputLabel>Owner</InputLabel>
 
-            <Select
-              label="Owner"
-              value={data.SalesPersonCode || ''}
+              <Select
+                label="Owner"
+                value={data.SalesPersonCode || ''}
+                disabled={readOnly}
+                onChange={(e) => handleChange('SalesPersonCode', e.target.value)}
+              >
+                 {(employees || []).map((emp) => (
+                <MenuItem
+                  key={emp.EmployeeID}
+                  value={emp.EmployeeID}
+                >
+                  {[emp.FirstName, emp.LastName]
+                    .filter(Boolean)
+                    .join(' ')}
+                </MenuItem>
+              ))}
+              </Select>
+            </FormControl>
+
+            <TextField
+              fullWidth
+              multiline
+              rows={5}
+              label="Remark"
+              value={data.Comments || ''}
               disabled={readOnly}
-              onChange={(e) =>
-                handleChange(
-                  'SalesPersonCode',
-                  e.target.value
-                )
-              }
-            >
-              <MenuItem value="u1">
-                User 1
-              </MenuItem>
-
-              <MenuItem value="u2">
-                User 2
-              </MenuItem>
-            </Select>
-          </FormControl>
-
-          <TextField
-            fullWidth
-            multiline
-            rows={5}
-            label="Remark"
-            value={data.Comments || ''}
-            disabled={readOnly}
-            onChange={(e) =>
-              handleChange(
-                'Comments',
-                e.target.value
-              )
-            }
-          />
-        </Paper>
-      </Box>
+              onChange={(e) => handleChange('Comments', e.target.value)}
+            />
+          </Paper>
+        </Box>
 
         <Paper
           variant="outlined"
@@ -914,10 +770,7 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
             p: 3
           }}
         >
-          <Typography
-            variant="h5"
-            sx={{ mb: 3 }}
-          >
+          <Typography variant="h5" sx={{ mb: 3 }}>
             Total Summary
           </Typography>
 
@@ -928,13 +781,9 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
               mb: 2
             }}
           >
-            <Typography>
-              Total Before Discount
-            </Typography>
+            <Typography>Total Before Discount</Typography>
 
-            <Typography>
-              {totalBeforeDiscount.toFixed(2)}
-            </Typography>
+            <Typography>{totalBeforeDiscount.toFixed(2)}</Typography>
           </Box>
 
           <Box
@@ -945,24 +794,15 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
               mb: 2
             }}
           >
-            <Typography>
-              Discount %
-            </Typography>
+            <Typography>Discount %</Typography>
 
             <TextField
               size="small"
               type="number"
               sx={{ width: 120 }}
               disabled={readOnly}
-              value={
-                data.DiscountPercent || 0
-              }
-              onChange={(e) =>
-                handleChange(
-                  'DiscountPercent',
-                  Number(e.target.value)
-                )
-              }
+              value={data.DiscountPercent || 0}
+              onChange={(e) => handleChange('DiscountPercent', Number(e.target.value))}
             />
           </Box>
 
@@ -973,13 +813,9 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
               mb: 2
             }}
           >
-            <Typography>
-              Discount Amount
-            </Typography>
+            <Typography>Discount Amount</Typography>
 
-            <Typography>
-              {discountAmt.toFixed(2)}
-            </Typography>
+            <Typography>{discountAmt.toFixed(2)}</Typography>
           </Box>
 
           <Box
@@ -990,25 +826,19 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
               mb: 2
             }}
           >
-            <Typography>
-              Freight
-            </Typography>
+            <Typography>Freight</Typography>
 
             <Button
               variant="outlined"
               color="secondary"
               size="small"
               disabled={readOnly}
-              onClick={() =>
-                setFreightPopupOpen(true)
-              }
+              onClick={() => setFreightPopupOpen(true)}
               sx={{
                 width: 120
               }}
             >
-              {freightTotal > 0
-                ? freightTotal.toFixed(2)
-                : 'Add Freight'}
+              {freightTotal > 0 ? freightTotal.toFixed(2) : 'Add Freight'}
             </Button>
           </Box>
           <Box
@@ -1018,13 +848,9 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
               mb: 2
             }}
           >
-            <Typography>
-              Tax
-            </Typography>
+            <Typography>Tax</Typography>
 
-            <Typography>
-              {totalTax.toFixed(2)}
-            </Typography>
+            <Typography>{totalTax.toFixed(2)}</Typography>
           </Box>
           <Box
             sx={{
@@ -1042,19 +868,12 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
             >
               <Checkbox
                 checked={data.Rounding}
-                sx={{padding:0}}
+                sx={{ padding: 0 }}
                 disabled={readOnly}
-                onChange={(e) =>
-                  handleChange(
-                    'Rounding',
-                    e.target.checked
-                  )
-                }
+                onChange={(e) => handleChange('Rounding', e.target.checked)}
               />
 
-              <Typography>
-                Rounding
-              </Typography>
+              <Typography>Rounding</Typography>
             </Box>
 
             {data.Rounding && (
@@ -1064,12 +883,7 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
                 sx={{ width: 120 }}
                 disabled={readOnly}
                 value={data.RoundingDiffAmount}
-                onChange={(e) =>
-                  handleChange(
-                    'RoundingDiffAmount',
-                    Number(e.target.value)
-                  )
-                }
+                onChange={(e) => handleChange('RoundingDiffAmount', Number(e.target.value))}
               />
             )}
           </Box>
@@ -1080,33 +894,15 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
               mt: 4
             }}
           >
-            <Typography variant="h5">
-              Total
-            </Typography>
+            <Typography variant="h5">Total</Typography>
 
-            <Typography variant="h5">
-              {finalTotal.toFixed(2)}
-            </Typography>
+            <Typography variant="h5">{finalTotal.toFixed(2)}</Typography>
           </Box>
         </Paper>
       </Box>
-      <ItemSelectPopup
-        open={openItemPopup}
-        onClose={() =>
-          setOpenItemPopup(false)
-        }
-        onSelectItem={handleSelectItem}
-      />
-      <TaxSelectPopup
-        open={openTaxPopup}
-        onClose={() => setOpenTaxPopup(false)}
-        onSelectTax={handleSelectTax}
-      />
-      <ProjectLookupModal
-        open={openProjectPopup}
-        onClose={() => setOpenProjectPopup(false)}
-        onSelectProject={handleSelectProject}
-      />
+      <ItemSelectPopup open={openItemPopup} onClose={() => setOpenItemPopup(false)} onSelectItem={handleSelectItem} />
+      <TaxSelectPopup open={openTaxPopup} onClose={() => setOpenTaxPopup(false)} onSelectTax={handleSelectTax} page={'Purchase'}/>
+      <ProjectLookupModal open={openProjectPopup} onClose={() => setOpenProjectPopup(false)} onSelectProject={handleSelectProject} />
       <WarehouseLookupModal
         open={openWarehousePopup}
         onClose={() => setOpenWarehousePopup(false)}
@@ -1114,18 +910,16 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
       />
       <FreightPopup
         open={freightPopupOpen}
-        onClose={() =>
-          setFreightPopupOpen(false)
-        }
+        onClose={() => setFreightPopupOpen(false)}
         onApply={(result) => {
           setFreightTotal(result.total);
 
-          setData(prev => ({
+          setData((prev) => ({
             ...prev,
-            DocumentAdditionalExpenses:
-              result.expenses
+            DocumentAdditionalExpenses: result.expenses
           }));
         }}
+        page={'Purchase'}
       />
     </Box>
   );

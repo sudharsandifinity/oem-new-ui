@@ -16,70 +16,71 @@ import {
   TableHead,
   TableRow,
   TextField,
-  Typography
+  Typography,
+  MenuItem,
+  Select,
+  FormControl,
+  InputLabel
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import { getPurTaxCodes, getTaxCodes } from '../../../store/slices/taxCodeSlice';
+import { getVendors } from '../../../store/slices/customerSlice';
 import Alert from '@mui/material/Alert';
 import CircularProgress from '@mui/material/CircularProgress';
 
 // ================= COMPONENT ================= //
 
-export default function TaxSelectPopup({ open, onClose, onSelectTax,page }) {
+export default function VendorSelectPopup({ open, onClose, onSelectVendor }) {
   const dispatch = useDispatch();
-  const { taxCodes, loading, error,purTaxCode,
-  purTaxLoading,
-  purTaxerror } = useSelector((state) => state.taxCode);
+  const { vendor, vendorLoading, vendorerror } = useSelector((state) => state.customer);
+
+  useEffect(() => {
+    if (open && vendor.length === 0) {
+      dispatch(getVendors());
+    }
+  }, [open]);
 
   const [filters, setFilters] = useState({
-    taxCode: '',
-    taxName: ''
+    VendorCode: '',
+    VendorName: '',
+    ContactPerson: '',
+    type: ''
   });
 
-  // ================= FILTERED DATA ================= //
+  // ================= FILTER LOGIC ================= //
 
   const filteredData = useMemo(() => {
-    return (page==='Purchase'?purTaxCode||[]:taxCodes || []).filter((tax) => {
+    return (vendor || []).filter((c) => {
       return (
-        (!filters.taxCode || tax.Code.toLowerCase().includes(filters.taxCode.toLowerCase())) &&
-        (!filters.taxName || tax.Name.toLowerCase().includes(filters.taxName.toLowerCase()))
+        (!filters.VendorCode || c.VendorCode.toLowerCase().includes(filters.VendorCode.toLowerCase())) &&
+        (!filters.VendorName || c.VendorName.toLowerCase().includes(filters.VendorName.toLowerCase())) &&
+        (!filters.ContactPerson || c.ContactPerson.toLowerCase().includes(filters.ContactPerson.toLowerCase())) &&
+        (!filters.type || c.type === filters.type)
       );
     });
-  }, [filters, taxCodes,purTaxCode]);
+  }, [filters, vendor]);
 
-  // ================= CLEAR FILTERS ================= //
+  // ================= RESET ================= //
 
   const clearFilters = () => {
     setFilters({
-      taxCode: '',
-      taxName: ''
+      VendorCode: '',
+      VendorName: '',
+      ContactPerson: '',
+      type: ''
     });
   };
 
-  // ================= SELECT TAX ================= //
+  // ================= SELECT Vendor ================= //
 
   const handleSelect = (row) => {
-    onSelectTax({
-      taxCode: row.Code,
-      taxName: row.Name,
-      taxPercentage: row.VatGroups_Lines?.[0]?.Rate || 0
+    onSelectVendor({
+      VendorCode: row.CardCode,
+      VendorName: row.CardName,
+      ContactPerson: row.ContactPerson
     });
+
     onClose();
   };
-
-  useEffect(() => {
-    if (open) {
-      if(page==='Purchase'){
-        dispatch(getPurTaxCodes());
-      }else{
-      dispatch(getTaxCodes());
-      }
-      setFilters({
-        taxCode: '',
-        taxName: ''
-      });
-    }
-  }, [open]);
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
@@ -92,62 +93,67 @@ export default function TaxSelectPopup({ open, onClose, onSelectTax,page }) {
           alignItems: 'center'
         }}
       >
-        <Typography variant="h5" component="div">
-          Tax Selection
-        </Typography>
-
+        Vendor Selection
         <IconButton onClick={onClose}>
           <CloseIcon />
         </IconButton>
       </DialogTitle>
 
-      {/* ================= CONTENT ================= */}
-
       <DialogContent sx={{ p: 3 }}>
-        {/* ================= FILTER SECTION ================= */}
+        {/* ================= FILTER Vendor ================= */}
 
-        <Paper
-          variant="outlined"
-          sx={{
-            p: 2,
-            mb: 3,
-            borderRadius: 2
-          }}
-        >
+        <Paper variant="outlined" sx={{ p: 2, mb: 3 }}>
           <Typography variant="h6" sx={{ mb: 2 }}>
             Filters
           </Typography>
 
           <Grid container spacing={2}>
-            {/* TAX CODE */}
+            {/* Vendor CODE */}
 
-            <Grid item xs={12} md={4}>
+            <Grid item xs={12} md={3}>
               <TextField
                 fullWidth
                 size="small"
-                label="Tax Code"
-                value={filters.taxCode}
+                label="Vendor Code"
+                value={filters.CardCode}
                 onChange={(e) =>
                   setFilters({
                     ...filters,
-                    taxCode: e.target.value
+                    CardCode: e.target.value
                   })
                 }
               />
             </Grid>
 
-            {/* TAX NAME */}
+            {/* Vendor NAME */}
 
-            <Grid item xs={12} md={4}>
+            <Grid item xs={12} md={3}>
               <TextField
                 fullWidth
                 size="small"
-                label="Tax Name"
-                value={filters.taxName}
+                label="Vendor Name"
+                value={filters.CardName}
                 onChange={(e) =>
                   setFilters({
                     ...filters,
-                    taxName: e.target.value
+                    CardName: e.target.value
+                  })
+                }
+              />
+            </Grid>
+
+            {/* CONTACT PERSON */}
+
+            <Grid item xs={12} md={3}>
+              <TextField
+                fullWidth
+                size="small"
+                label="Contact Person"
+                value={filters.ContactPerson}
+                onChange={(e) =>
+                  setFilters({
+                    ...filters,
+                    ContactPerson: e.target.value
                   })
                 }
               />
@@ -159,7 +165,8 @@ export default function TaxSelectPopup({ open, onClose, onSelectTax,page }) {
               <Box
                 sx={{
                   display: 'flex',
-                  justifyContent: 'flex-end'
+                  justifyContent: 'flex-end',
+                  gap: 2
                 }}
               >
                 <Button variant="outlined" color="error" onClick={clearFilters}>
@@ -170,9 +177,9 @@ export default function TaxSelectPopup({ open, onClose, onSelectTax,page }) {
           </Grid>
         </Paper>
 
-        {error && (
+        {vendorerror && (
           <Alert severity="error" sx={{ mb: 2 }}>
-            {error}
+            {vendorerror}
           </Alert>
         )}
 
@@ -186,37 +193,32 @@ export default function TaxSelectPopup({ open, onClose, onSelectTax,page }) {
                   backgroundColor: 'grey.100'
                 }}
               >
-                {['S.No', 'Tax Code', 'Tax Name', 'Tax %'].map((header) => (
+                {['S.No', 'Vendor Code', 'Vendor Name', 'Contact Person'].map((h) => (
                   <TableCell
-                    key={header}
+                    key={h}
                     sx={{
-                      fontWeight: 700,
-                      whiteSpace: 'nowrap'
+                      color: '#fff',
+                      fontWeight: 600
                     }}
                   >
-                    {header}
+                    {h}
                   </TableCell>
                 ))}
               </TableRow>
             </TableHead>
 
             <TableBody>
-              {page==='Purchase'?purTaxLoading && purTaxCode.length === 0 && (
+              {vendorLoading && vendor.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={4} align="center" sx={{ py: 5 }}>
-                    <CircularProgress color="secondary" size={32} />
-                  </TableCell>
-                </TableRow>
-              ):loading && taxCodes.length === 0 && (
-                <TableRow>
-                  <TableCell colSpan={4} align="center" sx={{ py: 5 }}>
-                    <CircularProgress color="secondary" size={32} />
+                    <CircularProgress color="secondary" size={30} />
                   </TableCell>
                 </TableRow>
               )}
+
               {filteredData.map((row, index) => (
                 <TableRow
-                  key={row.Code}
+                  key={row.VendorCode}
                   hover
                   onClick={() => handleSelect(row)}
                   sx={{
@@ -224,18 +226,13 @@ export default function TaxSelectPopup({ open, onClose, onSelectTax,page }) {
                   }}
                 >
                   <TableCell>{index + 1}</TableCell>
-
-                  <TableCell>{row.Code}</TableCell>
-
-                  <TableCell>{row.Name}</TableCell>
-
-                  <TableCell>{row.VatGroups_Lines?.[0]?.Rate || 0}%</TableCell>
+                  <TableCell>{row.CardCode}</TableCell>
+                  <TableCell>{row.CardName}</TableCell>
+                  <TableCell>{row.ContactPerson}</TableCell>
                 </TableRow>
               ))}
 
-              {/* EMPTY */}
-
-              {!loading&&purTaxLoading && filteredData.length === 0 && (
+              {!vendorLoading && filteredData.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={4} align="center">
                     No Data Found

@@ -37,7 +37,7 @@ const createRow = (id) => ({
   grossAmount: ''
 });
 
-export default function FreightPopup({open, onClose, onApply}) {
+export default function FreightPopup({open, onClose, onApply,page}) {
 
   const [rows, setRows] = useState([
     createRow(1)
@@ -532,6 +532,7 @@ export default function FreightPopup({open, onClose, onApply}) {
         open={openTaxLookup}
         onClose={() => setOpenTaxLookup(false)}
         onSelectTax={handleTaxSelect}
+        page={page}
       />
     </Dialog>
   );
