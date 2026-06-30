@@ -1,8 +1,9 @@
 const splitDate = (value) => (value ? String(value).split('T')[0] : '');
 
 export const mapApiLineToRow = (line, index) => {
-  const quantity = line.Quantity ?? '';
-  const unitPrice = line.Price ?? '';
+  const isServiceLine = !line.ItemCode && !!line.AccountCode;
+  const quantity = isServiceLine ? line.Quantity || 1 : line.Quantity ?? '';
+  const unitPrice = isServiceLine ? line.LineTotal ?? '' : line.Price ?? '';
   const discount = line.DiscountPercent ?? 0;
   const taxPercentage = line.TaxPercentagePerRow ?? 0;
 
@@ -84,17 +85,28 @@ export const buildSalesOrderFormData = (salesOrder, documentLines) => {
     RoundingDiffAmount: salesOrder.RoundingDiffAmount,
     DocumentLines: documentLines
       .filter((row) => row.itemNo && Number(row.quantity) > 0)
-      .map((row, index) => ({
-        LineNum: index,
-        ...(isService ? { AccountCode: row.itemNo } : { ItemCode: row.itemNo }),
-        ItemDescription: row.itemDescription,
-        Quantity: Number(row.quantity),
-        Price: Number(row.unitPrice),
-        DiscountPercent: Number(row.discount) || 0,
-        WarehouseCode: row.warehouse || null,
-        ProjectCode: row.project || null,
-        VatGroup: row.taxCode || null
-      })),
+      .map((row, index) =>
+        isService
+          ? {
+              LineNum: index,
+              AccountCode: row.itemNo,
+              ItemDescription: row.itemDescription,
+              LineTotal: Number(row.lineTotal) || 0,
+              ProjectCode: row.project || null,
+              VatGroup: row.taxCode || null
+            }
+          : {
+              LineNum: index,
+              ItemCode: row.itemNo,
+              ItemDescription: row.itemDescription,
+              Quantity: Number(row.quantity),
+              Price: Number(row.unitPrice),
+              DiscountPercent: Number(row.discount) || 0,
+              WarehouseCode: row.warehouse || null,
+              ProjectCode: row.project || null,
+              VatGroup: row.taxCode || null
+            }
+      ),
     DocumentAdditionalExpenses: (salesOrder.DocumentAdditionalExpenses || []).map((exp) => ({
       ExpenseCode: Number(exp.freightCode),
       Remarks: exp.remark || '',

@@ -157,23 +157,28 @@ export default function SalesOrdersCreate() {
             row.itemNo &&
             Number(row.quantity) > 0
         )
-        .map((row, index) => ({
-          LineNum: index,
-          ...(isService
-            ? { AccountCode: row.itemNo }
-            : { ItemCode: row.itemNo }),
-          ItemDescription:
-            row.itemDescription,
-          Quantity: Number(row.quantity),
-          Price: Number(row.unitPrice),
-          DiscountPercent: Number(row.discount) || 0,
-          WarehouseCode:
-            row.warehouse || null,
-          ProjectCode:
-            row.project || null,
-          VatGroup:
-            row.taxCode || null
-        })),
+        .map((row, index) =>
+          isService
+            ? {
+                LineNum: index,
+                AccountCode: row.itemNo,
+                ItemDescription: row.itemDescription,
+                LineTotal: Number(row.lineTotal) || 0,
+                ProjectCode: row.project || null,
+                VatGroup: row.taxCode || null
+              }
+            : {
+                LineNum: index,
+                ItemCode: row.itemNo,
+                ItemDescription: row.itemDescription,
+                Quantity: Number(row.quantity),
+                Price: Number(row.unitPrice),
+                DiscountPercent: Number(row.discount) || 0,
+                WarehouseCode: row.warehouse || null,
+                ProjectCode: row.project || null,
+                VatGroup: row.taxCode || null
+              }
+        ),
         DocumentAdditionalExpenses:
         (salesOrder.DocumentAdditionalExpenses || [])
           .map(exp => ({

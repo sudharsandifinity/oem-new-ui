@@ -154,11 +154,11 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
       setRows((prev) =>
         prev.map((row) =>
           row.id === selectedRowId
-            ? {
-                ...row,
+            ? updateRowLocal(row, {
                 itemNo: service.Code,
-                itemDescription: service.Name
-              }
+                itemDescription: service.Name,
+                quantity: row.quantity || 1
+              })
             : row
         )
       );
