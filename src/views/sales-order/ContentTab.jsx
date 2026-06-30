@@ -87,13 +87,6 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
     }
   }, [employees]);
 
-  useEffect(() => {
-    const exps = data.DocumentAdditionalExpenses || [];
-    if (exps.length) {
-      const total = exps.reduce((sum, e) => sum + Number(e.amount ?? e.LineTotal ?? 0), 0);
-      setFreightTotal(total);
-    }
-  }, [data.DocumentAdditionalExpenses]);
 
   const [openItemPopup, setOpenItemPopup] = useState(false);
   const [openServicePopup, setOpenServicePopup] = useState(false);
@@ -109,7 +102,6 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
   const [selectedWarehouseRowId, setSelectedWarehouseRowId] = useState(null);
 
   const [freightPopupOpen, setFreightPopupOpen] = useState(false);
-  const [freightTotal, setFreightTotal] = useState(0);
 
   const handleChange = (
     field,
@@ -310,6 +302,28 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
     );
   }, [rows]);
 
+  const freightNet = useMemo(
+    () =>
+      (data.DocumentAdditionalExpenses || []).reduce(
+        (sum, e) => sum + Number(e.amount ?? e.LineTotal ?? 0),
+        0
+      ),
+    [data.DocumentAdditionalExpenses]
+  );
+
+  const freightTax = useMemo(
+    () =>
+      (data.DocumentAdditionalExpenses || []).reduce((sum, e) => {
+        const amt = Number(e.amount ?? e.LineTotal ?? 0);
+        const tax =
+          e.taxAmount !== undefined && e.taxAmount !== null && e.taxAmount !== ''
+            ? Number(e.taxAmount)
+            : (amt * Number(e.taxPercentage || 0)) / 100;
+        return sum + (Number(tax) || 0);
+      }, 0),
+    [data.DocumentAdditionalExpenses]
+  );
+
   const discountAmt =
     (totalBeforeDiscount *
       Number(
@@ -321,7 +335,8 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
     totalBeforeDiscount -
     discountAmt +
     totalTax +
-    freightTotal +
+    freightTax +
+    freightNet +
     (data.Rounding
       ? Number(data.RoundingDiffAmount || 0)
       : 0)
@@ -1041,8 +1056,8 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
                 width: 120
               }}
             >
-              {freightTotal > 0
-                ? freightTotal.toFixed(2)
+              {freightNet > 0
+                ? freightNet.toFixed(2)
                 : 'Add Freight'}
             </Button>
           </Box>
@@ -1058,7 +1073,7 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
             </Typography>
 
             <Typography>
-              {totalTax.toFixed(2)}
+              {(totalTax + freightTax).toFixed(2)}
             </Typography>
           </Box>
           {/* ROUNDING
@@ -1156,12 +1171,11 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
       />
       <FreightPopup
         open={freightPopupOpen}
+        initialExpenses={data.DocumentAdditionalExpenses}
         onClose={() =>
           setFreightPopupOpen(false)
         }
         onApply={(result) => {
-          setFreightTotal(result.total);
-
           setData(prev => ({
             ...prev,
             DocumentAdditionalExpenses:

@@ -1,9 +1,8 @@
 const splitDate = (value) => (value ? String(value).split('T')[0] : '');
 
 export const mapApiLineToRow = (line, index) => {
-  const isServiceLine = !line.ItemCode && !!line.AccountCode;
   const quantity = line.Quantity ?? '';
-  const unitPrice = isServiceLine ? line.UnitPrice ?? line.Price ?? '' : line.Price ?? '';
+  const unitPrice = line.UnitPrice ?? line.Price ?? '';
   const discount = line.DiscountPercent ?? 0;
   const taxPercentage = line.TaxPercentagePerRow ?? 0;
 
@@ -58,12 +57,25 @@ export const mapApiToForm = (order) => ({
   RoundingDiffAmount: order.RoundingDiffAmount ?? 0,
 
   DocumentLines: [],
-  DocumentAdditionalExpenses: (order.DocumentAdditionalExpenses || []).map((exp) => ({
-    freightCode: exp.ExpenseCode,
-    remark: exp.Remarks ?? '',
-    taxGroup: exp.VatGroup ?? null,
-    amount: exp.LineTotal ?? 0
-  }))
+  DocumentAdditionalExpenses: (order.DocumentAdditionalExpenses || [])
+    .filter((exp) => exp.ExpenseCode != null && Number(exp.LineTotal ?? 0) > 0)
+    .map((exp, i) => {
+      const amount = Number(exp.LineTotal ?? 0);
+      const hasTax = exp.TaxPercent != null && exp.TaxPercent !== '';
+      const taxPercentage = hasTax ? Number(exp.TaxPercent) : '';
+      const taxAmount = hasTax ? (amount * Number(taxPercentage)) / 100 : 0;
+      return {
+        id: i + 1,
+        freightCode: exp.ExpenseCode,
+        freightName: exp.ExpenseName ?? exp.ShortName ?? '',
+        remark: exp.Remarks ?? '',
+        amount,
+        taxGroup: exp.VatGroup ?? '',
+        taxPercentage: hasTax ? String(taxPercentage) : '',
+        taxAmount: hasTax ? taxAmount.toFixed(2) : '',
+        grossAmount: (amount + taxAmount).toFixed(2)
+      };
+    })
 });
 
 export const buildSalesOrderFormData = (salesOrder, documentLines) => {
@@ -88,13 +100,14 @@ export const buildSalesOrderFormData = (salesOrder, documentLines) => {
           TotalDiscount: salesOrder.discountAmt || 0,
           DocumentsOwner:salesOrder.SalesPersonCode||'',
     DocumentLines: documentLines
-      .filter((row) => row.itemNo && (isService ? Number(row.unitPrice) > 0 : Number(row.quantity) > 0))
+      .filter((row) => row.itemNo && Number(row.quantity) > 0)
       .map((row, index) =>
         isService
           ? {
               LineNum: index,
               AccountCode: row.itemNo,
               ItemDescription: row.itemDescription,
+              Quantity: Number(row.quantity),
               UnitPrice: Number(row.unitPrice),
               DiscountPercent: Number(row.discount) || 0,
               ProjectCode: row.project || null,

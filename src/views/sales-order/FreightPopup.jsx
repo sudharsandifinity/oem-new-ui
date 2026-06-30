@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   Box,
   Button,
@@ -37,11 +37,22 @@ const createRow = (id) => ({
   grossAmount: ''
 });
 
-export default function FreightPopup({open, onClose, onApply}) {
+export default function FreightPopup({open, onClose, onApply, initialExpenses}) {
 
   const [rows, setRows] = useState([
     createRow(1)
   ]);
+
+  useEffect(() => {
+    if (!open) return;
+    const seeded = (initialExpenses || []).map((exp, i) => ({
+      ...createRow(i + 1),
+      ...exp,
+      id: exp.id ?? i + 1
+    }));
+    setRows(seeded.length ? [...seeded, createRow(seeded.length + 1)] : [createRow(1)]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
 
   const [openFreightLookup, setOpenFreightLookup] = useState(false);
   const [selectedRowId, setSelectedRowId] = useState(null);
@@ -84,6 +95,10 @@ export default function FreightPopup({open, onClose, onApply}) {
         createRow(prev.length + 1)
       ]);
     }
+  };
+
+  const deleteRow = (id) => {
+    setRows((prev) => (prev.length <= 1 ? prev : prev.filter((r) => r.id !== id)));
   };
 
   const handleFreightSelect = (selected) => {
