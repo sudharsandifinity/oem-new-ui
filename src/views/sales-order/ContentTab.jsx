@@ -6,7 +6,6 @@ import {
 import {
   Box,
   Button,
-  Checkbox,
   FormControl,
   Grid,
   IconButton,
@@ -24,6 +23,7 @@ import {
   Typography
 } from '@mui/material';
 import ItemSelectPopup from '../modules/master-data/ItemLookupModal';
+import ServiceSelectPopup from '../modules/master-data/ServiceLookupModal';
 import FreightPopup from './FreightPopup';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
@@ -35,6 +35,7 @@ import LookupModal from '../modules/master-data/LookupModal';
 import InputAdornment from '@mui/material/InputAdornment';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { getCurrencies } from '../../store/slices/currencySlice';
+import { getEmployees } from '../../store/slices/commonSlice';
 
 const createRow = (id) => ({
   id,
@@ -57,7 +58,7 @@ const createRow = (id) => ({
   dimension5: ''
 });
 
-export default function ContentTab({ data, setData, rows, setRows, readOnly = false }) {
+export default function ContentTab({ data, setData, rows, setRows, readOnly = false, isEdit = false }) {
   const [documentType, setDocumentType] = useState('item');
   const [currency, setCurrency] = useState('');
   const dispatch = useDispatch();
@@ -68,11 +69,21 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
     (state) => state.currency
   );
 
+  const { employees, employeesLoading } = useSelector((state) => state.common);
+
+  const isService = data.DocType === 'dDocument_Service';
+
   useEffect(() => {
     if (currencies.length === 0) {
       dispatch(getCurrencies());
     }
   }, [currencies]);
+
+  useEffect(() => {
+    if (employees.length === 0) {
+      dispatch(getEmployees());
+    }
+  }, [employees]);
 
   useEffect(() => {
     const exps = data.DocumentAdditionalExpenses || [];
@@ -83,6 +94,7 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
   }, [data.DocumentAdditionalExpenses]);
 
   const [openItemPopup, setOpenItemPopup] = useState(false);
+  const [openServicePopup, setOpenServicePopup] = useState(false);
   const [selectedRowId, setSelectedRowId] = useState(null);
 
   const [openTaxPopup, setOpenTaxPopup] = useState(false);
@@ -116,7 +128,11 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
 
     const handleOpenItemPopup = (rowId) => {
       setSelectedRowId(rowId);
-      setOpenItemPopup(true);
+      if (isService) {
+        setOpenServicePopup(true);
+      } else {
+        setOpenItemPopup(true);
+      }
     };
 
     const handleSelectItem = (item) => {
@@ -128,6 +144,20 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
                 itemNo: item.ItemCode,
                 itemDescription:
                   item.ItemName
+              }
+            : row
+        )
+      );
+    };
+
+    const handleSelectService = (service) => {
+      setRows((prev) =>
+        prev.map((row) =>
+          row.id === selectedRowId
+            ? {
+                ...row,
+                itemNo: service.Code,
+                itemDescription: service.Name
               }
             : row
         )
@@ -326,7 +356,7 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
             <Select
               label="Item / Service"
               value={data.DocType}
-              disabled={readOnly}
+              disabled={readOnly || isEdit}
               onChange={(e) => handleChange('DocType', e.target.value)}
             >
               <MenuItem value="dDocument_Items">
@@ -358,7 +388,7 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
 
             <Select
               label="Currency"
-              disabled={readOnly || currencyLoading}
+              disabled={readOnly || isEdit || currencyLoading}
               value={data.DocCurrency || ''}
               onChange={(e) =>
                 handleChange(
@@ -410,11 +440,11 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
                   width: 70
                 },
                 {
-                  label: 'Item Code',
+                  label: isService ? 'Service No' : 'Item Code',
                   width: 160
                 },
                 {
-                  label: 'Item Description',
+                  label: isService ? 'Service Description' : 'Item Description',
                   width: 240
                 },
                 {
@@ -872,7 +902,7 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
             <Select
               label="Owner"
               value={data.SalesPersonCode || ''}
-              disabled={readOnly}
+              disabled={readOnly || employeesLoading}
               onChange={(e) =>
                 handleChange(
                   'SalesPersonCode',
@@ -880,13 +910,16 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
                 )
               }
             >
-              <MenuItem value="u1">
-                User 1
-              </MenuItem>
-
-              <MenuItem value="u2">
-                User 2
-              </MenuItem>
+              {(employees || []).map((emp) => (
+                <MenuItem
+                  key={emp.EmployeeID}
+                  value={emp.EmployeeID}
+                >
+                  {[emp.FirstName, emp.LastName]
+                    .filter(Boolean)
+                    .join(' ')}
+                </MenuItem>
+              ))}
             </Select>
           </FormControl>
 
@@ -1026,6 +1059,7 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
               {totalTax.toFixed(2)}
             </Typography>
           </Box>
+          {/* ROUNDING
           <Box
             sx={{
               display: 'flex',
@@ -1073,6 +1107,7 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
               />
             )}
           </Box>
+          */}
           <Box
             sx={{
               display: 'flex',
@@ -1096,6 +1131,11 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
           setOpenItemPopup(false)
         }
         onSelectItem={handleSelectItem}
+      />
+      <ServiceSelectPopup
+        open={openServicePopup}
+        onClose={() => setOpenServicePopup(false)}
+        onSelectService={handleSelectService}
       />
       <TaxSelectPopup
         open={openTaxPopup}
