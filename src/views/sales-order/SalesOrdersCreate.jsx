@@ -132,6 +132,8 @@ export default function SalesOrdersCreate() {
   };
 
   const handleSubmit = async () => {
+    const isService = salesOrder.DocType === 'dDocument_Service';
+
     const payload = {
       DocType: salesOrder.DocType,
       CardCode: salesOrder.CardCode,
@@ -143,6 +145,7 @@ export default function SalesOrdersCreate() {
       Comments: salesOrder.Comments,
       ContactPersonCode: salesOrder.ContactPersonCode,
       RequriedDate: salesOrder.DocDueDate,
+      DiscountPercent: Number(salesOrder.DiscountPercent) || 0,
       Rounding:
         salesOrder.Rounding
           ? 'tYES'
@@ -156,11 +159,14 @@ export default function SalesOrdersCreate() {
         )
         .map((row, index) => ({
           LineNum: index,
-          ItemCode: row.itemNo,
+          ...(isService
+            ? { AccountCode: row.itemNo }
+            : { ItemCode: row.itemNo }),
           ItemDescription:
             row.itemDescription,
           Quantity: Number(row.quantity),
           Price: Number(row.unitPrice),
+          DiscountPercent: Number(row.discount) || 0,
           WarehouseCode:
             row.warehouse || null,
           ProjectCode:

@@ -21,6 +21,15 @@ export const getEmployees = createAsyncThunk('common/getEmployees', async (_, th
   }
 });
 
+export const getServices = createAsyncThunk('common/getServices', async (_, thunkAPI) => {
+  try {
+    const response = await API.get('/sap/services');
+    return response.data.value ?? response.data;
+  } catch (error) {
+    return thunkAPI.rejectWithValue(error.response?.data?.message || 'Failed to fetch services');
+  }
+});
+
 export const getDepartments = createAsyncThunk('common/getDepartments', async (_, thunkAPI) => {
   try {
     const response = await API.get('/sap/departments');
@@ -47,6 +56,9 @@ const commonSlice = createSlice({
 
     employees: [],
     employeesLoading: false,
+
+    services: [],
+    servicesLoading: false,
 
     departments: [],
     departmentsLoading: false,
@@ -77,6 +89,17 @@ const commonSlice = createSlice({
       })
       .addCase(getEmployees.rejected, (state) => {
         state.employeesLoading = false;
+      })
+
+      .addCase(getServices.pending, (state) => {
+        state.servicesLoading = true;
+      })
+      .addCase(getServices.fulfilled, (state, action) => {
+        state.servicesLoading = false;
+        state.services = action.payload;
+      })
+      .addCase(getServices.rejected, (state) => {
+        state.servicesLoading = false;
       })
 
       .addCase(getDepartments.pending, (state) => {

@@ -12,7 +12,7 @@ export const mapApiLineToRow = (line, index) => {
 
   return {
     id: line.LineNum ?? Date.now() + index,
-    itemNo: line.ItemCode ?? '',
+    itemNo: line.ItemCode || line.AccountCode || '',
     itemDescription: line.ItemDescription ?? '',
     quantity,
     unitPrice,
@@ -66,6 +66,8 @@ export const mapApiToForm = (order) => ({
 });
 
 export const buildSalesOrderFormData = (salesOrder, documentLines) => {
+  const isService = salesOrder.DocType === 'dDocument_Service';
+
   const payload = {
     DocType: salesOrder.DocType,
     CardCode: salesOrder.CardCode,
@@ -77,16 +79,18 @@ export const buildSalesOrderFormData = (salesOrder, documentLines) => {
     Comments: salesOrder.Comments,
     ContactPersonCode: salesOrder.ContactPersonCode,
     RequriedDate: salesOrder.DocDueDate,
+    DiscountPercent: Number(salesOrder.DiscountPercent) || 0,
     Rounding: salesOrder.Rounding ? 'tYES' : 'tNO',
     RoundingDiffAmount: salesOrder.RoundingDiffAmount,
     DocumentLines: documentLines
       .filter((row) => row.itemNo && Number(row.quantity) > 0)
       .map((row, index) => ({
         LineNum: index,
-        ItemCode: row.itemNo,
+        ...(isService ? { AccountCode: row.itemNo } : { ItemCode: row.itemNo }),
         ItemDescription: row.itemDescription,
         Quantity: Number(row.quantity),
         Price: Number(row.unitPrice),
+        DiscountPercent: Number(row.discount) || 0,
         WarehouseCode: row.warehouse || null,
         ProjectCode: row.project || null,
         VatGroup: row.taxCode || null

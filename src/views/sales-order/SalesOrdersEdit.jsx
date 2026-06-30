@@ -136,7 +136,7 @@ export default function SalesOrdersEdit() {
                 <GeneralTab data={salesOrder} setData={setSalesOrder} />
               </Box>
               <Box sx={{ display: tabValue === 1 ? 'block' : 'none' }}>
-                <ContentTab data={salesOrder} setData={setSalesOrder} rows={documentLines} setRows={setDocumentLines} />
+                <ContentTab data={salesOrder} setData={setSalesOrder} rows={documentLines} setRows={setDocumentLines} isEdit />
               </Box>
               <Box sx={{ display: tabValue === 2 ? 'block' : 'none' }}>
                 <AttachmentTab data={salesOrder} setData={setSalesOrder} />
