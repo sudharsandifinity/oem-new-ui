@@ -1,8 +1,9 @@
 const splitDate = (value) => (value ? String(value).split('T')[0] : '');
 
 export const mapApiLineToRow = (line, index) => {
-  const quantity = line.Quantity ?? '';
-  const unitPrice = line.Price ?? '';
+  const isServiceLine = !line.ItemCode && !!line.AccountCode;
+  const quantity = isServiceLine ? line.Quantity || 1 : line.Quantity ?? '';
+  const unitPrice = isServiceLine ? line.UnitPrice ?? line.Price ?? '' : line.Price ?? '';
   const discount = line.DiscountPercent ?? 0;
   const taxPercentage = line.TaxPercentagePerRow ?? 0;
 
@@ -12,7 +13,7 @@ export const mapApiLineToRow = (line, index) => {
 
   return {
     id: line.LineNum ?? Date.now() + index,
-    itemNo: line.ItemCode ?? '',
+    itemNo: line.ItemCode || line.AccountCode || '',
     itemDescription: line.ItemDescription ?? '',
     quantity,
     unitPrice,
@@ -66,6 +67,8 @@ export const mapApiToForm = (order) => ({
 });
 
 export const buildSalesOrderFormData = (salesOrder, documentLines) => {
+  const isService = salesOrder.DocType === 'dDocument_Service';
+
   const payload = {
     DocType: salesOrder.DocType,
     CardCode: salesOrder.CardCode,
@@ -81,18 +84,30 @@ export const buildSalesOrderFormData = (salesOrder, documentLines) => {
     Rounding: salesOrder.Rounding ? 'tYES' : 'tNO',
     RoundingDiffAmount: salesOrder.RoundingDiffAmount,
     DocumentLines: documentLines
-      .filter((row) => row.itemNo && Number(row.quantity) > 0)
-      .map((row, index) => ({
-        LineNum: index,
-        ItemCode: row.itemNo,
-        ItemDescription: row.itemDescription,
-        Quantity: Number(row.quantity),
-        Price: Number(row.unitPrice),
-        DiscountPercent: Number(row.discount) || 0,
-        WarehouseCode: row.warehouse || null,
-        ProjectCode: row.project || null,
-        VatGroup: row.taxCode || null
-      })),
+      .filter((row) => row.itemNo && (isService ? Number(row.unitPrice) > 0 : Number(row.quantity) > 0))
+      .map((row, index) =>
+        isService
+          ? {
+              LineNum: index,
+              AccountCode: row.itemNo,
+              ItemDescription: row.itemDescription,
+              UnitPrice: Number(row.unitPrice),
+              DiscountPercent: Number(row.discount) || 0,
+              ProjectCode: row.project || null,
+              VatGroup: row.taxCode || null
+            }
+          : {
+              LineNum: index,
+              ItemCode: row.itemNo,
+              ItemDescription: row.itemDescription,
+              Quantity: Number(row.quantity),
+              Price: Number(row.unitPrice),
+              DiscountPercent: Number(row.discount) || 0,
+              WarehouseCode: row.warehouse || null,
+              ProjectCode: row.project || null,
+              VatGroup: row.taxCode || null
+            }
+      ),
     DocumentAdditionalExpenses: (salesOrder.DocumentAdditionalExpenses || []).map((exp) => ({
       ExpenseCode: Number(exp.freightCode),
       Remarks: exp.remark || '',
