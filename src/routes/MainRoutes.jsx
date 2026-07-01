@@ -37,6 +37,7 @@ const PendingApprovalReports = Loadable(lazy(() => import('views/reports/pending
 const PurchaseRequestsList = Loadable(lazy(() => import('views/purchase-request/PurchaseRequestsList')));
 const PurchaseRequestCreate = Loadable(lazy(() => import('views/purchase-request/PurchaseRequestCreate')));
 const PurchaseRequestView = Loadable(lazy(() => import('views/purchase-request/PurchaseRequestView')));
+const PurchaseRequestEdit = Loadable(lazy(() => import('views/purchase-request/PurchaseRequestEdit')));
 
 // Goods Receipt PO routing
 const GoodsReceiptPOList = Loadable(lazy(() => import('views/goods-receipt-po/GoodsReceiptPOList')));
@@ -175,6 +176,10 @@ const MainRoutes = {
         {
           path: 'view/:id',
           element: <PurchaseRequestView />
+        },
+        {
+          path: 'edit/:id',
+          element: <PurchaseRequestEdit />
         }
       ]
     },

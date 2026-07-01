@@ -74,6 +74,27 @@ export const mapApiLineToRow = (line, index) => {
   return { ...row, ...computePRLineAmounts(row) };
 };
 
+export const emptyPRRow = () => ({
+  id: Date.now() + Math.random(),
+  MRLine: '',
+  ItemCode: '',
+  ItemDescription: '',
+  FullDescription: '',
+  Quantity: '',
+  UoMCode: '',
+  UnitPrice: '',
+  Discount: '',
+  TaxCode: '',
+  TaxPercentage: '',
+  LineTotal: '',
+  TaxAmount: '',
+  GrossTotal: '',
+  WarehouseCode: '',
+  ProjectCode: '',
+  RequiredDate: '',
+  Remark: ''
+});
+
 export const mrLineToPRRow = (mrLine) => {
   const row = {
     id: Date.now() + Math.random(),
@@ -112,22 +133,25 @@ export const buildPRPayload = (form, lines, user) => ({
   U_OEM_UEMAIL: user?.email ?? null,
   U_OEM_UName: [user?.first_name, user?.last_name].filter(Boolean).join(' ') || null,
   U_PreparedBy: [user?.first_name, user?.last_name].filter(Boolean).join(' ') || null,
-  DocumentLines: lines.map((line) => ({
-    ItemCode: line.ItemCode,
-    ItemDescription: line.ItemDescription,
-    U_HLB_FullDesc: line.FullDescription,
-    Quantity: Number(line.Quantity) || 0,
-    UnitPrice: Number(line.UnitPrice) || 0,
-    DiscountPercent: Number(line.Discount) || 0,
-    VatGroup: line.TaxCode || null,
-    ProjectCode: line.ProjectCode,
-    WarehouseCode: line.WarehouseCode,
-    UoMCode: line.UoMCode,
-    U_MRDocEntry: form.MRDocEntry ? Number(form.MRDocEntry) : null,
-    U_MRLine: line.MRLine !== '' && line.MRLine != null ? Number(line.MRLine) : null,
-    RequiredDate: line.RequiredDate ? `${line.RequiredDate}T00:00:00Z` : null,
-    U_HLB_Rmarks: line.Remark
-  })),
+  DocumentLines: lines
+    .filter((line) => line.ItemCode || Number(line.Quantity) > 0)
+    .map((line, index) => ({
+      LineNum: index,
+      ItemCode: line.ItemCode,
+      ItemDescription: line.ItemDescription,
+      U_HLB_FullDesc: line.FullDescription,
+      Quantity: Number(line.Quantity) || 0,
+      UnitPrice: Number(line.UnitPrice) || 0,
+      DiscountPercent: Number(line.Discount) || 0,
+      VatGroup: line.TaxCode || null,
+      ProjectCode: line.ProjectCode,
+      WarehouseCode: line.WarehouseCode,
+      UoMCode: line.UoMCode,
+      U_MRDocEntry: form.MRDocEntry ? Number(form.MRDocEntry) : null,
+      U_MRLine: line.MRLine !== '' && line.MRLine != null ? Number(line.MRLine) : null,
+      RequiredDate: line.RequiredDate ? `${line.RequiredDate}T00:00:00Z` : null,
+      U_HLB_Rmarks: line.Remark
+    })),
   DocumentAdditionalExpenses: (form.DocumentAdditionalExpenses || []).map((exp) => ({
     ExpenseCode: Number(exp.freightCode),
     Remarks: exp.remark || '',

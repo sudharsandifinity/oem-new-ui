@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   Box,
   Button,
@@ -19,15 +19,17 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import SearchIcon from '@mui/icons-material/Search';
 import AppDatePicker from 'ui-component/AppDatePicker';
 import TaxSelectPopup from '../modules/master-data/TaxCodeLookup';
+import ItemSelectPopup from '../modules/master-data/ItemLookupModal';
+import WarehouseLookupModal from '../modules/master-data/WarehouseLookupModal';
 import FreightPopup from '../sales-order/FreightPopup';
-import { computePRLineAmounts } from './prHelpers';
+import { computePRLineAmounts, emptyPRRow } from './prHelpers';
 
 const TABLE_COLUMNS = [
   { key: 'seq', label: '#', width: 50 },
-  { key: 'ItemCode', label: 'Item Code', width: 170 },
+  { key: 'ItemCode', label: 'Item Code', width: 170, editable: true, type: 'item' },
   { key: 'ItemDescription', label: 'Description', width: 200 },
   { key: 'Quantity', label: 'Quantity', width: 120, editable: true, type: 'number' },
-  { key: 'UoMCode', label: 'UOM', width: 110 },
+  { key: 'UoMCode', label: 'UOM', width: 110, editable: true },
   { key: 'UnitPrice', label: 'Price', width: 120, editable: true, type: 'number' },
   { key: 'Discount', label: 'Disc %', width: 110, editable: true, type: 'number' },
   { key: 'LineTotal', label: 'Total', width: 130 },
@@ -35,7 +37,7 @@ const TABLE_COLUMNS = [
   { key: 'TaxPercentage', label: 'Tax %', width: 110 },
   { key: 'TaxAmount', label: 'Tax Amount', width: 130 },
   { key: 'GrossTotal', label: 'Gross Total', width: 140 },
-  { key: 'WarehouseCode', label: 'Warehouse', width: 130 },
+  { key: 'WarehouseCode', label: 'Warehouse', width: 130, type: 'warehouse' },
   { key: 'RequiredDate', label: 'Required Date', width: 150, editable: true, type: 'date' },
   { key: 'Remark', label: 'Remark', width: 160, editable: true }
 ];
@@ -43,7 +45,23 @@ const TABLE_COLUMNS = [
 export default function PRContentTab({ data, setData, rows, setRows, readOnly = false }) {
   const [openTaxPopup, setOpenTaxPopup] = useState(false);
   const [selectedTaxRowId, setSelectedTaxRowId] = useState(null);
+  const [openItemPopup, setOpenItemPopup] = useState(false);
+  const [selectedItemRowId, setSelectedItemRowId] = useState(null);
+  const [openWarehousePopup, setOpenWarehousePopup] = useState(false);
+  const [selectedWarehouseRowId, setSelectedWarehouseRowId] = useState(null);
   const [freightPopupOpen, setFreightPopupOpen] = useState(false);
+
+  useEffect(() => {
+    if (readOnly) return;
+    const last = rows[rows.length - 1];
+    if (!last) {
+      setRows([emptyPRRow()]);
+      return;
+    }
+    if (last.ItemCode || last.ItemDescription || last.Quantity || last.UnitPrice) {
+      setRows((prev) => [...prev, emptyPRRow()]);
+    }
+  }, [rows, readOnly, setRows]);
 
   const freightNet = useMemo(
     () => (data?.DocumentAdditionalExpenses || []).reduce((sum, e) => sum + Number(e.amount ?? e.LineTotal ?? 0), 0),
@@ -81,6 +99,24 @@ export default function PRContentTab({ data, setData, rows, setRows, readOnly = 
       })
     );
     setSelectedTaxRowId(null);
+  };
+
+  const handleSelectItem = (item) => {
+    setOpenItemPopup(false);
+    setRows((prev) =>
+      prev.map((r) => {
+        if (r.id !== selectedItemRowId) return r;
+        const newRow = { ...r, ItemCode: item.ItemCode, ItemDescription: item.ItemName };
+        return { ...newRow, ...computePRLineAmounts(newRow) };
+      })
+    );
+    setSelectedItemRowId(null);
+  };
+
+  const handleSelectWarehouse = (warehouse) => {
+    setOpenWarehousePopup(false);
+    setRows((prev) => prev.map((r) => (r.id === selectedWarehouseRowId ? { ...r, WarehouseCode: warehouse.warehouseCode } : r)));
+    setSelectedWarehouseRowId(null);
   };
 
   const deleteRow = (id) => {
@@ -122,26 +158,33 @@ export default function PRContentTab({ data, setData, rows, setRows, readOnly = 
       );
     }
 
-    if (col.type === 'tax') {
+    if (col.type === 'tax' || col.type === 'item' || col.type === 'warehouse') {
+      const onSearch = () => {
+        if (col.type === 'tax') {
+          setSelectedTaxRowId(row.id);
+          setOpenTaxPopup(true);
+        } else if (col.type === 'item') {
+          setSelectedItemRowId(row.id);
+          setOpenItemPopup(true);
+        } else {
+          setSelectedWarehouseRowId(row.id);
+          setOpenWarehousePopup(true);
+        }
+      };
+      const typable = col.type !== 'tax';
       return (
         <TextField
           size="small"
           fullWidth
           value={row[col.key] ?? ''}
           disabled={readOnly}
+          onChange={typable ? (e) => updateRow(row.id, col.key, e.target.value) : undefined}
           sx={{ minWidth: col.width - 20 }}
           InputProps={{
-            readOnly: true,
+            readOnly: !typable,
             endAdornment: (
               <InputAdornment position="end">
-                <IconButton
-                  size="small"
-                  disabled={readOnly}
-                  onClick={() => {
-                    setSelectedTaxRowId(row.id);
-                    setOpenTaxPopup(true);
-                  }}
-                >
+                <IconButton size="small" disabled={readOnly} onClick={onSearch}>
                   <SearchIcon sx={{ color: '#2196f3', fontSize: 16 }} />
                 </IconButton>
               </InputAdornment>
@@ -261,6 +304,8 @@ export default function PRContentTab({ data, setData, rows, setRows, readOnly = 
       </Box>
 
       <TaxSelectPopup open={openTaxPopup} onClose={() => setOpenTaxPopup(false)} onSelectTax={handleSelectTax} />
+      <ItemSelectPopup open={openItemPopup} onClose={() => setOpenItemPopup(false)} onSelectItem={handleSelectItem} />
+      <WarehouseLookupModal open={openWarehousePopup} onClose={() => setOpenWarehousePopup(false)} onSelectWarehouse={handleSelectWarehouse} />
       <FreightPopup
         open={freightPopupOpen}
         initialExpenses={data?.DocumentAdditionalExpenses}
