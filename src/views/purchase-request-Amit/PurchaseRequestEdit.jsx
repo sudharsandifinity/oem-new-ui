@@ -11,8 +11,8 @@ import MainCard from 'ui-component/cards/MainCard';
 import GeneralTab from './GeneralTab';
 import ContentTab from './ContentTab';
 import AttachmentTab from './AttachmentTab';
-import { getSalesQuotationById, updateSalesQuotation, resetSalesQuotationState } from '../../store/slices/salesQuotationSlice';
-import { mapApiToForm, mapApiToRows, buildSalesQuotationFormData } from './salesQuotationHelpers';
+import { mapApiToForm, mapApiToRows, buildPurchaseRequestFormData } from './PurchaseRequestHelpers';
+import { getPRById, resetPRState, updatePR,  } from '../../store/slices/purchaseRequestSlice';
 
 function ContentSkeleton() {
   return (
@@ -34,37 +34,37 @@ function ContentSkeleton() {
   );
 }
 
-export default function SalesQuotationsEdit() {
+export default function PurchaseRequestsEdit() {
   const { id } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const { currentOrder, loading, error, saveSuccess } = useSelector((state) => state.salesQuotation);
+  const { currentPR, loading, error, saveSuccess } = useSelector((state) => state.purchaseRequest);
 
   const [tabValue, setTabValue] = useState(0);
-  const [salesQuotation, setSalesQuotation] = useState(null);
+  const [purchaseRequest, setPurchaseRequest] = useState(null);
   const [documentLines, setDocumentLines] = useState([]);
   const [submitting, setSubmitting] = useState(false);
   const [snackbar, setSnackbar] = useState({ open: false, severity: 'success', message: '' });
 
   useEffect(() => {
-    if (id) dispatch(getSalesQuotationById(id));
+    if (id) dispatch(getPRById(id));
     return () => {
-      dispatch(resetSalesQuotationState());
+      dispatch(resetPRState());
     };
   }, [dispatch, id]);
 
   useEffect(() => {
-    if (!currentOrder) return;
-    setSalesQuotation(mapApiToForm(currentOrder));
-    setDocumentLines([...mapApiToRows(currentOrder), { id: Date.now(), itemNo: '', itemDescription: '', quantity: '', unitPrice: '', discount: '', lineTotal: '', taxCode: '', taxPercentage: '', taxAmount: '', grossTotal: '', project: '', warehouse: '', dimension1: '', dimension2: '', dimension3: '', dimension4: '', dimension5: '' }]);
-  }, [currentOrder]);
+    if (!currentPR) return;
+    setPurchaseRequest(mapApiToForm(currentPR));
+    setDocumentLines([...mapApiToRows(currentPR), { id: Date.now(), itemNo: '', itemDescription: '', quantity: '', unitPrice: '', discount: '', lineTotal: '', taxCode: '', taxPercentage: '', taxAmount: '', grossTotal: '', project: '', warehouse: '', dimension1: '', dimension2: '', dimension3: '', dimension4: '', dimension5: '' }]);
+  }, [currentPR]);
 
   useEffect(() => {
     if (saveSuccess && submitting) {
-      setSnackbar({ open: true, severity: 'success', message: 'Sales Quotation updated successfully' });
+      setSnackbar({ open: true, severity: 'success', message: 'Purchase Request updated successfully' });
       setSubmitting(false);
-      setTimeout(() => navigate(`/sales-Quotation/view/${id}`), 1500);
+      setTimeout(() => navigate(`/purchase-Request/view/${id}`), 1500);
     }
     if (error && submitting) {
       setSnackbar({ open: true, severity: 'error', message: error });
@@ -72,12 +72,13 @@ export default function SalesQuotationsEdit() {
     }
   }, [saveSuccess, error, submitting, id, navigate]);
 
-  const isLoading = !salesQuotation;
+  const isLoading = !purchaseRequest;
 
   const handleSubmit = () => {
-    const formData = buildSalesQuotationFormData(salesQuotation, documentLines);
+    const formData = buildPurchaseRequestFormData(purchaseRequest, documentLines);
+    console.log('Submitting form data:', formData);
     setSubmitting(true);
-    dispatch(updateSalesQuotation({ docEntry: id, formData }));
+    dispatch(updatePR({ docEntry: id, formData }));
   };
 
   return (
@@ -94,13 +95,13 @@ export default function SalesQuotationsEdit() {
             gap: 2
           }}
         >
-          <Typography variant="h3">Sales Quotations</Typography>
+          <Typography variant="h3">Purchase Requests</Typography>
           <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
               <HomeIcon color="secondary" sx={{ fontSize: 18 }} />
             </Box>
             <Typography variant="body2" color="text.primary">
-              Sales Quotations
+              Purchase Requests
             </Typography>
             <Typography variant="body2" color="secondary" fontWeight={600}>
               Edit
@@ -119,10 +120,10 @@ export default function SalesQuotationsEdit() {
         </Box>
 
         <Box sx={{ p: 3 }}>
-          {error && !salesQuotation ? (
+          {error && !purchaseRequest ? (
             <Box sx={{ py: 6, textAlign: 'center' }}>
               <Typography color="error" variant="h5">
-                Failed to load Sales Order
+                Failed to load Purchase Request
               </Typography>
               <Typography color="text.secondary" sx={{ mt: 1 }}>
                 {error}
@@ -133,13 +134,13 @@ export default function SalesQuotationsEdit() {
           ) : (
             <>
               <Box sx={{ display: tabValue === 0 ? 'block' : 'none' }}>
-                <GeneralTab data={salesQuotation} setData={setSalesQuotation} />
+                <GeneralTab data={purchaseRequest} setData={setPurchaseRequest} />
               </Box>
               <Box sx={{ display: tabValue === 1 ? 'block' : 'none' }}>
-                <ContentTab data={salesQuotation} setData={setSalesQuotation} rows={documentLines} setRows={setDocumentLines}isEdit />
+                <ContentTab data={purchaseRequest} setData={setPurchaseRequest} rows={documentLines} setRows={setDocumentLines} />
               </Box>
               <Box sx={{ display: tabValue === 2 ? 'block' : 'none' }}>
-                <AttachmentTab data={salesQuotation} setData={setSalesQuotation} />
+                <AttachmentTab data={purchaseRequest} setData={setPurchaseRequest} />
               </Box>
             </>
           )}

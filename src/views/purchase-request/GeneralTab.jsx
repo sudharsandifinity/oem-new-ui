@@ -12,31 +12,59 @@ export default function PRGeneralTab({ data, setData, readOnly = false }) {
     <Box sx={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
       <Box sx={{ flex: 1, minWidth: 350, display: 'flex', flexDirection: 'column', gap: 3 }}>
         <Box sx={{ display: 'flex', gap: 2 }}>
-          <FormControl fullWidth size="medium" disabled>
+          <FormControl fullWidth size="medium" disabled={readOnly}>
             <InputLabel>Requestor Type</InputLabel>
-            <Select label="Requestor Type" value={data?.RequestorTypeLabel || ''}>
+            <Select
+              label="Requestor Type"
+              value={data?.RequestorTypeLabel || ''}
+              onChange={(e) => handleChange('RequestorTypeLabel', e.target.value)}
+            >
               <MenuItem value="User">User</MenuItem>
               <MenuItem value="Employee">Employee</MenuItem>
               <MenuItem value="">—</MenuItem>
             </Select>
           </FormControl>
 
-          <TextField fullWidth label="Requestor Code" value={data?.ReqCode || ''} disabled />
+          <TextField
+            fullWidth
+            label="Requestor Code"
+            value={data?.ReqCode || ''}
+            disabled={readOnly}
+            onChange={(e) => handleChange('ReqCode', e.target.value)}
+          />
         </Box>
 
-        <TextField fullWidth label="Requestor Name" value={data?.RequestorName || ''} disabled />
+        <TextField
+          fullWidth
+          label="Requestor Name"
+          value={data?.RequestorName || ''}
+          disabled={readOnly}
+          onChange={(e) => handleChange('RequestorName', e.target.value)}
+        />
 
-        <TextField fullWidth label="Department" value={data?.Department || ''} disabled />
-
-        <TextField fullWidth label="MR No" value={data?.MRNo ?? ''} disabled />
+        <TextField
+          fullWidth
+          label="Department"
+          value={data?.Department || ''}
+          disabled={readOnly}
+          onChange={(e) => handleChange('Department', e.target.value)}
+        />
       </Box>
 
       <Box sx={{ flex: 1, minWidth: 350, display: 'flex', flexDirection: 'column', gap: 3 }}>
-        <TextField fullWidth label="Project Code" value={data?.ProjectCode || ''} disabled />
+        <AppDatePicker
+          label="Posting Date"
+          value={data?.DocDate || today}
+          disabled={readOnly}
+          onChange={(val) => handleChange('DocDate', val)}
+        />
 
-        <TextField fullWidth label="Project Name" value={data?.ProjectName || ''} disabled />
-
-        <AppDatePicker label="Posting Date" value={data?.DocDate || today} disabled />
+        <AppDatePicker
+          label="Document Date"
+          value={data?.TaxDate || today}
+          onChange={(val) => handleChange('TaxDate', val)}
+          disabled={readOnly}
+        />
 
         <AppDatePicker
           label="Required Date"

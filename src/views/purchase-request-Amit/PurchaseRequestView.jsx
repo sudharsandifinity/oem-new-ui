@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getPRById, resetPRState } from '../../store/slices/purchaseRequestSlice';
 import { getDepartments } from '../../store/slices/commonSlice';
-import { mapApiToForm, mapApiLineToRow } from './prHelpers';
+import { mapApiToForm, mapApiLineToRow } from './PurchaseRequestHelpers';
 import { resolveDepartmentName } from 'utils/department';
 
 import { Box, Breadcrumbs, Button, Divider, Skeleton, Tab, Tabs, Typography } from '@mui/material';

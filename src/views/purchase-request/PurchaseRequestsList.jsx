@@ -5,6 +5,8 @@ import { DataGrid } from '@mui/x-data-grid';
 
 import HomeIcon from '@mui/icons-material/Home';
 import VisibilityIcon from '@mui/icons-material/Visibility';
+import EditIcon from '@mui/icons-material/Edit';
+import AddIcon from '@mui/icons-material/Add';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import ClearIcon from '@mui/icons-material/Clear';
 
@@ -85,11 +87,14 @@ export default function PurchaseRequestsList() {
       headerName: 'Action',
       sortable: false,
       filterable: false,
-      minWidth: 80,
+      minWidth: 120,
       renderCell: (params) => (
-        <Stack direction="row" height="100%" spacing={1}>
+        <Stack direction="row" height="100%" spacing={1} alignItems="center">
           <IconButton size="small" color="primary" onClick={() => navigate(`/purchase-request/view/${params.row.DocEntry}`)}>
             <VisibilityIcon fontSize="small" />
+          </IconButton>
+          <IconButton size="small" color="secondary" onClick={() => navigate(`/purchase-request/edit/${params.row.DocEntry}`)}>
+            <EditIcon fontSize="small" />
           </IconButton>
         </Stack>
       )
@@ -110,16 +115,21 @@ export default function PurchaseRequestsList() {
             gap: 2
           }}
         >
-          <Typography variant="h4">Purchase Request</Typography>
-          <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />}>
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <HomeIcon sx={{ fontSize: 18, color: 'secondary.main' }} />
-            </Box>
-            <Typography variant="body2">Purchase Request</Typography>
-            <Typography variant="body2" color="secondary" fontWeight={600}>
-              List
-            </Typography>
-          </Breadcrumbs>
+          <Box>
+            <Typography variant="h4">Purchase Request</Typography>
+            <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />} sx={{ mt: 0.5 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <HomeIcon sx={{ fontSize: 18, color: 'secondary.main' }} />
+              </Box>
+              <Typography variant="body2">Purchase Request</Typography>
+              <Typography variant="body2" color="secondary" fontWeight={600}>
+                List
+              </Typography>
+            </Breadcrumbs>
+          </Box>
+          <Button variant="contained" color="secondary" startIcon={<AddIcon />} onClick={() => navigate('/purchase-request/create')}>
+            Create
+          </Button>
         </Box>
       </MainCard>
 

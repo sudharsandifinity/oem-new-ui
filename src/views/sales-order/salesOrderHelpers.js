@@ -37,7 +37,7 @@ export const mapApiToRows = (order) => (order?.DocumentLines || []).map(mapApiLi
 export const mapApiToForm = (order) => ({
   CardCode: order.CardCode ?? '',
   CardName: order.CardName ?? '',
-  ContactPerson: order.ContactPerson ?? '',
+  ContactPerson: order.ContactPersonCode ?? '',
   NumAtCard: order.NumAtCard ?? '',
 
   DocDate: splitDate(order.DocDate),
@@ -88,7 +88,7 @@ export const buildSalesOrderFormData = (salesOrder, documentLines) => {
     NumAtCard: salesOrder.NumAtCard,
     DocDate: salesOrder.DocDate,
     DocDueDate: salesOrder.DocDueDate,
-      TaxDate: salesOrder.TaxDate,
+    TaxDate: salesOrder.TaxDate,
     DocCurrency: salesOrder.DocCurrency,
     Comments: salesOrder.Comments,
     ContactPersonCode: salesOrder.ContactPersonCode,
@@ -96,9 +96,9 @@ export const buildSalesOrderFormData = (salesOrder, documentLines) => {
     DiscountPercent: Number(salesOrder.DiscountPercent) || 0,
     Rounding: salesOrder.Rounding ? 'tYES' : 'tNO',
     RoundingDiffAmount: salesOrder.RoundingDiffAmount,
-     DiscountPercent: salesOrder.DiscountPercent || 0,
-          TotalDiscount: salesOrder.discountAmt || 0,
-          DocumentsOwner:salesOrder.SalesPersonCode||'',
+    DiscountPercent: salesOrder.DiscountPercent || 0,
+    TotalDiscount: salesOrder.discountAmt || 0,
+    DocumentsOwner: salesOrder.SalesPersonCode || '',
     DocumentLines: documentLines
       .filter((row) => row.itemNo && Number(row.quantity) > 0)
       .map((row, index) =>

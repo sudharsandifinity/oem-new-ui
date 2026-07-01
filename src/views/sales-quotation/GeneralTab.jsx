@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Box, IconButton, InputAdornment, TextField } from '@mui/material';
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import PersonSearchIcon from '@mui/icons-material/PersonSearch';
@@ -6,12 +6,14 @@ import AppDatePicker from 'ui-component/AppDatePicker';
 import CustomerSelectPopup from '../modules/master-data/CustomerLookup';
 
 import { useLookup } from '../../context/LookupContext';
+import { useSelector } from 'react-redux';
 
 const today = new Date().toISOString().split('T')[0];
 
 export default function SalesQuoatationGeneralTab({ data, setData, readOnly = false }) {
   const { openLookup } = useLookup();
   const [openCustomerPopup, setOpenCustomerPopup] = useState(false);
+const { customers } = useSelector((state) => state.customer);
 
   const handleSelectCustomer = (customerData) => {
     setData({
@@ -41,6 +43,19 @@ export default function SalesQuoatationGeneralTab({ data, setData, readOnly = fa
     });
   };
 
+useEffect(() => {
+  if (!data?.CardCode || !customers?.length) return;
+
+  const customer = customers.find((c) => c.CardCode === data.CardCode);
+
+  if (customer) {
+    setData((prev) => ({
+      ...prev,
+      CardName: prev.CardName || customer.CardName,
+      ContactPerson: customer.ContactPerson || ''
+    }));
+  }
+}, [data?.CardCode, customers]);
   return (
     <>
       <Box sx={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>

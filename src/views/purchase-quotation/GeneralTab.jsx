@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { Box, IconButton, InputAdornment, TextField } from '@mui/material';
 
@@ -6,8 +6,17 @@ import PersonSearchIcon from '@mui/icons-material/PersonSearch';
 import CustomerSelectPopup from '../modules/master-data/CustomerLookup';
 import AppDatePicker from 'ui-component/AppDatePicker';
 import VendorSelectPopup from '../modules/master-data/VendorLookup';
+import { useDispatch, useSelector } from 'react-redux';
+import { getVendors } from '../../store/slices/customerSlice';
 
 export default function GeneralTab({ data, setData, readOnly = false }) {
+  const dispatch = useDispatch();
+  const { vendor, vendorLoading, vendorerror } = useSelector((state) => state.customer);
+ useEffect(() => {
+      dispatch(getVendors());
+    
+  }, []);
+  
   const handleChange = (field, value) => {
     setData({ ...data, [field]: value });
   };
@@ -23,7 +32,20 @@ export default function GeneralTab({ data, setData, readOnly = false }) {
     });
     setOpenCustomerPopup(false);
   };
+useEffect(() => {
+  console.log("VendorCode",vendor)
+  if (!data?.VendorCode || !vendor?.length) return;
 
+  const customer = vendor.find((c) => c.CardCode === data.VendorCode);
+
+  if (customer) {
+    setData((prev) => ({
+      ...prev,
+      VendorName: prev.VendorName || customer.VendorName,
+      ContactPerson: customer.ContactPerson || ''
+    }));
+  }
+}, [data?.VendorCode, vendor]);
   return (
     <>
 

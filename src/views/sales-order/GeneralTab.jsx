@@ -1,12 +1,15 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { Box, IconButton, InputAdornment, TextField } from '@mui/material';
 
 import PersonSearchIcon from '@mui/icons-material/PersonSearch';
 import CustomerSelectPopup from '../modules/master-data/CustomerLookup';
 import AppDatePicker from 'ui-component/AppDatePicker';
+import { useSelector } from 'react-redux';
 
 export default function GeneralTab({ data, setData, readOnly = false }) {
+const { customers } = useSelector((state) => state.customer);
+  
   const handleChange = (field, value) => {
     setData({ ...data, [field]: value });
   };
@@ -22,7 +25,19 @@ export default function GeneralTab({ data, setData, readOnly = false }) {
     });
     setOpenCustomerPopup(false);
   };
+useEffect(() => {
+  if (!data?.CardCode || !customers?.length) return;
 
+  const customer = customers.find((c) => c.CardCode === data.CardCode);
+
+  if (customer) {
+    setData((prev) => ({
+      ...prev,
+      CardName: prev.CardName || customer.CardName,
+      ContactPerson: customer.ContactPerson || ''
+    }));
+  }
+}, [data?.CardCode, customers]);
   return (
     <>
 

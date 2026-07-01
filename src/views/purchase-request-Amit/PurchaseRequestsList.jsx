@@ -6,15 +6,18 @@ import { DataGrid } from '@mui/x-data-grid';
 import HomeIcon from '@mui/icons-material/Home';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
+import EditIcon from '@mui/icons-material/Edit';
+
 import ClearIcon from '@mui/icons-material/Clear';
 
 import MainCard from 'ui-component/cards/MainCard';
 import { useNavigate } from 'react-router-dom';
 import AddIcon from '@mui/icons-material/Add';
-import { getMyPRList } from '../../store/slices/purchaseRequestSlice';
+import { getMyPRList, getPRList } from '../../store/slices/purchaseRequestSlice';
 import { formatDateDDMMYYYY, renderNoWrapCell } from 'utils/dataGridFormatters';
+import { MaterialReactTable } from 'material-react-table';
 
-const emptyFilters = () => ({ MRNo: '', ProjectCode: '', ProjectName: '' });
+const emptyFilters = () => ({ Requester: '', ReqType: '', ProjectCode: '', ProjectName: '' });
 
 export default function PurchaseRequestsList() {
   const navigate = useNavigate();
@@ -22,12 +25,17 @@ export default function PurchaseRequestsList() {
   const { list, totalCount, listLoading } = useSelector((s) => s.purchaseRequest);
   const { user } = useSelector((s) => s.auth);
 
-  const [filters, setFilters] = useState(emptyFilters());
+   const [filters, setFilters] =
+    useState({
+      Requester: '',
+      ReqType: ''
+    });
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 25 });
 
+ 
   useEffect(() => {
     dispatch(
-      getMyPRList({
+      getPRList({
         top: paginationModel.pageSize,
         skip: paginationModel.page * paginationModel.pageSize,
         email: user?.email || ''
@@ -36,31 +44,21 @@ export default function PurchaseRequestsList() {
   }, [paginationModel, user?.email, dispatch]);
 
   const filteredRows = useMemo(() => {
-    const { MRNo, ProjectCode, ProjectName } = filters;
-    const prRows = (Array.isArray(list) ? list : []).filter((r) => r && r.DocEntry != null);
-    return prRows.filter((r) => {
-      if (
-        MRNo &&
-        !String(r.U_MRNo ?? '')
-          .toLowerCase()
-          .includes(MRNo.toLowerCase())
-      )
-        return false;
-      if (
-        ProjectCode &&
-        !String(r.U_PrjCode ?? '')
-          .toLowerCase()
-          .includes(ProjectCode.toLowerCase())
-      )
-        return false;
-      if (
-        ProjectName &&
-        !String(r.U_PrjDesc ?? '')
-          .toLowerCase()
-          .includes(ProjectName.toLowerCase())
-      )
-        return false;
-      return true;
+     return (list || []).filter((r) => {
+      return (
+        (!filters.Requester ||
+          r.Requester
+            .toLowerCase()
+            .includes(
+              filters.Requester.toLowerCase()
+            )) &&
+        (!filters.ReqType ||
+          r.ReqType
+            .toLowerCase()
+            .includes(
+              filters.ReqType.toLowerCase()
+            ))
+      );
     });
   }, [list, filters]);
 
@@ -68,28 +66,56 @@ export default function PurchaseRequestsList() {
 
   const columns = [
     {
-      field: 'sno',
-      headerName: '#',
-      width: 60,
-      sortable: false,
-      filterable: false,
-      renderCell: (params) => filteredRows.findIndex((r) => r.DocEntry === params.id) + 1
+        id: 'slNo',
+        header: 'Sl No',
+        size: 80,
+        Cell: ({ row }) => row.index + 1
+      },
+      {
+      accessorKey: 'DocEntry',
+      header: 'Document Entry',
+      flex: 1,
+      minWidth: 150
     },
-    { field: 'U_MRNo', headerName: 'MR No', flex: 1, minWidth: 120 },
-    { field: 'U_PrjCode', headerName: 'Project Code', flex: 1, minWidth: 150 },
-    { field: 'U_PrjDesc', headerName: 'Project Name', flex: 1.5, minWidth: 200 },
-    { field: 'DocDate', headerName: 'Posting Date', flex: 1, minWidth: 140, valueFormatter: formatDateDDMMYYYY },
-    { field: 'Comments', headerName: 'Comments', flex: 1.5, minWidth: 180, renderCell: renderNoWrapCell },
+      {
+      accessorKey: 'Requester',
+      header: 'Requester',
+      flex: 1,
+      minWidth: 150
+    },
+      {
+  accessorKey: 'DocDate',
+  header: 'Posting Date',
+  size: 140,
+  Cell: ({ cell }) => formatDateDDMMYYYY(cell.getValue()),
+},
+   {
+  accessorKey: 'Comments',
+  header: 'Comments',
+  size: 180,
+  Cell: ({ cell }) => (
+    <Typography
+      noWrap
+      title={cell.getValue() ?? ''}
+      sx={{ width: '100%' }}
+    >
+      {cell.getValue()}
+    </Typography>
+  ),
+},
     {
-      field: 'action',
-      headerName: 'Action',
+      accessorKey: 'action',
+      header: 'Action',
       sortable: false,
       filterable: false,
       minWidth: 80,
-      renderCell: (params) => (
+      Cell: ({ row }) => (
         <Stack direction="row" height="100%" spacing={1}>
-          <IconButton size="small" color="primary" onClick={() => navigate(`/purchase-request/view/${params.row.DocEntry}`)}>
+          <IconButton size="small" color="primary" onClick={() => navigate(`/purchase-request/view/${row.original.DocEntry}`)}>
             <VisibilityIcon fontSize="small" />
+          </IconButton>
+          <IconButton size="small" color="primary" onClick={() => navigate(`/purchase-request/edit/${row.original.DocEntry}`)}>
+            <EditIcon fontSize="small" />
           </IconButton>
         </Stack>
       )
@@ -155,7 +181,7 @@ export default function PurchaseRequestsList() {
               flex: 1
             }}
           >
-          <TextField
+          {/* <TextField
             size="small"
             label="MR No"
             value={filters.MRNo}
@@ -175,7 +201,7 @@ export default function PurchaseRequestsList() {
           />
           <Button variant="outlined" color="error" startIcon={<ClearIcon />} onClick={clearFilters}>
             Clear
-          </Button>
+          </Button> */}
         </Box>
          <Button
             variant="contained"
@@ -193,36 +219,41 @@ export default function PurchaseRequestsList() {
       </Paper>
 
       <Paper variant="outlined" sx={{ flex: 1, minHeight: 0, width: '100%', borderRadius: 2, overflow: 'hidden' }}>
-        <DataGrid
-          rows={filteredRows}
+        <MaterialReactTable
+           data={(filteredRows || []).map((row) => ({
+            ...row,
+            id: row.DocEntry
+          }))}
           columns={columns}
-          getRowId={(row) => row.DocEntry}
-          loading={listLoading}
-          paginationMode="server"
-          rowCount={totalCount}
-          paginationModel={paginationModel}
-          onPaginationModelChange={setPaginationModel}
-          pageSizeOptions={[10, 25, 50, 100]}
-          disableRowSelectionOnClick
-          sx={{
-            border: 0,
-            height: '100%',
-            '& .MuiDataGrid-columnHeaders': {
-              background: 'linear-gradient(135deg,#ede7f6,#d1c4e9)',
-              color: '#4527a0',
-              fontWeight: 700,
-              borderBottom: '1px solid grey'
-            },
-            '& .MuiDataGrid-columnHeaderTitle': { fontWeight: 700 },
-            '& .MuiDataGrid-row:hover': { backgroundColor: '#f3e5f5' },
-            '& .MuiDataGrid-cell': { borderColor: '#f1f1f1' },
-            '& .MuiDataGrid-footerContainer': {
-              borderTop: '1px solid #e0e0e0',
-              backgroundColor: '#fafafa',
-              overflow: 'hidden'
-            },
-            '& .MuiDataGrid-scrollbarFiller': { display: 'none' }
+           enableColumnResizing={true}
+          layoutMode={'grid'}
+          defaultColumn={{
+            minSize: 80,
+            size: 150,
+            maxSize: 500
           }}
+          initialState={{
+            pagination: {
+              pageIndex: 0,
+              pageSize: 8
+            }
+          }}
+          loading={listLoading}
+           muiTableHeadCellProps={{
+            sx: {
+              fontWeight: 'bold',
+              // color: '#eef2f6',
+              background: '#e7e7e7',
+              //borderBottom: '1px solid #bdbdbd',
+              //borderRight: '1px solid #d0d0d0', // Vertical separator
+              '&:last-child': {
+                borderRight: 'none'
+              }
+            }
+          }}
+          muiTableBodyRowProps={{ sx: { '&:hover': { backgroundColor: '#f3e5f5' } } }}
+          muiTableBodyCellProps={{ sx: { borderColor: '#f1f1f1' } }}
+          muiBottomToolbarProps={{ sx: { borderTop: '1px solid #e0e0e0', backgroundColor: '#fafafa' } }}
         />
       </Paper>
     </Box>

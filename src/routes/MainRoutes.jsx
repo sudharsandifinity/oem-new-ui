@@ -77,6 +77,7 @@ const PendingApprovalReports = Loadable(lazy(() => import('views/reports/pending
 const PurchaseRequestsList = Loadable(lazy(() => import('views/purchase-request-Amit/PurchaseRequestsList')));
 const PurchaseRequestCreate = Loadable(lazy(() => import('views/purchase-request-Amit/PurchaseRequestCreate')));
 const PurchaseRequestView = Loadable(lazy(() => import('views/purchase-request-Amit/PurchaseRequestView')));
+const PurchaseRequestEdit = Loadable(lazy(() => import('views/purchase-request-Amit/PurchaseRequestEdit')));
 
 //purchase Quotation routing
 const PurchaseQuotationList = Loadable(lazy(() => import('views/purchase-quotation/PurchaseQuotationList.jsx')));
@@ -359,6 +360,10 @@ const MainRoutes = {
         {
           path: 'view/:id',
           element: <PurchaseRequestView />
+        },
+        {
+          path: 'edit/:id',
+          element: <PurchaseRequestEdit />
         }
       ]
     },

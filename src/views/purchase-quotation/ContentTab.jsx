@@ -21,7 +21,7 @@ import {
   Typography
 } from '@mui/material';
 import ItemSelectPopup from '../modules/master-data/ItemLookupModal';
-import FreightPopup from './FreightPopup';
+import FreightPopup from '../modules/freight/FreightPopup';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
 import SearchIcon from '@mui/icons-material/Search';
@@ -68,16 +68,18 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
     }
     if (!employees.length) dispatch(getEmployees());
   }, [currencies]);
+  const isService = data.DocType === 'dDocument_Service';
 
-  useEffect(() => {
-    const exps = data.DocumentAdditionalExpenses || [];
-    if (exps.length) {
-      const total = exps.reduce((sum, e) => sum + Number(e.amount ?? e.LineTotal ?? 0), 0);
-      setFreightTotal(total);
-    }
-  }, [data.DocumentAdditionalExpenses]);
+  // useEffect(() => {
+  //   const exps = data.DocumentAdditionalExpenses || [];
+  //   if (exps.length) {
+  //     const total = exps.reduce((sum, e) => sum + Number(e.amount ?? e.LineTotal ?? 0), 0);
+  //     setFreightTotal(total);
+  //   }
+  // }, [data.DocumentAdditionalExpenses]);
 
   const [openItemPopup, setOpenItemPopup] = useState(false);
+  const [openServicePopup, setOpenServicePopup] = useState(false);
   const [selectedRowId, setSelectedRowId] = useState(null);
 
   const [openTaxPopup, setOpenTaxPopup] = useState(false);
@@ -108,7 +110,11 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
 
   const handleOpenItemPopup = (rowId) => {
     setSelectedRowId(rowId);
-    setOpenItemPopup(true);
+    if (isService) {
+      setOpenServicePopup(true);
+    } else {
+      setOpenItemPopup(true);
+    }
   };
 
   const handleSelectItem = (item) => {
@@ -124,7 +130,19 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
       )
     );
   };
-
+  const handleSelectService = (service) => {
+    setRows((prev) =>
+      prev.map((row) =>
+        row.id === selectedRowId
+          ? {
+              ...row,
+              itemNo: service.Code,
+              itemDescription: service.Name
+            }
+          : row
+      )
+    );
+  };
   const handleSelectTax = (tax) => {
     setOpenTaxPopup(false);
     setSelectedTaxRowId(null);
@@ -253,11 +271,28 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
     return rows.reduce((sum, r) => sum + parseFloat(r.taxAmount || 0), 0);
   }, [rows]);
 
+  const freightNet = useMemo(
+    () => (data.DocumentAdditionalExpenses || []).reduce((sum, e) => sum + Number(e.amount ?? e.LineTotal ?? 0), 0),
+    [data.DocumentAdditionalExpenses]
+  );
+
+  const freightTax = useMemo(
+    () =>
+      (data.DocumentAdditionalExpenses || []).reduce((sum, e) => {
+        const amt = Number(e.amount ?? e.LineTotal ?? 0);
+        const tax =
+          e.taxAmount !== undefined && e.taxAmount !== null && e.taxAmount !== ''
+            ? Number(e.taxAmount)
+            : (amt * Number(e.taxPercentage || 0)) / 100;
+        return sum + (Number(tax) || 0);
+      }, 0),
+    [data.DocumentAdditionalExpenses]
+  );
+
   const discountAmt = (totalBeforeDiscount * Number(data.DiscountPercent || 0)) / 100;
 
   const finalTotal =
-    totalBeforeDiscount - discountAmt + totalTax + freightTotal + (data.Rounding ? Number(data.RoundingDiffAmount || 0) : 0);
-
+    totalBeforeDiscount - discountAmt + totalTax + freightTax + freightNet + (data.Rounding ? Number(data.RoundingDiffAmount || 0) : 0);
   return (
     <Box>
       <Box
@@ -354,11 +389,12 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
                   width: 70
                 },
                 {
-                  label: 'Item Code',
+                  label: isService ? 'Service No' : 'Item Code',
+
                   width: 160
                 },
                 {
-                  label: 'Item Description',
+                  label: isService ? 'Service Description' : 'Item Description',
                   width: 240
                 },
                 {
@@ -738,16 +774,11 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
                 disabled={readOnly}
                 onChange={(e) => handleChange('SalesPersonCode', e.target.value)}
               >
-                 {(employees || []).map((emp) => (
-                <MenuItem
-                  key={emp.EmployeeID}
-                  value={emp.EmployeeID}
-                >
-                  {[emp.FirstName, emp.LastName]
-                    .filter(Boolean)
-                    .join(' ')}
-                </MenuItem>
-              ))}
+                {(employees || []).map((emp) => (
+                  <MenuItem key={emp.EmployeeID} value={emp.EmployeeID}>
+                    {[emp.FirstName, emp.LastName].filter(Boolean).join(' ')}
+                  </MenuItem>
+                ))}
               </Select>
             </FormControl>
 
@@ -838,7 +869,9 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
                 width: 120
               }}
             >
-              {freightTotal > 0 ? freightTotal.toFixed(2) : 'Add Freight'}
+              {freightNet > 0
+                ? freightNet.toFixed(2)
+                : 'Add Freight'}
             </Button>
           </Box>
           <Box
@@ -849,8 +882,8 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
             }}
           >
             <Typography>Tax</Typography>
-
-            <Typography>{totalTax.toFixed(2)}</Typography>
+{console.log("first",totalTax,freightTax)}
+            <Typography>{(totalTax + freightTax).toFixed(2)}</Typography>
           </Box>
           <Box
             sx={{
@@ -901,7 +934,7 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
         </Paper>
       </Box>
       <ItemSelectPopup open={openItemPopup} onClose={() => setOpenItemPopup(false)} onSelectItem={handleSelectItem} />
-      <TaxSelectPopup open={openTaxPopup} onClose={() => setOpenTaxPopup(false)} onSelectTax={handleSelectTax} page={'Purchase'}/>
+      <TaxSelectPopup open={openTaxPopup} onClose={() => setOpenTaxPopup(false)} onSelectTax={handleSelectTax} isPurchase />
       <ProjectLookupModal open={openProjectPopup} onClose={() => setOpenProjectPopup(false)} onSelectProject={handleSelectProject} />
       <WarehouseLookupModal
         open={openWarehousePopup}
@@ -909,18 +942,20 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
         onSelectWarehouse={handleSelectWarehouse}
       />
       <FreightPopup
-        open={freightPopupOpen}
-        onClose={() => setFreightPopupOpen(false)}
-        onApply={(result) => {
-          setFreightTotal(result.total);
-
-          setData((prev) => ({
-            ...prev,
-            DocumentAdditionalExpenses: result.expenses
-          }));
-        }}
-        page={'Purchase'}
-      />
+              open={freightPopupOpen}
+              initialExpenses={data.DocumentAdditionalExpenses}
+              onClose={() =>
+                setFreightPopupOpen(false)
+              }
+              onApply={(result) => {
+                setData(prev => ({
+                  ...prev,
+                  DocumentAdditionalExpenses:
+                    result.expenses
+                }));
+              }}
+              isPurchase
+            />
     </Box>
   );
 }

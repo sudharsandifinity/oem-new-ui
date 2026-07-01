@@ -135,6 +135,8 @@ export default function PurchaseQuotationsCreate() {
   };
 
   const handleSubmit = async () => {
+    const isService = purchaseQuotation.DocType === 'dDocument_Service';
+
     const payload = {
       DocType: purchaseQuotation.DocType,
       CardCode: purchaseQuotation.VendorCode,
@@ -161,20 +163,30 @@ export default function PurchaseQuotationsCreate() {
             row.itemNo &&
             Number(row.quantity) > 0
         )
-        .map((row, index) => ({
-          LineNum: index,
-          ItemCode: row.itemNo,
-          ItemDescription:
-            row.itemDescription,
-          Quantity: Number(row.quantity),
-          UnitPrice: Number(row.unitPrice),
-          WarehouseCode:
-            row.warehouse || null,
-          ProjectCode:
-            row.project || null,
-          VatGroup:
-            row.taxCode || null
-        })),
+        .map((row, index) =>
+          isService
+            ? {
+                LineNum: index,
+                AccountCode: row.itemNo,
+                ItemDescription: row.itemDescription,
+                Quantity: Number(row.quantity),
+                UnitPrice: Number(row.unitPrice),
+                DiscountPercent: Number(row.discount) || 0,
+                ProjectCode: row.project || null,
+                VatGroup: row.taxCode || null
+              }
+            : {
+                LineNum: index,
+                ItemCode: row.itemNo,
+                ItemDescription: row.itemDescription,
+                Quantity: Number(row.quantity),
+                UnitPrice: Number(row.unitPrice),
+                DiscountPercent: Number(row.discount) || 0,
+                WarehouseCode: row.warehouse || null,
+                ProjectCode: row.project || null,
+                VatGroup: row.taxCode || null
+              }
+        ),
         DocumentAdditionalExpenses:
         (purchaseQuotation.DocumentAdditionalExpenses || [])
           .map(exp => ({

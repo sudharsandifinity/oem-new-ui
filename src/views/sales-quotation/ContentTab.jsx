@@ -24,7 +24,7 @@ import {
   Typography
 } from '@mui/material';
 import ItemSelectPopup from '../modules/master-data/ItemLookupModal';
-import FreightPopup from './FreightPopup';
+import FreightPopup from '../modules/freight/FreightPopup';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
 import SearchIcon from '@mui/icons-material/Search';
@@ -36,6 +36,7 @@ import InputAdornment from '@mui/material/InputAdornment';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { getCurrencies } from '../../store/slices/currencySlice';
 import { getEmployees } from '../../store/slices/commonSlice';
+import ServiceSelectPopup from '../modules/master-data/ServiceLookupModal';
 
 const createRow = (id) => ({
   id,
@@ -58,7 +59,7 @@ const createRow = (id) => ({
   dimension5: ''
 });
 
-export default function ContentTab({ data, setData, rows, setRows, readOnly = false }) {
+export default function ContentTab({ data, setData, rows, setRows, readOnly = false,isEdit = false  }) {
   const [documentType, setDocumentType] = useState('item');
   const [currency, setCurrency] = useState('');
   const dispatch = useDispatch();
@@ -69,6 +70,9 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
     (state) => state.currency
   );
   const {  employees, employeesLoading } = useSelector((s) => s.common);
+
+  const isService = data.DocType === 'dDocument_Service';
+
 
   useEffect(() => {
     if (currencies.length === 0) {
@@ -87,6 +91,7 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
   }, [data.DocumentAdditionalExpenses]);
 
   const [openItemPopup, setOpenItemPopup] = useState(false);
+    const [openServicePopup, setOpenServicePopup] = useState(false);
   const [selectedRowId, setSelectedRowId] = useState(null);
 
   const [openTaxPopup, setOpenTaxPopup] = useState(false);
@@ -120,7 +125,11 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
 
     const handleOpenItemPopup = (rowId) => {
       setSelectedRowId(rowId);
-      setOpenItemPopup(true);
+      if (isService) {
+        setOpenServicePopup(true);
+      } else {
+        setOpenItemPopup(true);
+      }
     };
 
     const handleSelectItem = (item) => {
@@ -138,6 +147,20 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
       );
     };
     
+    const handleSelectService = (service) => {
+      setRows((prev) =>
+        prev.map((row) =>
+          row.id === selectedRowId
+            ? {
+                ...row,
+                itemNo: service.Code,
+                itemDescription: service.Name
+              }
+            : row
+        )
+      );
+    };
+
     const handleSelectTax = (tax) => {
       setOpenTaxPopup(false);
       setSelectedTaxRowId(null);
@@ -282,6 +305,26 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
     );
   }, [rows]);
 
+  const freightNet = useMemo(
+    () =>
+      (data.DocumentAdditionalExpenses || []).reduce(
+        (sum, e) => sum + Number(e.amount ?? e.LineTotal ?? 0),
+        0
+      ),
+    [data.DocumentAdditionalExpenses]
+  );
+   const freightTax = useMemo(
+      () =>
+        (data.DocumentAdditionalExpenses || []).reduce((sum, e) => {
+          const amt = Number(e.amount ?? e.LineTotal ?? 0);
+          const tax =
+            e.taxAmount !== undefined && e.taxAmount !== null && e.taxAmount !== ''
+              ? Number(e.taxAmount)
+              : (amt * Number(e.taxPercentage || 0)) / 100;
+          return sum + (Number(tax) || 0);
+        }, 0),
+      [data.DocumentAdditionalExpenses]
+    );
   const discountAmt =
     (totalBeforeDiscount *
       Number(
@@ -293,7 +336,8 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
     totalBeforeDiscount -
     discountAmt +
     totalTax +
-    freightTotal +
+    freightTax +
+    freightNet +
     (data.Rounding
       ? Number(data.RoundingDiffAmount || 0)
       : 0)
@@ -330,7 +374,7 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
             <Select
               label="Item / Service"
               value={data.DocType}
-              disabled={readOnly}
+              disabled={readOnly|| isEdit}
               onChange={(e) => handleChange('DocType', e.target.value)}
             >
               <MenuItem value="dDocument_Items">
@@ -414,11 +458,11 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
                   width: 70
                 },
                 {
-                  label: 'Item Code',
+                  label: isService ? 'Service No' : 'Item Code',
                   width: 160
                 },
                 {
-                  label: 'Item Description',
+                  label: isService ? 'Service Description' : 'Item Description',
                   width: 240
                 },
                 {
@@ -1013,8 +1057,8 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
                 width: 120
               }}
             >
-              {freightTotal > 0
-                ? freightTotal.toFixed(2)
+               {freightNet > 0
+                ? freightNet.toFixed(2)
                 : 'Add Freight'}
             </Button>
           </Box>
@@ -1030,7 +1074,8 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
             </Typography>
 
             <Typography>
-              {totalTax.toFixed(2)}
+                           {(totalTax + freightTax).toFixed(2)}
+
             </Typography>
           </Box>
           <Box
@@ -1104,6 +1149,11 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
         }
         onSelectItem={handleSelectItem}
       />
+      <ServiceSelectPopup
+              open={openServicePopup}
+              onClose={() => setOpenServicePopup(false)}
+              onSelectService={handleSelectService}
+            />
       <TaxSelectPopup
         open={openTaxPopup}
         onClose={() => setOpenTaxPopup(false)}
@@ -1121,12 +1171,11 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
       />
       <FreightPopup
         open={freightPopupOpen}
+        initialExpenses={data.DocumentAdditionalExpenses}
         onClose={() =>
           setFreightPopupOpen(false)
         }
         onApply={(result) => {
-          setFreightTotal(result.total);
-
           setData(prev => ({
             ...prev,
             DocumentAdditionalExpenses:

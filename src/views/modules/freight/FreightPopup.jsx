@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   Box,
   Button,
@@ -22,8 +22,8 @@ import {
 import DeleteIcon from '@mui/icons-material/Delete';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import SearchIcon from '@mui/icons-material/Search';
-import FreightLookupModal from '../modules/master-data/FreightLookupModal';
-import TaxCodeLookupModal from '../modules/master-data/TaxCodeLookup';
+import FreightLookupModal from '../master-data/FreightLookupModal';
+import TaxCodeLookupModal from '../master-data/TaxCodeLookup';
 
 const createRow = (id) => ({
   id,
@@ -37,11 +37,22 @@ const createRow = (id) => ({
   grossAmount: ''
 });
 
-export default function FreightPopup({open, onClose, onApply,page}) {
+export default function FreightPopup({open, onClose, onApply, initialExpenses,isPurchase}) {
 
   const [rows, setRows] = useState([
     createRow(1)
   ]);
+
+  useEffect(() => {
+    if (!open) return;
+    const seeded = (initialExpenses || []).map((exp, i) => ({
+      ...createRow(i + 1),
+      ...exp,
+      id: exp.id ?? i + 1
+    }));
+    setRows(seeded.length ? [...seeded, createRow(seeded.length + 1)] : [createRow(1)]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
 
   const [openFreightLookup, setOpenFreightLookup] = useState(false);
   const [selectedRowId, setSelectedRowId] = useState(null);
@@ -84,6 +95,10 @@ export default function FreightPopup({open, onClose, onApply,page}) {
         createRow(prev.length + 1)
       ]);
     }
+  };
+
+  const deleteRow = (id) => {
+    setRows((prev) => (prev.length <= 1 ? prev : prev.filter((r) => r.id !== id)));
   };
 
   const handleFreightSelect = (selected) => {
@@ -527,12 +542,13 @@ export default function FreightPopup({open, onClose, onApply,page}) {
         open={openFreightLookup}
         onClose={() => setOpenFreightLookup(false)}
         onSelectFreight={handleFreightSelect}
+        isPurchase={isPurchase}
       />
       <TaxCodeLookupModal
         open={openTaxLookup}
         onClose={() => setOpenTaxLookup(false)}
         onSelectTax={handleTaxSelect}
-        page={page}
+        isPurchase={isPurchase}
       />
     </Dialog>
   );

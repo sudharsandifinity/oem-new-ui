@@ -70,7 +70,6 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
   );
   const {  employees, employeesLoading } = useSelector((s) => s.common);
 
-  const { employees, employeesLoading } = useSelector((state) => state.common);
 
   const isService = data.DocType === 'dDocument_Service';
 
@@ -271,10 +270,7 @@ export default function ContentTab({ data, setData, rows, setRows, readOnly = fa
       last.unitPrice;
 
     if (hasData) {
-      setRows(prev => [
-        ...prev,
-        createRow(Date.now())
-      ]);
+       setRows((prev) => [...prev, createRow(Date.now())]);
     }
   }, [rows, readOnly]);
 

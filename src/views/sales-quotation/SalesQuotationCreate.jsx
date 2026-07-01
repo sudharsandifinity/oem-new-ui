@@ -134,6 +134,8 @@ export default function SalesQuotationCreate() {
   };
 
   const handleSubmit = async () => {
+    const isService = salesQuotation.DocType === 'dDocument_Service';
+
     const payload = {
       DocType: salesQuotation.DocType,
       CardCode: salesQuotation.CardCode,
@@ -143,7 +145,7 @@ export default function SalesQuotationCreate() {
       DocDueDate: salesQuotation.DocDueDate,
       DocCurrency: salesQuotation.DocCurrency,
       Comments: salesQuotation.Comments,
-      ContactPersonCode: salesQuotation.ContactPersonCode,
+      ContactPersonCode: salesQuotation.ContactPerson,
       TaxDate: salesQuotation.TaxDate,
 
       Rounding:
@@ -160,21 +162,30 @@ export default function SalesQuotationCreate() {
             row.itemNo &&
             Number(row.quantity) > 0
         )
-        .map((row, index) => ({
-          LineNum: index,
-          ItemCode: row.itemNo,
-          ItemDescription:
-            row.itemDescription,
-          Quantity: Number(row.quantity),
-          DiscountPercent:Number(row.discount),
-          UnitPrice: Number(row.unitPrice),
-          WarehouseCode:
-            row.warehouse || null,
-          ProjectCode:
-            row.project || null,
-          VatGroup:
-            row.taxCode || null
-        })),
+        .map((row, index) =>
+          isService
+            ? {
+                LineNum: index,
+                AccountCode: row.itemNo,
+                ItemDescription: row.itemDescription,
+              Quantity: Number(row.quantity),
+                UnitPrice: Number(row.unitPrice),
+                DiscountPercent: Number(row.discount) || 0,
+                ProjectCode: row.project || null,
+                VatGroup: row.taxCode || null
+              }
+            : {
+                LineNum: index,
+                ItemCode: row.itemNo,
+                ItemDescription: row.itemDescription,
+                Quantity: Number(row.quantity),
+                UnitPrice: Number(row.unitPrice),
+                DiscountPercent: Number(row.discount) || 0,
+                WarehouseCode: row.warehouse || null,
+                ProjectCode: row.project || null,
+                VatGroup: row.taxCode || null
+              }
+        ),
         DocumentAdditionalExpenses:
         (salesQuotation.DocumentAdditionalExpenses || [])
           .map(exp => ({

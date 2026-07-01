@@ -161,8 +161,8 @@ export default function Dashboard() {
 
   const projectData = Object.values(projects);
   return (
-    <>
-      <Grid container spacing={2}>
+    <>Dashboard
+      {/* <Grid container spacing={2}>
         <Grid item xs={12} md={3}>
           <Card>
             <CardContent>
@@ -260,7 +260,7 @@ export default function Dashboard() {
 
           <Bar dataKey="GR" fill="#4caf50" />
         </BarChart>
-      </ResponsiveContainer>
+      </ResponsiveContainer> */}
     </>
   );
 }

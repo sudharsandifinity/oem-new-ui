@@ -43,6 +43,20 @@ export const createPR = createAsyncThunk('purchaseRequest/create', async (payloa
   }
 });
 
+export const updatePR = createAsyncThunk('purchaseRequest/update', async ({ docEntry, payload }, thunkAPI) => {
+  try {
+    const response = await API.patch(`/sap/purchase-requests/${docEntry}`, payload);
+    return response.data;
+  } catch (error) {
+    const d = error.response?.data;
+    return thunkAPI.rejectWithValue({
+      status: error.response?.status,
+      message: d?.error?.error?.message?.value || d?.message || 'Purchase Request Update Failed',
+      sapCode: d?.error?.error?.code
+    });
+  }
+});
+
 export const getPRById = createAsyncThunk('purchaseRequest/getById', async (docEntry, thunkAPI) => {
   try {
     const response = await API.get(`/sap/purchase-requests/${docEntry}`);
@@ -63,6 +77,7 @@ const purchaseRequestSlice = createSlice({
     currentPRLoading: false,
     currentPRError: null,
 
+    
     createLoading: false,
     saveSuccess: false,
     error: null
@@ -130,6 +145,20 @@ const purchaseRequestSlice = createSlice({
         state.saveSuccess = true;
       })
       .addCase(createPR.rejected, (state, action) => {
+        state.createLoading = false;
+        state.error = action.payload?.message || action.payload;
+      })
+
+      .addCase(updatePR.pending, (state) => {
+        state.createLoading = true;
+        state.error = null;
+        state.saveSuccess = false;
+      })
+      .addCase(updatePR.fulfilled, (state) => {
+        state.createLoading = false;
+        state.saveSuccess = true;
+      })
+      .addCase(updatePR.rejected, (state, action) => {
         state.createLoading = false;
         state.error = action.payload?.message || action.payload;
       });

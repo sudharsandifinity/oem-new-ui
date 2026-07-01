@@ -25,7 +25,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 
 // ================= COMPONENT ================= //
 
-export default function TaxSelectPopup({ open, onClose, onSelectTax,page }) {
+export default function TaxSelectPopup({ open, onClose, onSelectTax,isPurchase=false }) {
   const dispatch = useDispatch();
   const { taxCodes, loading, error,purTaxCode,
   purTaxLoading,
@@ -39,7 +39,7 @@ export default function TaxSelectPopup({ open, onClose, onSelectTax,page }) {
   // ================= FILTERED DATA ================= //
 
   const filteredData = useMemo(() => {
-    return (page==='Purchase'?purTaxCode||[]:taxCodes || []).filter((tax) => {
+    return (isPurchase?purTaxCode||[]:taxCodes || []).filter((tax) => {
       return (
         (!filters.taxCode || tax.Code.toLowerCase().includes(filters.taxCode.toLowerCase())) &&
         (!filters.taxName || tax.Name.toLowerCase().includes(filters.taxName.toLowerCase()))
@@ -69,7 +69,7 @@ export default function TaxSelectPopup({ open, onClose, onSelectTax,page }) {
 
   useEffect(() => {
     if (open) {
-      if(page==='Purchase'){
+      if(isPurchase){
         dispatch(getPurTaxCodes());
       }else{
       dispatch(getTaxCodes());
@@ -201,7 +201,7 @@ export default function TaxSelectPopup({ open, onClose, onSelectTax,page }) {
             </TableHead>
 
             <TableBody>
-              {page==='Purchase'?purTaxLoading && purTaxCode.length === 0 && (
+              {isPurchase?purTaxLoading && purTaxCode.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={4} align="center" sx={{ py: 5 }}>
                     <CircularProgress color="secondary" size={32} />
