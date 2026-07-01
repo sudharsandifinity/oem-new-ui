@@ -35,6 +35,7 @@ export default function PurchaseRequestCreate() {
     ProjectCode: state?.projectCode ?? '',
     ProjectName: state?.projectName ?? '',
     DocDate: today,
+    TaxDate: today,
     RequiredDate: '',
     ReqCode: state?.reqCode ?? '',
     ReqType: state?.reqType ?? null,
@@ -42,7 +43,8 @@ export default function PurchaseRequestCreate() {
     RequestorName: state?.requestorName ?? '',
     DeptId: state?.department ?? '',
     Department: state?.departmentName ?? '',
-    Comments: ''
+    Comments: '',
+    DocumentAdditionalExpenses: []
   }));
 
   const [lines, setLines] = useState(() => (state?.selectedLines ?? []).map(mrLineToPRRow));

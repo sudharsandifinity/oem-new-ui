@@ -27,16 +27,17 @@ export default function PRGeneralTab({ data, setData, readOnly = false }) {
         <TextField fullWidth label="Requestor Name" value={data?.RequestorName || ''} disabled />
 
         <TextField fullWidth label="Department" value={data?.Department || ''} disabled />
-
-        <TextField fullWidth label="MR No" value={data?.MRNo ?? ''} disabled />
       </Box>
 
       <Box sx={{ flex: 1, minWidth: 350, display: 'flex', flexDirection: 'column', gap: 3 }}>
-        <TextField fullWidth label="Project Code" value={data?.ProjectCode || ''} disabled />
-
-        <TextField fullWidth label="Project Name" value={data?.ProjectName || ''} disabled />
-
         <AppDatePicker label="Posting Date" value={data?.DocDate || today} disabled />
+
+        <AppDatePicker
+          label="Document Date"
+          value={data?.TaxDate || today}
+          onChange={(val) => handleChange('TaxDate', val)}
+          disabled={readOnly}
+        />
 
         <AppDatePicker
           label="Required Date"
