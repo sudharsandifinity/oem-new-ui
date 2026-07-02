@@ -114,46 +114,60 @@ export default function PurchaseRequestsList() {
             gap: 2
           }}
         >
-          <Box>
-            <Typography variant="h4">Purchase Request</Typography>
-            <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />} sx={{ mt: 0.5 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <HomeIcon sx={{ fontSize: 18, color: 'secondary.main' }} />
-              </Box>
-              <Typography variant="body2">Purchase Request</Typography>
-              <Typography variant="body2" color="secondary" fontWeight={600}>
-                List
-              </Typography>
-            </Breadcrumbs>
-          </Box>
-          <Button variant="contained" color="secondary" startIcon={<AddIcon />} onClick={() => navigate('/purchase-request/create')}>
-            Create
-          </Button>
+          <Typography variant="h4">Purchase Request</Typography>
+          <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />}>
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <HomeIcon sx={{ fontSize: 18, color: 'secondary.main' }} />
+            </Box>
+            <Typography variant="body2">Purchase Request</Typography>
+            <Typography variant="body2" color="secondary" fontWeight={600}>
+              List
+            </Typography>
+          </Breadcrumbs>
         </Box>
       </MainCard>
 
       <Paper variant="outlined" sx={{ p: 2, mb: 3, borderRadius: 2, flexShrink: 0 }}>
-        <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'center' }}>
-          <TextField
-            size="small"
-            label="MR No"
-            value={filters.MRNo}
-            onChange={(e) => setFilters((p) => ({ ...p, MRNo: e.target.value }))}
-          />
-          <TextField
-            size="small"
-            label="Project Code"
-            value={filters.ProjectCode}
-            onChange={(e) => setFilters((p) => ({ ...p, ProjectCode: e.target.value }))}
-          />
-          <TextField
-            size="small"
-            label="Project Name"
-            value={filters.ProjectName}
-            onChange={(e) => setFilters((p) => ({ ...p, ProjectName: e.target.value }))}
-          />
-          <Button variant="outlined" color="error" startIcon={<ClearIcon />} onClick={clearFilters}>
-            Clear
+        <Box
+          sx={{
+            display: 'flex',
+            gap: 2,
+            flexWrap: 'wrap',
+            alignItems: { xs: 'flex-start', md: 'center' },
+            flexDirection: { xs: 'column', md: 'row' }
+          }}
+        >
+          <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', flex: 1 }}>
+            <TextField
+              size="small"
+              label="MR No"
+              value={filters.MRNo}
+              onChange={(e) => setFilters((p) => ({ ...p, MRNo: e.target.value }))}
+            />
+            <TextField
+              size="small"
+              label="Project Code"
+              value={filters.ProjectCode}
+              onChange={(e) => setFilters((p) => ({ ...p, ProjectCode: e.target.value }))}
+            />
+            <TextField
+              size="small"
+              label="Project Name"
+              value={filters.ProjectName}
+              onChange={(e) => setFilters((p) => ({ ...p, ProjectName: e.target.value }))}
+            />
+            <Button variant="outlined" color="error" startIcon={<ClearIcon />} onClick={clearFilters}>
+              Clear
+            </Button>
+          </Box>
+          <Button
+            variant="contained"
+            color="secondary"
+            startIcon={<AddIcon />}
+            onClick={() => navigate('/purchase-request/create')}
+            sx={{ minWidth: 140, whiteSpace: 'nowrap' }}
+          >
+            Create
           </Button>
         </Box>
       </Paper>
