@@ -63,6 +63,11 @@ export default function SalesOrderList() {
       Cell: ({ row }) => row.index + 1
     },
     {
+        accessorKey: 'DocEntry',
+        header: 'Doc Entry',
+        size: 120
+      },
+    {
       accessorKey: 'CardCode',
       header: 'Customer Code',
       flex: 1,
@@ -84,7 +89,9 @@ export default function SalesOrderList() {
       accessorKey: 'DocDate',
       header: 'Posting Date',
       flex: 1,
-      minWidth: 150
+      minWidth: 150,
+        Cell: ({ cell }) => cell.getValue()?.substring(0, 10) || ''
+
     },
     {
       accessorKey: 'DocumentStatus',

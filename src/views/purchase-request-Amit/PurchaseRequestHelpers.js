@@ -41,7 +41,7 @@ export const mapApiToForm = (order) => ({
   RequestorType: order.ReqType ?? '',
   ReqCode: order.ReqCode ?? '',
   RequestorName: order.RequesterName ?? '',
-  Department: order.Department ?? '',
+  Department: order.RequesterDepartment ?? '',
 StatusLabel:order.DocumentStatus === 'bost_Open' ? 'Open' : 'Closed',
   DocDate: splitDate(order.DocDate),
   DocDueDate: splitDate(order.DocDueDate),

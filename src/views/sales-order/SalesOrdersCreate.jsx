@@ -24,15 +24,25 @@ import AttachmentTab from './AttachmentTab';
 
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
-import { useNavigate } from 'react-router';
+import { useNavigate, useLocation } from 'react-router';
+import { mapApiToForm, mapApiToRows, mapApiToSO, mapApiToSORows } from './salesOrderHelpers';
 
 export default function SalesOrdersCreate() {
   const dispatch = useDispatch();
   const navigate=useNavigate();
+const location = useLocation();
+
+  useEffect(() => {
+    console.log('location.state', location?.state?.salesQuotation);
+  },[location?.state]);
   const { loading, error, saveSuccess } = useSelector(
     (state) => state.salesOrder
   );
-
+  useEffect(() => {
+    if (!location?.state?.salesQuotation) return;
+    setSalesOrder(mapApiToSO(location?.state?.salesQuotation));
+    setDocumentLines([...mapApiToSORows(location.state.salesQuotation), { id: Date.now(), itemNo: '', itemDescription: '', quantity: '', unitPrice: '', discount: '', lineTotal: '', taxCode: '', taxPercentage: '', taxAmount: '', grossTotal: '', project: '', warehouse: '', dimension1: '', dimension2: '', dimension3: '', dimension4: '', dimension5: '' }]);
+  }, [location?.state]);
   const [snackbar, setSnackbar] = useState({
     open: false,
     severity: 'success',

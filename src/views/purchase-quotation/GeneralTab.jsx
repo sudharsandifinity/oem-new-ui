@@ -33,11 +33,11 @@ export default function GeneralTab({ data, setData, readOnly = false }) {
     setOpenCustomerPopup(false);
   };
 useEffect(() => {
-  console.log("VendorCode",vendor)
+  console.log("VendorCode",vendor,data)
   if (!data?.VendorCode || !vendor?.length) return;
 
   const customer = vendor.find((c) => c.CardCode === data.VendorCode);
-
+console.log("first",customer)
   if (customer) {
     setData((prev) => ({
       ...prev,
@@ -104,7 +104,7 @@ useEffect(() => {
           <TextField
             fullWidth
             label="Vendor Ref. No."
-            value={data.NumAtVendor}
+            value={data.NumAtCard}
             disabled={readOnly}
             onChange={(e) => handleChange('NumAtCard', e.target.value)}
           />

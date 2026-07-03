@@ -5,11 +5,15 @@ import { Box, IconButton, InputAdornment, TextField } from '@mui/material';
 import PersonSearchIcon from '@mui/icons-material/PersonSearch';
 import CustomerSelectPopup from '../modules/master-data/CustomerLookup';
 import AppDatePicker from 'ui-component/AppDatePicker';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { getCustomers } from '../../store/slices/customerSlice';
 
 export default function GeneralTab({ data, setData, readOnly = false }) {
 const { customers } = useSelector((state) => state.customer);
-  
+const dispatch=useDispatch();
+  useEffect(() => {
+      if (!customers.length) dispatch(getCustomers());
+    }, [dispatch]);
   const handleChange = (field, value) => {
     setData({ ...data, [field]: value });
   };

@@ -40,7 +40,7 @@ export const mapApiToRows = (order) => (order?.DocumentLines || []).map(mapApiLi
 export const mapApiToForm = (order) => ({
   VendorCode: order.CardCode ?? '',
   VendorName: order.CardName ?? '',
-  ContactPerson: order.ContactPerson ?? '',
+  ContactPerson: order.ContactPersonCode ?? '',
   NumAtCard: order.NumAtCard ?? '',
 
   DocDate: splitDate(order.DocDate),

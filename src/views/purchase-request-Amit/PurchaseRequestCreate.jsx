@@ -97,10 +97,11 @@ export default function PurchaseRequestsCreate() {
     
 
   const initialState = () => ({
-    VendorCode: '',
-    VendorName: '',
-    ContactPerson: '',
-    NumAtCard: '',
+    RequestorType: '',
+    ReqCode: '',
+    RequestorName: '',
+    Department: '',
+StatusLabel:'',
 
     DocDate: today,
     DocDueDate: today,

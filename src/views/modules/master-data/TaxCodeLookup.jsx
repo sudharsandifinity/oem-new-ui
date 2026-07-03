@@ -62,7 +62,7 @@ export default function TaxSelectPopup({ open, onClose, onSelectTax,isPurchase=f
     onSelectTax({
       taxCode: row.Code,
       taxName: row.Name,
-      taxPercentage: row.VatGroups_Lines?.[0]?.Rate || 0
+      taxPercentage: row.VatGroups_Lines?.[row.VatGroups_Lines.length-1]?.Rate || 0
     });
     onClose();
   };
@@ -229,7 +229,7 @@ export default function TaxSelectPopup({ open, onClose, onSelectTax,isPurchase=f
 
                   <TableCell>{row.Name}</TableCell>
 
-                  <TableCell>{row.VatGroups_Lines?.[0]?.Rate || 0}%</TableCell>
+                  <TableCell>{row.VatGroups_Lines?.[row.VatGroups_Lines.length-1]?.Rate || 0}%</TableCell>
                 </TableRow>
               ))}
 

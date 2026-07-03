@@ -11,6 +11,9 @@ import MainCard from 'ui-component/cards/MainCard';
 import GeneralTab from './GeneralTab';
 import ContentTab from './ContentTab';
 import AttachmentTab from './AttachmentTab';
+import { getDepartments } from '../../store/slices/commonSlice';
+import { resolveDepartmentName } from 'utils/department';
+
 import { mapApiToForm, mapApiToRows, buildPurchaseRequestFormData } from './PurchaseRequestHelpers';
 import { getPRById, resetPRState, updatePR,  } from '../../store/slices/purchaseRequestSlice';
 
@@ -40,6 +43,7 @@ export default function PurchaseRequestsEdit() {
   const navigate = useNavigate();
 
   const { currentPR, loading, error, saveSuccess } = useSelector((state) => state.purchaseRequest);
+  const { departments } = useSelector((s) => s.common);
 
   const [tabValue, setTabValue] = useState(0);
   const [purchaseRequest, setPurchaseRequest] = useState(null);
@@ -49,6 +53,8 @@ export default function PurchaseRequestsEdit() {
 
   useEffect(() => {
     if (id) dispatch(getPRById(id));
+        if (!departments.length) dispatch(getDepartments());
+    
     return () => {
       dispatch(resetPRState());
     };
@@ -59,7 +65,13 @@ export default function PurchaseRequestsEdit() {
     setPurchaseRequest(mapApiToForm(currentPR));
     setDocumentLines([...mapApiToRows(currentPR), { id: Date.now(), itemNo: '', itemDescription: '', quantity: '', unitPrice: '', discount: '', lineTotal: '', taxCode: '', taxPercentage: '', taxAmount: '', grossTotal: '', project: '', warehouse: '', dimension1: '', dimension2: '', dimension3: '', dimension4: '', dimension5: '' }]);
   }, [currentPR]);
-
+ useEffect(() => {
+    if (!purchaseRequest?.Department || !departments.length) return;
+    const name = resolveDepartmentName(departments, purchaseRequest.Department);
+    if (name !== purchaseRequest.Department) {
+      setPurchaseRequest((prev) => ({ ...prev, Department: name }));
+    }
+  }, [departments, purchaseRequest?.Department]);
   useEffect(() => {
     if (saveSuccess && submitting) {
       setSnackbar({ open: true, severity: 'success', message: 'Purchase Request updated successfully' });

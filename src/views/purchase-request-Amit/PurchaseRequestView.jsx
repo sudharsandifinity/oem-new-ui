@@ -62,14 +62,14 @@ export default function PurchaseRequestView() {
     setForm(mapApiToForm(currentPR));
     setLines((currentPR.DocumentLines || []).map(mapApiLineToRow));
   }, [currentPR]);
-
-  useEffect(() => {
-    if (!form?.DeptId || !departments.length) return;
-    const name = resolveDepartmentName(departments, form.DeptId);
+ useEffect(() => {
+    if (!form?.Department || !departments.length) return;
+    const name = resolveDepartmentName(departments, form.Department);
     if (name !== form.Department) {
       setForm((prev) => ({ ...prev, Department: name }));
     }
-  }, [departments, form?.DeptId]);
+  }, [departments, form?.Department]);
+
 
   const loading = currentPRLoading || !form;
 

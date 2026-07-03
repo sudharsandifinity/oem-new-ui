@@ -6,6 +6,8 @@ import { Alert, Box, Breadcrumbs, Button, Divider, Skeleton, Snackbar, Tab, Tabs
 
 import HomeIcon from '@mui/icons-material/Home';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+
 
 import MainCard from 'ui-component/cards/MainCard';
 import GeneralTab from './GeneralTab';
@@ -57,7 +59,29 @@ export default function SalesQuotationsEdit() {
   useEffect(() => {
     if (!currentOrder) return;
     setSalesQuotation(mapApiToForm(currentOrder));
-    setDocumentLines([...mapApiToRows(currentOrder), { id: Date.now(), itemNo: '', itemDescription: '', quantity: '', unitPrice: '', discount: '', lineTotal: '', taxCode: '', taxPercentage: '', taxAmount: '', grossTotal: '', project: '', warehouse: '', dimension1: '', dimension2: '', dimension3: '', dimension4: '', dimension5: '' }]);
+    setDocumentLines([
+      ...mapApiToRows(currentOrder),
+      {
+        id: Date.now(),
+        itemNo: '',
+        itemDescription: '',
+        quantity: '',
+        unitPrice: '',
+        discount: '',
+        lineTotal: '',
+        taxCode: '',
+        taxPercentage: '',
+        taxAmount: '',
+        grossTotal: '',
+        project: '',
+        warehouse: '',
+        dimension1: '',
+        dimension2: '',
+        dimension3: '',
+        dimension4: '',
+        dimension5: ''
+      }
+    ]);
   }, [currentOrder]);
 
   useEffect(() => {
@@ -73,7 +97,14 @@ export default function SalesQuotationsEdit() {
   }, [saveSuccess, error, submitting, id, navigate]);
 
   const isLoading = !salesQuotation;
-
+  const copyToSO = () => {
+    console.log('coptoso', salesQuotation);
+    navigate('/Sales-Order/create', {
+      state: {
+        salesQuotation: salesQuotation
+      }
+    });
+  };
   const handleSubmit = () => {
     const formData = buildSalesQuotationFormData(salesQuotation, documentLines);
     setSubmitting(true);
@@ -136,7 +167,7 @@ export default function SalesQuotationsEdit() {
                 <GeneralTab data={salesQuotation} setData={setSalesQuotation} />
               </Box>
               <Box sx={{ display: tabValue === 1 ? 'block' : 'none' }}>
-                <ContentTab data={salesQuotation} setData={setSalesQuotation} rows={documentLines} setRows={setDocumentLines}isEdit />
+                <ContentTab data={salesQuotation} setData={setSalesQuotation} rows={documentLines} setRows={setDocumentLines} isEdit />
               </Box>
               <Box sx={{ display: tabValue === 2 ? 'block' : 'none' }}>
                 <AttachmentTab data={salesQuotation} setData={setSalesQuotation} />
@@ -145,14 +176,26 @@ export default function SalesQuotationsEdit() {
           )}
 
           <Divider sx={{ my: 4 }} />
-
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, flexWrap: 'wrap' }}>
-            <Button variant="outlined" color="error" onClick={() => navigate(-1)}>
-              Cancel
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              gap: 2,
+              flexWrap: 'wrap'
+            }}
+          >
+            <Button variant="outlined" color="secondary" startIcon={<ContentCopyIcon />} onClick={() => copyToSO()}>
+              Copy To Sales Order
             </Button>
-            <Button variant="contained" color="secondary" disabled={isLoading || submitting} onClick={handleSubmit}>
-              {submitting ? 'Saving...' : 'Update'}
-            </Button>
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, flexWrap: 'wrap' }}>
+              <Button variant="outlined" color="error" onClick={() => navigate(-1)}>
+                Cancel
+              </Button>
+              <Button variant="contained" color="secondary" disabled={isLoading || submitting} onClick={handleSubmit}>
+                {submitting ? 'Saving...' : 'Update'}
+              </Button>
+            </Box>
           </Box>
         </Box>
       </MainCard>

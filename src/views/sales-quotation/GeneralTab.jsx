@@ -6,15 +6,20 @@ import AppDatePicker from 'ui-component/AppDatePicker';
 import CustomerSelectPopup from '../modules/master-data/CustomerLookup';
 
 import { useLookup } from '../../context/LookupContext';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { getCustomers } from '../../store/slices/customerSlice';
 
 const today = new Date().toISOString().split('T')[0];
 
 export default function SalesQuoatationGeneralTab({ data, setData, readOnly = false }) {
   const { openLookup } = useLookup();
+  const dispatch = useDispatch();
   const [openCustomerPopup, setOpenCustomerPopup] = useState(false);
-const { customers } = useSelector((state) => state.customer);
+  const { customers } = useSelector((state) => state.customer);
 
+  useEffect(() => {
+    if (!customers.length) dispatch(getCustomers());
+  }, [dispatch]);
   const handleSelectCustomer = (customerData) => {
     setData({
       ...data,
@@ -42,20 +47,21 @@ const { customers } = useSelector((state) => state.customer);
       }
     });
   };
+  console.log('customer', customers, data?.CardCode);
 
-useEffect(() => {
-  if (!data?.CardCode || !customers?.length) return;
+  useEffect(() => {
+    if (!data?.CardCode || !customers?.length) return;
 
-  const customer = customers.find((c) => c.CardCode === data.CardCode);
-
-  if (customer) {
-    setData((prev) => ({
-      ...prev,
-      CardName: prev.CardName || customer.CardName,
-      ContactPerson: customer.ContactPerson || ''
-    }));
-  }
-}, [data?.CardCode, customers]);
+    const customer = customers.find((c) => c.CardCode === data.CardCode);
+    console.log('customer', customer);
+    if (customer) {
+      setData((prev) => ({
+        ...prev,
+        CardName: prev.CardName || customer.CardName,
+        ContactPerson: customer.ContactPerson || ''
+      }));
+    }
+  }, [data?.CardCode, customers]);
   return (
     <>
       <Box sx={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
@@ -117,8 +123,7 @@ useEffect(() => {
         </Box>
       </Box>
 
-            <CustomerSelectPopup open={openCustomerPopup} onClose={() => setOpenCustomerPopup(false)} onSelectCustomer={handleSelectCustomer} />
-
+      <CustomerSelectPopup open={openCustomerPopup} onClose={() => setOpenCustomerPopup(false)} onSelectCustomer={handleSelectCustomer} />
     </>
   );
 }

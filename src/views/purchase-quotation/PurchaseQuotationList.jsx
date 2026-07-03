@@ -91,6 +91,11 @@ export default function PurchaseQuotationList() {
         size: 80,
         Cell: ({ row }) => row.index + 1
       },
+      {
+        accessorKey: 'DocEntry',
+        header: 'Doc Entry',
+        size: 120
+      },
     {
       accessorKey: 'CardCode',
       header: 'Vendor Code',
@@ -108,7 +113,9 @@ export default function PurchaseQuotationList() {
       accessorKey: 'DocDate',
       header: 'Posting Date',
       flex: 1,
-      minWidth: 150
+      minWidth: 150,
+        Cell: ({ cell }) => cell.getValue()?.substring(0, 10) || ''
+
     },
     {
       accessorKey: 'DocumentStatus',
