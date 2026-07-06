@@ -5,17 +5,10 @@ import {
   Box,
   Breadcrumbs,
   Button,
-  Checkbox,
   Chip,
   Divider,
-  FormControl,
   IconButton,
-  InputLabel,
-  ListItemText,
-  MenuItem,
-  OutlinedInput,
   Paper,
-  Select,
   Snackbar,
   Stack,
   TextField,
@@ -29,8 +22,10 @@ import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import PersonAddAltIcon from '@mui/icons-material/PersonAddAlt';
 
 import MainCard from 'ui-component/cards/MainCard';
+import ApproverSelectModal from './ApproverSelectModal';
 import { getApprovalFlow, saveApprovalFlow, getadminUsers, resetApprovalFlowState } from '../../../store/slices/commonCustomerSlice';
 
 const DOC_TYPE = 'MR';
@@ -44,6 +39,7 @@ export default function ApprovalSetupPage() {
 
   const [stages, setStages] = useState([emptyStage()]);
   const [snackbar, setSnackbar] = useState({ open: false, severity: 'success', message: '' });
+  const [approverModal, setApproverModal] = useState({ open: false, index: -1 });
 
   useEffect(() => {
     dispatch(getApprovalFlow(DOC_TYPE));
@@ -101,6 +97,19 @@ export default function ApprovalSetupPage() {
     });
   };
 
+  const openApproverModal = (index) => setApproverModal({ open: true, index });
+  const closeApproverModal = () => setApproverModal({ open: false, index: -1 });
+  const confirmApprovers = (ids) => {
+    if (approverModal.index < 0) return;
+    updateStage(approverModal.index, 'approverUserIds', ids);
+  };
+  const removeApprover = (index, id) =>
+    updateStage(
+      index,
+      'approverUserIds',
+      stages[index].approverUserIds.filter((x) => x !== id)
+    );
+
   const handleSave = () => {
     const payloadStages = stages
       .filter((s) => (s.name || '').trim() && s.approverUserIds.length)
@@ -142,11 +151,6 @@ export default function ApprovalSetupPage() {
 
       <MainCard content={false}>
         <Box sx={{ p: 3 }}>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-            Configure the ordered approval stages for Material Requests. Each stage may have one or more approvers — any one of them can approve
-            to advance to the next stage.
-          </Typography>
-
           {approvalFlowLoading ? (
             <Typography color="text.secondary">Loading…</Typography>
           ) : (
@@ -179,7 +183,7 @@ export default function ApprovalSetupPage() {
                     </Tooltip>
                   </Box>
 
-                  <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+                  <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'flex-start' }}>
                     <TextField
                       label="Stage Name"
                       size="small"
@@ -188,30 +192,28 @@ export default function ApprovalSetupPage() {
                       onChange={(e) => updateStage(index, 'name', e.target.value)}
                     />
 
-                    <FormControl size="small" sx={{ flex: 2, minWidth: 280 }}>
-                      <InputLabel>Approvers</InputLabel>
-                      <Select
-                        multiple
-                        value={stage.approverUserIds}
-                        onChange={(e) => updateStage(index, 'approverUserIds', e.target.value)}
-                        input={<OutlinedInput label="Approvers" />}
-                        disabled={usersLoading}
-                        renderValue={(selected) => (
-                          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                            {selected.map((id) => (
-                              <Chip key={id} label={userLabel(id)} size="small" />
-                            ))}
-                          </Box>
-                        )}
-                      >
-                        {userOptions.map((opt) => (
-                          <MenuItem key={opt.id} value={opt.id}>
-                            <Checkbox checked={stage.approverUserIds.indexOf(opt.id) > -1} />
-                            <ListItemText primary={opt.label} secondary={opt.email} />
-                          </MenuItem>
+                    <Box sx={{ flex: 2, minWidth: 280 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                        <Button
+                          variant="outlined"
+                          color="secondary"
+                          size="small"
+                          startIcon={<PersonAddAltIcon />}
+                          onClick={() => openApproverModal(index)}
+                          disabled={usersLoading}
+                        >
+                          Select Approvers
+                        </Button>
+                        <Typography variant="caption" color="text.secondary">
+                          {stage.approverUserIds.length ? `${stage.approverUserIds.length} selected` : 'None selected'}
+                        </Typography>
+                      </Box>
+                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                        {stage.approverUserIds.map((id) => (
+                          <Chip key={id} label={userLabel(id)} size="small" onDelete={() => removeApprover(index, id)} />
                         ))}
-                      </Select>
-                    </FormControl>
+                      </Box>
+                    </Box>
                   </Box>
                 </Paper>
               ))}
@@ -233,6 +235,15 @@ export default function ApprovalSetupPage() {
           </Box>
         </Box>
       </MainCard>
+
+      <ApproverSelectModal
+        open={approverModal.open}
+        onClose={closeApproverModal}
+        users={userOptions}
+        loading={usersLoading}
+        initialSelected={approverModal.index >= 0 ? stages[approverModal.index].approverUserIds : []}
+        onConfirm={confirmApprovers}
+      />
 
       <Snackbar
         open={snackbar.open}

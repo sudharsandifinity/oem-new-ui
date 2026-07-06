@@ -37,8 +37,6 @@ const MaterialRequestsList = Loadable(lazy(() => import('views/material-request/
 const MaterialRequestCreate = Loadable(lazy(() => import('views/material-request/MaterialRequestCreate')));
 const MaterialRequestView = Loadable(lazy(() => import('views/material-request/MaterialRequestView')));
 const MaterialRequestEdit = Loadable(lazy(() => import('views/material-request/MaterialRequestEdit')));
-const MaterialRequestApprovals = Loadable(lazy(() => import('views/material-request/MaterialRequestApprovals')));
-const MaterialRequestApprovalView = Loadable(lazy(() => import('views/material-request/MaterialRequestApprovalView')));
 
 // Reports routing
 const PendingApprovalReports = Loadable(lazy(() => import('views/reports/pendingreports/PendingApprovalReports')));
@@ -178,13 +176,6 @@ const MainRoutes = {
           path: 'edit/:id',
           element: <MaterialRequestEdit />
         }
-      ]
-    },
-    {
-      path: 'Approvals',
-      children: [
-        { path: 'list', element: <MaterialRequestApprovals /> },
-        { path: 'view/:id', element: <MaterialRequestApprovalView /> }
       ]
     },
     {
