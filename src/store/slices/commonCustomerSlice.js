@@ -82,6 +82,24 @@ export const syncCompanyProjects = createAsyncThunk('commonCustomer/syncCompanyP
   }
 });
 
+export const getApprovalFlow = createAsyncThunk('commonCustomer/getApprovalFlow', async (docType = 'MR', thunkAPI) => {
+  try {
+    const response = await API.get('/company-admin/approval-flows', { params: { docType } });
+    return response.data;
+  } catch (error) {
+    return thunkAPI.rejectWithValue(error.response?.data?.message || 'Failed to fetch approval flow');
+  }
+});
+
+export const saveApprovalFlow = createAsyncThunk('commonCustomer/saveApprovalFlow', async (payload, thunkAPI) => {
+  try {
+    const response = await API.put('/company-admin/approval-flows', payload);
+    return response.data;
+  } catch (error) {
+    return thunkAPI.rejectWithValue(error.response?.data?.message || 'Failed to save approval flow');
+  }
+});
+
 export const getEmployees = createAsyncThunk('commonCustomer/getEmployees', async (_, thunkAPI) => {
   try {
     const response = await API.get('/sap/employees');
@@ -144,7 +162,12 @@ const commonCustomerSlice = createSlice({
     departmentsLoading: false,
 
     vendors: [],
-    vendorsLoading: false
+    vendorsLoading: false,
+
+    approvalFlow: null,
+    approvalFlowLoading: false,
+    approvalFlowSaving: false,
+    approvalFlowSaveSuccess: false
   },
   reducers: {
      resetAdminUserState: (state) => {
@@ -155,7 +178,12 @@ const commonCustomerSlice = createSlice({
       state.currentAdminUser = null;
       state.currentAdminUserError = null;
     },
-   
+    resetApprovalFlowState: (state) => {
+      state.approvalFlowSaving = false;
+      state.approvalFlowSaveSuccess = false;
+      state.error = null;
+    },
+
   },
   extraReducers: (builder) => {
     builder
@@ -300,9 +328,36 @@ const commonCustomerSlice = createSlice({
       })
       .addCase(getVendors.rejected, (state) => {
         state.vendorsLoading = false;
+      })
+
+      .addCase(getApprovalFlow.pending, (state) => {
+        state.approvalFlowLoading = true;
+      })
+      .addCase(getApprovalFlow.fulfilled, (state, action) => {
+        state.approvalFlowLoading = false;
+        state.approvalFlow = action.payload;
+      })
+      .addCase(getApprovalFlow.rejected, (state, action) => {
+        state.approvalFlowLoading = false;
+        state.error = action.payload;
+      })
+
+      .addCase(saveApprovalFlow.pending, (state) => {
+        state.approvalFlowSaving = true;
+        state.approvalFlowSaveSuccess = false;
+        state.error = null;
+      })
+      .addCase(saveApprovalFlow.fulfilled, (state, action) => {
+        state.approvalFlowSaving = false;
+        state.approvalFlowSaveSuccess = true;
+        state.approvalFlow = action.payload;
+      })
+      .addCase(saveApprovalFlow.rejected, (state, action) => {
+        state.approvalFlowSaving = false;
+        state.error = action.payload;
       });
   }
 });
-export const { resetAdminUserState } = commonCustomerSlice.actions;
+export const { resetAdminUserState, resetApprovalFlowState } = commonCustomerSlice.actions;
 
 export default commonCustomerSlice.reducer;

@@ -34,6 +34,14 @@ const CusAdmin = {
       url: '/ProjectManagement/list',
       icon: icons.IconDashboard,
       breadcrumbs: false
+    },
+    {
+      id: 'ApprovalSetup',
+      title: 'Approval Setup',
+      type: 'item',
+      url: '/ApprovalSetup/list',
+      icon: icons.IconDashboard,
+      breadcrumbs: false
     }
   ]
 };

@@ -32,6 +32,7 @@ const menuIcons = {
   'GRPO': IconBriefcase,
   'Contracting Management': IconBuilding,
   'Approvals': IconClipboardCheck,
+  'My Approvals': IconClipboardCheck,
   'Pending Approvals': IconReportAnalytics,
   'Pending Delivery': IconTruckDelivery
 };

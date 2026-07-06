@@ -18,6 +18,13 @@ const RoleManagementEdit=Loadable(lazy(()=>import('views/CustomerAdmin/RoleManag
 //Project management routing
 const ProjectManagementList=Loadable(lazy(()=>import('views/CustomerAdmin/ProjectManagement/ProjectManagementList')));
 
+//Approval setup
+const ApprovalSetupPage=Loadable(lazy(()=>import('views/CustomerAdmin/ApprovalSetup/ApprovalSetupPage')));
+
+//My Approvals
+const MyApprovalsList=Loadable(lazy(()=>import('views/approvals/MyApprovalsList')));
+const MyApprovalView=Loadable(lazy(()=>import('views/approvals/MyApprovalView')));
+
 //User management routing
 const UserManagementList=Loadable(lazy(()=>import('views/CustomerAdmin/UserManagement/UserManagementList')));
 const UserManagementCreate=Loadable(lazy(()=>import('views/CustomerAdmin/UserManagement/UserManagementCreate.jsx')));
@@ -113,6 +120,22 @@ const MainRoutes = {
           path: 'list',
           element: <ProjectManagementList />
         }
+      ]
+    },
+    {
+      path: 'ApprovalSetup',
+      children: [
+        {
+          path: 'list',
+          element: <ApprovalSetupPage />
+        }
+      ]
+    },
+    {
+      path: 'my-approvals',
+      children: [
+        { path: 'list', element: <MyApprovalsList /> },
+        { path: 'view/:id', element: <MyApprovalView /> }
       ]
     },
     {

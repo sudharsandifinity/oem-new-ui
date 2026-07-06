@@ -1,34 +1,22 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Box, Breadcrumbs, Button, Chip, IconButton, Paper, Stack, TextField, Tooltip, Typography } from '@mui/material';
+import { Alert, Box, Breadcrumbs, Button, Chip, IconButton, Paper, Snackbar, Stack, TextField, Tooltip, Typography } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 
 import HomeIcon from '@mui/icons-material/Home';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import VisibilityIcon from '@mui/icons-material/Visibility';
+import ReplayIcon from '@mui/icons-material/Replay';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import ClearIcon from '@mui/icons-material/Clear';
 
 import MainCard from 'ui-component/cards/MainCard';
 import { useNavigate } from 'react-router-dom';
 import { getMyMRList } from '../../store/slices/materialRequestSlice';
+import { getMySentBack, resubmitApprovalRequest } from '../../store/slices/approvalSlice';
 import { MR_STATUS_META } from './mrHelpers';
 import { formatDateDDMMYYYY, renderNoWrapCell } from 'utils/dataGridFormatters';
-
-const renderStatusCell = (params) => {
-  const meta = MR_STATUS_META[params.value] || { label: params.value || '—', color: 'default' };
-  const chip = <Chip size="small" label={meta.label} color={meta.color} variant="outlined" />;
-
-  if (params.row.U_Apr_remark) {
-    return (
-      <Tooltip title={`Approver Remark: ${params.row.U_Apr_remark}`} arrow>
-        <span>{chip}</span>
-      </Tooltip>
-    );
-  }
-  return chip;
-};
 
 const emptyFilters = () => ({ ProjectCode: '', ProjectName: '' });
 
@@ -36,12 +24,14 @@ export default function MaterialRequestsList() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { list, totalCount, listLoading } = useSelector((s) => s.materialRequest);
+  const { sentBack } = useSelector((s) => s.approval);
   const { user } = useSelector((s) => s.auth);
 
   const [filters, setFilters] = useState(emptyFilters());
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 25 });
+  const [snackbar, setSnackbar] = useState({ open: false, severity: 'success', message: '' });
 
-  useEffect(() => {
+  const loadList = () => {
     dispatch(
       getMyMRList({
         top: paginationModel.pageSize,
@@ -49,7 +39,30 @@ export default function MaterialRequestsList() {
         email: user?.email || ''
       })
     );
+    dispatch(getMySentBack({ docType: 'MR' }));
+  };
+
+  useEffect(() => {
+    loadList();
   }, [paginationModel, user?.email, dispatch]);
+
+  const sentBackMap = useMemo(() => {
+    const map = {};
+    (Array.isArray(sentBack) ? sentBack : []).forEach((r) => {
+      if (r.DocEntry != null) map[r.DocEntry] = r.approvalRequestId;
+    });
+    return map;
+  }, [sentBack]);
+
+  const handleResubmit = async (approvalRequestId) => {
+    try {
+      await dispatch(resubmitApprovalRequest(approvalRequestId)).unwrap();
+      setSnackbar({ open: true, severity: 'success', message: 'Resubmitted for approval' });
+      loadList();
+    } catch (err) {
+      setSnackbar({ open: true, severity: 'error', message: typeof err === 'string' ? err : 'Resubmit failed' });
+    }
+  };
 
   const filteredRows = useMemo(() => {
     const { ProjectCode, ProjectName } = filters;
@@ -90,15 +103,36 @@ export default function MaterialRequestsList() {
     { field: 'U_SQDocNum', headerName: 'BOM No', flex: 1, minWidth: 120 },
     { field: 'U_DocDate', headerName: 'Requisition Date', flex: 1, minWidth: 150, valueFormatter: formatDateDDMMYYYY },
     { field: 'U_Remark', headerName: 'Remark', flex: 1.5, minWidth: 180, renderCell: renderNoWrapCell },
-    { field: 'U_DocStatus', headerName: 'Status', width: 120, sortable: false, renderCell: renderStatusCell },
+    {
+      field: 'U_DocStatus',
+      headerName: 'Status',
+      width: 130,
+      sortable: false,
+      renderCell: (params) => {
+        if (sentBackMap[params.row.DocEntry]) {
+          return <Chip size="small" label="Sent Back" color="warning" variant="outlined" />;
+        }
+        const meta = MR_STATUS_META[params.value] || { label: params.value || '—', color: 'default' };
+        const chip = <Chip size="small" label={meta.label} color={meta.color} variant="outlined" />;
+        if (params.row.U_Apr_remark) {
+          return (
+            <Tooltip title={`Approver Remark: ${params.row.U_Apr_remark}`} arrow>
+              <span>{chip}</span>
+            </Tooltip>
+          );
+        }
+        return chip;
+      }
+    },
     {
       field: 'action',
       headerName: 'Action',
       sortable: false,
       filterable: false,
-      minWidth: 120,
+      minWidth: 150,
       renderCell: (params) => {
         const isApproved = params.row.U_DocStatus === 'O';
+        const sentBackId = sentBackMap[params.row.DocEntry];
         return (
           <Stack direction="row" height="100%" spacing={1}>
             <IconButton size="small" color="primary" onClick={() => navigate(`/material-request/view/${params.row.DocEntry}`)}>
@@ -116,6 +150,13 @@ export default function MaterialRequestsList() {
                 </IconButton>
               </span>
             </Tooltip>
+            {sentBackId && (
+              <Tooltip title="Resubmit for approval">
+                <IconButton size="small" color="success" onClick={() => handleResubmit(sentBackId)}>
+                  <ReplayIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            )}
           </Stack>
         );
       }
@@ -221,6 +262,17 @@ export default function MaterialRequestsList() {
           }}
         />
       </Paper>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={5000}
+        onClose={() => setSnackbar((p) => ({ ...p, open: false }))}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+      >
+        <Alert severity={snackbar.severity} onClose={() => setSnackbar((p) => ({ ...p, open: false }))}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }

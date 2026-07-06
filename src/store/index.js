@@ -18,6 +18,7 @@ import attachmentReducer from './slices/attachmentSlice';
 import commonCustomerReducer from './slices/commonCustomerSlice'
 import draftReducer from './slices/draftSlice';
 import roleReducer from './slices/roleSlice';
+import approvalReducer from './slices/approvalSlice';
 
 export const store = configureStore({
   reducer: {
@@ -40,6 +41,7 @@ export const store = configureStore({
     attachment: attachmentReducer,
     commonCustomer:commonCustomerReducer,
     role:roleReducer,
+    approval: approvalReducer,
   }
 });
 
