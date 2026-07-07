@@ -20,8 +20,6 @@ import HomeIcon from '@mui/icons-material/Home';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
-import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
-import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import PersonAddAltIcon from '@mui/icons-material/PersonAddAlt';
 
 import MainCard from 'ui-component/cards/MainCard';
@@ -87,16 +85,6 @@ export default function ApprovalSetupPage() {
 
   const removeStage = (index) => setStages((prev) => (prev.length <= 1 ? prev : prev.filter((_, i) => i !== index)));
 
-  const moveStage = (index, dir) => {
-    setStages((prev) => {
-      const next = [...prev];
-      const target = index + dir;
-      if (target < 0 || target >= next.length) return prev;
-      [next[index], next[target]] = [next[target], next[index]];
-      return next;
-    });
-  };
-
   const openApproverModal = (index) => setApproverModal({ open: true, index });
   const closeApproverModal = () => setApproverModal({ open: false, index: -1 });
   const confirmApprovers = (ids) => {
@@ -160,20 +148,6 @@ export default function ApprovalSetupPage() {
                   <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, gap: 1 }}>
                     <Chip label={`Stage ${index + 1}`} color="secondary" size="small" />
                     <Box sx={{ flex: 1 }} />
-                    <Tooltip title="Move up">
-                      <span>
-                        <IconButton size="small" disabled={index === 0} onClick={() => moveStage(index, -1)}>
-                          <ArrowUpwardIcon fontSize="small" />
-                        </IconButton>
-                      </span>
-                    </Tooltip>
-                    <Tooltip title="Move down">
-                      <span>
-                        <IconButton size="small" disabled={index === stages.length - 1} onClick={() => moveStage(index, 1)}>
-                          <ArrowDownwardIcon fontSize="small" />
-                        </IconButton>
-                      </span>
-                    </Tooltip>
                     <Tooltip title="Remove stage">
                       <span>
                         <IconButton size="small" color="error" disabled={stages.length <= 1} onClick={() => removeStage(index)}>
