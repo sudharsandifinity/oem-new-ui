@@ -1,8 +1,5 @@
-// assets
-import { IconDashboard } from '@tabler/icons-react';
-
-// constant
-const icons = { IconDashboard };
+import { IconUsers, IconShieldLock, IconFolders, IconChecklist } from '@tabler/icons-react';
+const icons = { IconUsers, IconShieldLock, IconFolders, IconChecklist };
 
 // ==============================|| DASHBOARD MENU ITEMS ||============================== //
 
@@ -16,7 +13,7 @@ const CusAdmin = {
       title: 'UserManagement',
       type: 'item',
       url: '/UserManagement/list',
-      icon: icons.IconDashboard,
+      icon: icons.IconUsers,
       breadcrumbs: false
     },
     {
@@ -24,7 +21,7 @@ const CusAdmin = {
       title: ' Role Management',
       type: 'item',
       url: '/RoleManagement/list',
-      icon: icons.IconDashboard,
+      icon: icons.IconShieldLock,
       breadcrumbs: false
     },
     {
@@ -32,7 +29,7 @@ const CusAdmin = {
       title: 'Project Management',
       type: 'item',
       url: '/ProjectManagement/list',
-      icon: icons.IconDashboard,
+      icon: icons.IconFolders,
       breadcrumbs: false
     },
     {
@@ -40,7 +37,7 @@ const CusAdmin = {
       title: 'Approval Setup',
       type: 'item',
       url: '/ApprovalSetup/list',
-      icon: icons.IconDashboard,
+      icon: icons.IconChecklist,
       breadcrumbs: false
     }
   ]

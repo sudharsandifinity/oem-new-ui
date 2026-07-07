@@ -60,7 +60,16 @@ const DISABLED_COLS = new Set([
   'ApprovedQuantity'
 ]);
 
-export default function MRContentTab({ data, setData, rows, setRows, readOnly = false, canEditApprovedQty = false, isBOM = false }) {
+export default function MRContentTab({
+  data,
+  setData,
+  rows,
+  setRows,
+  readOnly = false,
+  canEditApprovedQty = false,
+  isBOM = false,
+  allowBomRowDelete = false
+}) {
   const dispatch = useDispatch();
   const { openLookup } = useLookup();
   const { items, loading: itemsLoading } = useSelector((s) => s.item);
@@ -407,7 +416,7 @@ export default function MRContentTab({ data, setData, rows, setRows, readOnly = 
                     <IconButton
                       color="error"
                       size="small"
-                      disabled={isBOM && row.IsBOMRow}
+                      disabled={isBOM && row.IsBOMRow && !allowBomRowDelete}
                       onClick={() => deleteRow(row.id)}
                     >
                       <DeleteIcon fontSize="small" />

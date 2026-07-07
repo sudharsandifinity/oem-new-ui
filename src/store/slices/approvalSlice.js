@@ -1,9 +1,11 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import API from 'api/axios';
 
-export const getMyApprovals = createAsyncThunk('approval/getMyApprovals', async ({ docType = 'MR', top = 25, skip = 0 } = {}, thunkAPI) => {
+export const getMyApprovals = createAsyncThunk(
+  'approval/getMyApprovals',
+  async ({ docType = 'MR', status = 'pending', top = 25, skip = 0 } = {}, thunkAPI) => {
   try {
-    const response = await API.get('/approvals/my-pending', { params: { docType, top, skip } });
+    const response = await API.get('/approvals/my-pending', { params: { docType, status, top, skip } });
     return { list: response.data.value ?? [], count: response.data.count ?? 0 };
   } catch (error) {
     return thunkAPI.rejectWithValue(error.response?.data?.message || 'Failed to fetch approvals');

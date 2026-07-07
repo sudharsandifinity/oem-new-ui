@@ -1,13 +1,14 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getMRById, updateMR, resetMRState } from '../../store/slices/materialRequestSlice';
+import { getMySentBack, resubmitApprovalRequest } from '../../store/slices/approvalSlice';
 import { getItems } from '../../store/slices/itemSlice';
 import { getDepartments } from '../../store/slices/commonSlice';
 import { mapApiToForm, mapApiLineToRow, buildPayload, groupBomLinesWithChildren } from './mrHelpers';
 import { resolveDepartmentName } from 'utils/department';
 
-import { Alert, Box, Breadcrumbs, Button, CircularProgress, Divider, Skeleton, Snackbar, Tab, Tabs, Typography } from '@mui/material';
+import { Alert, Box, Breadcrumbs, Button, CircularProgress, Divider, Snackbar, Tab, Tabs, Typography } from '@mui/material';
 
 import HomeIcon from '@mui/icons-material/Home';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
@@ -16,26 +17,7 @@ import MainCard from 'ui-component/cards/MainCard';
 import MRGeneralTab from './GeneralTab';
 import MRContentTab from './ContentTab';
 import PurchaseRequestModal from './PurchaseRequestModal';
-
-function ContentSkeleton() {
-  return (
-    <Box>
-      <Box sx={{ display: 'flex', gap: 4 }}>
-        <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
-          {[1, 2, 3, 4, 5].map((i) => (
-            <Skeleton key={i} variant="rounded" height={40} />
-          ))}
-        </Box>
-        <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
-          {[1, 2, 3, 4].map((i) => (
-            <Skeleton key={i} variant="rounded" height={40} />
-          ))}
-        </Box>
-      </Box>
-      <Skeleton variant="rounded" height={180} sx={{ mt: 4 }} />
-    </Box>
-  );
-}
+import ContentSkeleton from './ContentSkeleton';
 
 export default function MaterialRequestEdit() {
   const { id } = useParams();
@@ -45,6 +27,9 @@ export default function MaterialRequestEdit() {
   const { currentMR, currentMRLoading, currentMRError, updateLoading, saveSuccess, error } = useSelector((s) => s.materialRequest);
   const { departments } = useSelector((s) => s.common);
   const { items } = useSelector((s) => s.item);
+  const { sentBack, decisionLoading } = useSelector((s) => s.approval);
+
+  const resubmittingRef = useRef(false);
 
   const [tabValue, setTabValue] = useState(0);
   const [form, setForm] = useState(null);
@@ -53,14 +38,19 @@ export default function MaterialRequestEdit() {
   // const [stockLoading, setStockLoading] = useState(false); // used by Refresh Stock (hidden)
   const [snackbar, setSnackbar] = useState({ open: false, severity: 'success', message: '' });
 
-  // Fetch on mount
   useEffect(() => {
     if (id) dispatch(getMRById(id));
     if (!departments.length) dispatch(getDepartments());
+    dispatch(getMySentBack({ docType: 'MR' }));
     return () => {
       dispatch(resetMRState());
     };
   }, [dispatch, id]);
+
+  const sentBackId = useMemo(() => {
+    const match = (Array.isArray(sentBack) ? sentBack : []).find((r) => String(r.DocEntry) === String(id));
+    return match?.approvalRequestId || null;
+  }, [sentBack, id]);
   useEffect(() => {
     if (!currentMR) return;
     const f = mapApiToForm(currentMR);
@@ -105,6 +95,7 @@ export default function MaterialRequestEdit() {
   }, [departments, form?.DeptId]);
 
   useEffect(() => {
+    if (resubmittingRef.current) return;
     if (saveSuccess) {
       setSnackbar({ open: true, severity: 'success', message: 'Material Request updated successfully!' });
       dispatch(resetMRState());
@@ -145,10 +136,29 @@ export default function MaterialRequestEdit() {
   //   }
   // };
 
-  const handleSubmit = () => {
+  const buildEditPayload = () => {
     // eslint-disable-next-line no-unused-vars
     const { U_OEM_UID, U_OEM_UEMAIL, U_OEM_UName, U_PreparedBy, ...payload } = buildPayload(form, lines);
-    dispatch(updateMR({ docEntry: id, payload }));
+    return payload;
+  };
+
+  const handleSubmit = () => {
+    dispatch(updateMR({ docEntry: id, payload: buildEditPayload() }));
+  };
+
+  const handleResubmit = async () => {
+    resubmittingRef.current = true;
+    try {
+      await dispatch(updateMR({ docEntry: id, payload: buildEditPayload() })).unwrap();
+      await dispatch(resubmitApprovalRequest(sentBackId)).unwrap();
+      setSnackbar({ open: true, severity: 'success', message: 'Saved and resubmitted for approval!' });
+      dispatch(resetMRState());
+      setTimeout(() => navigate('/material-request/list'), 1500);
+    } catch (err) {
+      setSnackbar({ open: true, severity: 'error', message: typeof err === 'string' ? err : err?.message || 'Resubmit failed' });
+    } finally {
+      resubmittingRef.current = false;
+    }
   };
 
   const handlePRContinue = (selectedLines) => {
@@ -269,11 +279,24 @@ export default function MaterialRequestEdit() {
                 variant="contained"
                 color="secondary"
                 onClick={handleSubmit}
-                disabled={loading || updateLoading}
-                startIcon={updateLoading ? <CircularProgress size={16} color="inherit" /> : null}
+                disabled={loading || updateLoading || decisionLoading}
+                startIcon={updateLoading && !resubmittingRef.current ? <CircularProgress size={16} color="inherit" /> : null}
               >
                 Update
               </Button>
+              {sentBackId && (
+                <Button
+                  variant="contained"
+                  color="success"
+                  onClick={handleResubmit}
+                  disabled={loading || updateLoading || decisionLoading}
+                  startIcon={
+                    (updateLoading || decisionLoading) && resubmittingRef.current ? <CircularProgress size={16} color="inherit" /> : null
+                  }
+                >
+                  Resubmit
+                </Button>
+              )}
             </Box>
           </Box>
         </Box>

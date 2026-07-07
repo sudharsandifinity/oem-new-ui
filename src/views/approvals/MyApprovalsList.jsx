@@ -1,13 +1,30 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { Alert, Box, Breadcrumbs, Button, Chip, IconButton, Paper, Stack, Tooltip, Typography } from '@mui/material';
+import {
+  Alert,
+  Box,
+  Breadcrumbs,
+  Button,
+  Chip,
+  FormControl,
+  IconButton,
+  InputLabel,
+  MenuItem,
+  Paper,
+  Select,
+  Stack,
+  TextField,
+  Tooltip,
+  Typography
+} from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 
 import HomeIcon from '@mui/icons-material/Home';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import RefreshIcon from '@mui/icons-material/Refresh';
+import ClearIcon from '@mui/icons-material/Clear';
 
 import MainCard from 'ui-component/cards/MainCard';
 import { getMyApprovals } from '../../store/slices/approvalSlice';
@@ -19,16 +36,39 @@ export default function MyApprovalsList() {
   const { list, count, listLoading, error } = useSelector((s) => s.approval);
 
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 25 });
+  const [status, setStatus] = useState('pending');
+  const [filters, setFilters] = useState({ ProjectCode: '', ProjectName: '' });
 
   const load = () => {
-    dispatch(getMyApprovals({ docType: 'MR', top: paginationModel.pageSize, skip: paginationModel.page * paginationModel.pageSize }));
+    dispatch(
+      getMyApprovals({ docType: 'MR', status, top: paginationModel.pageSize, skip: paginationModel.page * paginationModel.pageSize })
+    );
   };
 
   useEffect(() => {
     load();
-  }, [paginationModel]);
+  }, [paginationModel, status]);
 
-  const rows = (Array.isArray(list) ? list : []).filter((r) => r && r.approvalRequestId != null);
+  const handleStatusChange = (next) => {
+    if (next === status) return;
+    setStatus(next);
+    setPaginationModel((p) => ({ ...p, page: 0 }));
+  };
+
+  const clearFilters = () => {
+    setFilters({ ProjectCode: '', ProjectName: '' });
+    handleStatusChange('pending');
+  };
+
+  const rows = useMemo(() => {
+    const base = (Array.isArray(list) ? list : []).filter((r) => r && r.approvalRequestId != null);
+    const { ProjectCode, ProjectName } = filters;
+    return base.filter((r) => {
+      if (ProjectCode && !String(r.U_PrjCode ?? '').toLowerCase().includes(ProjectCode.toLowerCase())) return false;
+      if (ProjectName && !String(r.U_PrjDesc ?? '').toLowerCase().includes(ProjectName.toLowerCase())) return false;
+      return true;
+    });
+  }, [list, filters]);
 
   const columns = [
     {
@@ -47,9 +87,15 @@ export default function MyApprovalsList() {
     {
       field: 'currentStageOrder',
       headerName: 'Stage',
-      width: 100,
+      width: 150,
+      minWidth: 140,
       sortable: false,
-      renderCell: (params) => <Chip size="small" label={`Stage ${params.value}`} color="info" variant="outlined" />
+      renderCell: (params) => {
+        const s = params.row.approvalStatus;
+        if (s === 'approved') return <Chip size="small" label="Approved" color="success" variant="outlined" />;
+        if (s === 'sent_back') return <Chip size="small" label="Rejected" color="error" variant="outlined" />;
+        return <Chip size="small" label={`Stage ${params.value}`} color="info" variant="outlined" />;
+      }
     },
     {
       field: 'action',
@@ -95,6 +141,35 @@ export default function MyApprovalsList() {
           </Breadcrumbs>
         </Box>
       </MainCard>
+
+      <Paper variant="outlined" sx={{ p: 2, mb: 3, borderRadius: 2, flexShrink: 0 }}>
+        <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'center' }}>
+          <FormControl size="small" sx={{ minWidth: 200 }}>
+            <InputLabel>Status</InputLabel>
+            <Select label="Status" value={status} onChange={(e) => handleStatusChange(e.target.value)}>
+              <MenuItem value="all">All</MenuItem>
+              <MenuItem value="pending">Pending</MenuItem>
+              <MenuItem value="approved">Approved</MenuItem>
+              <MenuItem value="sent_back">Rejected</MenuItem>
+            </Select>
+          </FormControl>
+          <TextField
+            size="small"
+            label="Project Code"
+            value={filters.ProjectCode}
+            onChange={(e) => setFilters((p) => ({ ...p, ProjectCode: e.target.value }))}
+          />
+          <TextField
+            size="small"
+            label="Project Name"
+            value={filters.ProjectName}
+            onChange={(e) => setFilters((p) => ({ ...p, ProjectName: e.target.value }))}
+          />
+          <Button variant="outlined" color="error" startIcon={<ClearIcon />} onClick={clearFilters}>
+            Clear
+          </Button>
+        </Box>
+      </Paper>
 
       {error && (
         <Alert

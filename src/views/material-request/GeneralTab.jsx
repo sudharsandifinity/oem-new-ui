@@ -7,7 +7,7 @@ import AppDatePicker from 'ui-component/AppDatePicker';
 const today = new Date().toISOString().split('T')[0];
 const nowTime = new Date().toTimeString().slice(0, 5);
 
-export default function MRGeneralTab({ data, setData, readOnly = false, lockCustomerProject = false }) {
+export default function MRGeneralTab({ data, setData, readOnly = false, lockCustomerProject = false, showRequisitionNo = true }) {
   const { openLookup } = useLookup();
 
   const handleChange = (field, value) => {
@@ -88,7 +88,7 @@ export default function MRGeneralTab({ data, setData, readOnly = false, lockCust
       </Box>
 
       <Box sx={{ flex: 1, minWidth: 350, display: 'flex', flexDirection: 'column', gap: 3 }}>
-        <TextField fullWidth label="Requisition Number" value={data?.RequisitionNo || ''} disabled />
+        {showRequisitionNo && <TextField fullWidth label="Requisition Number" value={data?.RequisitionNo || ''} disabled />}
 
         <AppDatePicker label="Requisition Date" value={data?.RequisitionDate || today} disabled />
 

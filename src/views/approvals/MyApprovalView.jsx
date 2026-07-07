@@ -16,7 +16,6 @@ import {
   DialogTitle,
   Divider,
   Paper,
-  Skeleton,
   Snackbar,
   Step,
   StepLabel,
@@ -35,6 +34,7 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import MainCard from 'ui-component/cards/MainCard';
 import MRGeneralTab from '../material-request/GeneralTab';
 import MRContentTab from '../material-request/ContentTab';
+import ContentSkeleton from '../material-request/ContentSkeleton';
 import { mapApiToForm, mapApiLineToRow } from '../material-request/mrHelpers';
 import { getApprovalRequestById, approveApprovalRequest, rejectApprovalRequest, resetApprovalState } from '../../store/slices/approvalSlice';
 import { formatDateDDMMYYYY } from 'utils/dataGridFormatters';
@@ -137,7 +137,7 @@ export default function MyApprovalView() {
               </Typography>
             </Box>
           ) : loading ? (
-            <Skeleton variant="rounded" height={280} />
+            <ContentSkeleton />
           ) : (
             <>
               {stages.length > 0 && (

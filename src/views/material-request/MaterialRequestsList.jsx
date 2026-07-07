@@ -7,14 +7,13 @@ import HomeIcon from '@mui/icons-material/Home';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import VisibilityIcon from '@mui/icons-material/Visibility';
-import ReplayIcon from '@mui/icons-material/Replay';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import ClearIcon from '@mui/icons-material/Clear';
 
 import MainCard from 'ui-component/cards/MainCard';
 import { useNavigate } from 'react-router-dom';
 import { getMyMRList } from '../../store/slices/materialRequestSlice';
-import { getMySentBack, resubmitApprovalRequest } from '../../store/slices/approvalSlice';
+import { getMySentBack } from '../../store/slices/approvalSlice';
 import { MR_STATUS_META } from './mrHelpers';
 import { formatDateDDMMYYYY, renderNoWrapCell } from 'utils/dataGridFormatters';
 
@@ -53,16 +52,6 @@ export default function MaterialRequestsList() {
     });
     return map;
   }, [sentBack]);
-
-  const handleResubmit = async (approvalRequestId) => {
-    try {
-      await dispatch(resubmitApprovalRequest(approvalRequestId)).unwrap();
-      setSnackbar({ open: true, severity: 'success', message: 'Resubmitted for approval' });
-      loadList();
-    } catch (err) {
-      setSnackbar({ open: true, severity: 'error', message: typeof err === 'string' ? err : 'Resubmit failed' });
-    }
-  };
 
   const filteredRows = useMemo(() => {
     const { ProjectCode, ProjectName } = filters;
@@ -138,7 +127,7 @@ export default function MaterialRequestsList() {
             <IconButton size="small" color="primary" onClick={() => navigate(`/material-request/view/${params.row.DocEntry}`)}>
               <VisibilityIcon fontSize="small" />
             </IconButton>
-            <Tooltip title={isApproved ? 'Approved requests cannot be edited' : 'Edit'}>
+            <Tooltip title={isApproved ? 'Approved requests cannot be edited' : sentBackId ? 'Edit' : 'Edit'}>
               <span>
                 <IconButton
                   size="small"
@@ -150,13 +139,6 @@ export default function MaterialRequestsList() {
                 </IconButton>
               </span>
             </Tooltip>
-            {sentBackId && (
-              <Tooltip title="Resubmit for approval">
-                <IconButton size="small" color="success" onClick={() => handleResubmit(sentBackId)}>
-                  <ReplayIcon fontSize="small" />
-                </IconButton>
-              </Tooltip>
-            )}
           </Stack>
         );
       }
