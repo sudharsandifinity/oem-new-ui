@@ -34,7 +34,7 @@ export default function GenericLookupModal({
   columns = [],
   onSelect,
   multiSelect = false,
-   selectedIds = []
+  selectedIds = []
 }) {
   const [filterValues, setFilterValues] = useState({});
   const [selectedRows, setSelectedRows] = useState([]);
@@ -51,16 +51,14 @@ export default function GenericLookupModal({
     });
 
     setFilterValues(initialFilters);
-     if (multiSelect) {
-    const preSelected = data.filter((row) =>
-      selectedIds.includes(row.id)
-    );
+    if (multiSelect) {
+      const preSelected = data.filter((row) => selectedIds.includes(row.id));
 
-    setSelectedRows(preSelected);
-  } else {
-    setSelectedRows([]);
-  }
-  }, [open ,data, selectedIds, multiSelect]);
+      setSelectedRows(preSelected);
+    } else {
+      setSelectedRows([]);
+    }
+  }, [open, data, selectedIds, multiSelect]);
   const handleRowSelection = (row) => {
     console.log('handlerowselection', multiSelect);
     if (!multiSelect) {
@@ -183,7 +181,14 @@ export default function GenericLookupModal({
 
         {/* TABLE */}
 
-        <TableContainer component={Paper} variant="outlined">
+        <TableContainer
+          component={Paper}
+          variant="outlined"
+          sx={{
+            maxHeight: 350, // Adjust based on your row height
+            overflowY: 'auto'
+          }}
+        >
           <Table size="small">
             <TableHead>
               <TableRow

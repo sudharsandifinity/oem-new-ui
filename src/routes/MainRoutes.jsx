@@ -13,8 +13,6 @@ const CusDashboard = Loadable(lazy(() => import('views/CustomerAdmin/dashboard/C
 //Admin routing
 const AdminDashboard = Loadable(lazy(() => import('views/Admin/Admin.jsx')));
 const MenuManagementList = Loadable(lazy(() => import('views/Admin/MenuManagement/MenuList.jsx')));
-const AdminRoleManagementList = Loadable(lazy(() => import('views/Admin/RoleManagement/RoleList.jsx')));
-const AdminUserManagementList = Loadable(lazy(() => import('views/Admin/UserManagement/Userlist.jsx')));
 
 //Form routing
 const MenuList = Loadable(lazy(() => import('views/Admin/MenuManagement/MenuList.jsx')));
@@ -31,8 +29,8 @@ const FormView = Loadable(lazy(() => import('views/Admin/FormManagement/FormView
 //Role routing
 const RoleList = Loadable(lazy(() => import('views/Admin/RoleManagement/RoleList.jsx')));
 const RoleCreate = Loadable(lazy(() => import('views/Admin/RoleManagement/RoleCreate.jsx')));
-const RoleEdit = Loadable(lazy(() => import('views/Admin/FormManagement/FormEdit.jsx')));
-const RoleView = Loadable(lazy(() => import('views/Admin/FormManagement/FormView.jsx')));
+const RoleEdit = Loadable(lazy(() => import('views/Admin/RoleManagement/RoleEdit.jsx')));
+const RoleView = Loadable(lazy(() => import('views/Admin/RoleManagement/RoleView.jsx')));
 
 
 //Companies routing
@@ -50,16 +48,16 @@ const UserEdit=Loadable(lazy(()=>import('views/Admin/UserManagement/UserEdit.jsx
 
 
 //Role management routing
-const RoleManagementList = Loadable(lazy(()=>import('views/CustomerAdmin/RoleManagement/RoleManagementList')));
-const RoleManagementCreate=Loadable(lazy(()=>import('views/CustomerAdmin/RoleManagement/RoleManagementCreate.jsx')));
-const RoleManagementView=Loadable(lazy(()=>import('views/CustomerAdmin/RoleManagement/RoleManagementView.jsx')));
-const RoleManagementEdit=Loadable(lazy(()=>import('views/CustomerAdmin/RoleManagement/RoleManagementEdit.jsx')));
+const CusRoleList = Loadable(lazy(()=>import('views/CustomerAdmin/RoleManagement/RoleManagementList')));
+const CusRoleCreate=Loadable(lazy(()=>import('views/CustomerAdmin/RoleManagement/RoleManagementCreate.jsx')));
+const CusRoleView=Loadable(lazy(()=>import('views/CustomerAdmin/RoleManagement/RoleManagementView.jsx')));
+const CusRoleEdit=Loadable(lazy(()=>import('views/CustomerAdmin/RoleManagement/RoleManagementEdit.jsx')));
 
 //User management routing
-const UserManagementList=Loadable(lazy(()=>import('views/CustomerAdmin/UserManagement/UserManagementList')));
-const UserManagementCreate=Loadable(lazy(()=>import('views/CustomerAdmin/UserManagement/UserManagementCreate.jsx')));
-const UserManagementView=Loadable(lazy(()=>import('views/CustomerAdmin/UserManagement/UserManagementView.jsx')));
-const UserManagementEdit=Loadable(lazy(()=>import('views/CustomerAdmin/UserManagement/UserManagementEdit.jsx')));
+const CusUserList=Loadable(lazy(()=>import('views/CustomerAdmin/UserManagement/UserManagementList')));
+const CusUserCreate=Loadable(lazy(()=>import('views/CustomerAdmin/UserManagement/UserManagementCreate.jsx')));
+const CusUserView=Loadable(lazy(()=>import('views/CustomerAdmin/UserManagement/UserManagementView.jsx')));
+const CusUserEdit=Loadable(lazy(()=>import('views/CustomerAdmin/UserManagement/UserManagementEdit.jsx')));
 
 
 // Material Request routing
@@ -206,46 +204,46 @@ const MainRoutes = {
       ]
     },
     {
-      path: 'AdminRoleManagement',
+      path: 'CusRoleManagement',
       children: [
         {
           path: 'list',
-          element: <RoleList />
+          element: <CusRoleList />
         },
         {
           path:'create',
-          element:<RoleCreate/>
+          element:<CusRoleCreate/>
         },
         {
           path:'view/:id',
-          element:<RoleView/>
+          element:<CusRoleView/>
         },
         {
           path:'edit/:id',
-          element:<RoleEdit/>
+          element:<CusRoleEdit/>
         }
         
       ]
     },
     {
-      path: 'AdminUserManagement',
+      path: 'CusUserManagement',
       children: [
         {
           path: 'list',
-          element: <AdminUserManagementList />
+          element: <CusUserList />
         },
-        // {
-        //   path:'create',
-        //   element:<AdminUserManagementCreate/>
-        // },
-        // {
-        //   path:'view/:id',
-        //   element:<AdminUserManagementView/>
-        // },
-        // {
-        //   path:'edit/:id',
-        //   element:<AdminUserManagementEdit/>
-        // }
+        {
+          path:'create',
+          element:<CusUserCreate/>
+        },
+        {
+          path:'view/:id',
+          element:<CusUserView/>
+        },
+        {
+          path:'edit/:id',
+          element:<CusUserEdit/>
+        }
         
       ]
     },

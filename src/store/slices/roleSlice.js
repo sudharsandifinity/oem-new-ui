@@ -32,6 +32,15 @@ export const getRoleId = createAsyncThunk('role/getById', async (id, thunkAPI) =
     return thunkAPI.rejectWithValue(error.response?.data?.message || 'Failed to fetch Role');
   }
 });
+export const deleteRole=createAsyncThunk('role/delete', async (id, thunkAPI) => {
+  try {
+    const response = await axios.delete(`/admin/roles/${id}`);
+    return response.data;
+  } catch (error) {
+    return thunkAPI.rejectWithValue(error.response?.data?.message || 'Failed to delete Role');
+  }
+});
+
 
 export const updateRole = createAsyncThunk('role/update', async ({ id, payload }, thunkAPI) => {
   try {
@@ -114,7 +123,9 @@ const roleSlice = createSlice({
               state.createLoading = false;
               state.error = action.payload?.message || action.payload;
             })
-      
+            .addCase(deleteRole.fulfilled, (state, action) => {
+        state.roles = state.roles.filter((r) => r.id !== action.payload);
+      })
             .addCase(updateRole.pending, (state) => {
               state.updateLoading = true;
               state.error = null;

@@ -139,6 +139,14 @@ export default function PurchaseRequestView() {
             <Button variant="outlined" onClick={() => navigate(-1)}>
               Back
             </Button>
+            <Button
+                          variant="contained"
+                          color="secondary"
+                          disabled={loading || !!currentPRError}
+                          onClick={() => navigate(`/sales-quotation/edit/${id}`)}
+                        >
+                          Edit
+                        </Button>
           </Box>
         </Box>
       </MainCard>

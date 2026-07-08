@@ -56,7 +56,7 @@ export default function UserManagementCreate() {
     if (saveSuccess) {
       setSnackbar({ open: true, severity: 'success', message: 'User created successfully!' });
       dispatch(resetAdminUserState());
-      setTimeout(() => navigate('/UserManagement/list'), 1500);
+      setTimeout(() => navigate('/CusUserManagement/list'), 1500);
     }
     if (error) {
       setSnackbar({ open: true, severity: 'error', message: error });
@@ -123,7 +123,7 @@ export default function UserManagementCreate() {
             
 
             <Box sx={{ display: 'flex', gap: 2 }}>
-              <Button variant="outlined" color="error" onClick={() => navigate('/UserManagement/list')}>
+              <Button variant="outlined" color="error" onClick={() => navigate('/CusUserManagement/list')}>
                 Cancel
               </Button>
               <Button

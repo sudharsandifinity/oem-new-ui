@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams, useNavigate } from 'react-router-dom';
-import { mapApiToForm, mapApiLineToRow, buildPayload } from './RMHelpers';
+import { mapApiToForm, mapApiLineToRow, buildPayload } from './UserHelpers';
 
 import { Alert, Box, Breadcrumbs, Button, CircularProgress, Divider, Skeleton, Snackbar, Tab, Tabs, Typography } from '@mui/material';
 
@@ -11,8 +11,8 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import RefreshIcon from '@mui/icons-material/Refresh';
 
 import MainCard from 'ui-component/cards/MainCard';
-import { getAdminRoleById, resetAdminRoleState, updateAdminRoles } from '../../../store/slices/cusAdminroleSlice';
-import RoleForm from './RoleForm';
+import UserForm from './UserForm';
+import { getUserId, resetUserState } from '../../../store/slices/userSlice';
 
 function ContentSkeleton() {
   return (
@@ -34,14 +34,14 @@ function ContentSkeleton() {
   );
 }
 
-export default function RoleManagementView() {
+export default function UserView() {
   const { id } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const { currentAdminRole, currentAdminRoleLoading, currentAdminRoleError, updateroleLoading, rolesaveSuccess, roleerror } = useSelector((s) => s.cusAdminrole);
-    const { companies } = useSelector((s) => s.commonCustomer);
-
+      const { currentUser, currentUserloading, currentUserError, updateLoading, saveSuccess, error } = useSelector((s) => s.users);
+    const { companies } = useSelector((state) => state.companies);
+  
 
   const [tabValue, setTabValue] = useState(0);
   const [form, setForm] = useState(null);
@@ -51,38 +51,38 @@ export default function RoleManagementView() {
   const [snackbar, setSnackbar] = useState({ open: false, severity: 'success', message: '' });
 
   useEffect(() => {
-    if (id) dispatch(getAdminRoleById(id));
+    if (id) dispatch(getUserId(id));
     return () => {
-      dispatch(resetAdminRoleState());
+      dispatch(resetUserState());
     };
   }, [dispatch, id]);
 
   useEffect(() => {
-    if (!currentAdminRole) return;
-    setForm(mapApiToForm(currentAdminRole,companies));
-  }, [currentAdminRole]);
+    if (!currentUser) return;
+    setForm(mapApiToForm(currentUser));
+  }, [currentUser]);
 
   useEffect(() => {
-    if (rolesaveSuccess) {
-      setSnackbar({ open: true, severity: 'success', message: 'Role Management updated successfully!' });
-      dispatch(resetAdminRoleState());
-      setTimeout(() => navigate(`/CusRoleManagement/view/${id}`), 1500);
+    if (saveSuccess) {
+      setSnackbar({ open: true, severity: 'success', message: 'User Management updated successfully!' });
+      dispatch(resetUserState());
+      setTimeout(() => navigate(`/User/view/${id}`), 1500);
     }
-    if (roleerror) {
+    if (error) {
       setSnackbar({ open: true, severity: 'error', message: error });
-      dispatch(resetAdminRoleState());
+      dispatch(resetUserState());
     }
-  }, [rolesaveSuccess, roleerror, dispatch, id, navigate]);
+  }, [saveSuccess, error, dispatch, id, navigate]);
 
  
 
   const handleSubmit = () => {
-    dispatch(updateAdminRoles({ docEntry: id, payload: buildPayload(form, lines) }));
+    dispatch(updateUser({ docEntry: id, payload: buildPayload(form, lines) }));
   };
 
 
 
-  const loading = currentAdminRoleLoading || !form;
+  const loading = currentUserloading || !form;
 
   return (
     <Box>
@@ -99,13 +99,13 @@ export default function RoleManagementView() {
             gap: 2
           }}
         >
-          <Typography variant="h4">Role management </Typography>
+          <Typography variant="h4">User management </Typography>
           <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />}>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <HomeIcon sx={{ fontSize: 18, color: 'secondary.main' }} />
             </Box>
             <Typography variant="body2" color="text.primary">
-              Role Management 
+              User Management 
             </Typography>
             <Typography variant="body2" color="secondary" fontWeight={600}>
               View
@@ -119,22 +119,22 @@ export default function RoleManagementView() {
        
 
         <Box sx={{ p: 3 }}>
-          {currentAdminRoleError ? (
+          {currentUserError ? (
             <Box sx={{ py: 6, textAlign: 'center' }}>
               <Typography color="error" variant="h5">
-                Failed to load Role Management 
+                Failed to load User Management 
               </Typography>
               <Typography color="text.secondary" sx={{ mt: 1 }}>
-                {currentAdminRoleError}
+                {currentUserError}
               </Typography>
             </Box>
-          ) : updateroleLoading ? (
+          ) : updateLoading ? (
             <ContentSkeleton />
           ) : (
             <>
               {/* Always mounted — CSS show/hide avoids unmount errors on tab switch */}
               <Box sx={{ display: tabValue === 0 ? 'block' : 'none' }}>
-                <RoleForm data={form} setData={setForm} lockCustomerProject readOnly/>
+                <UserForm data={form} setData={setForm} lockCustomerProject readOnly/>
               </Box>
              
             </>

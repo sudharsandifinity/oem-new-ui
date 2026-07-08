@@ -29,7 +29,7 @@ import { createPR, resetPRState } from '../../store/slices/purchaseRequestSlice'
 export default function PurchaseRequestsCreate() {
   const dispatch = useDispatch();
   const navigate=useNavigate()
-  const { loading, error, saveSuccess } = useSelector(
+  const { createLoading, error, saveSuccess } = useSelector(
     (state) => state.purchaseRequest
   );
 
@@ -242,7 +242,7 @@ console.log("first",documentLines)
         createPR(formData)
       );
 
-      if (createPurchaseRequest.fulfilled.match(resultAction)) {
+      if (createPR.fulfilled.match(resultAction)) {
         setPurchaseRequest(initialState());
 
         setDocumentLines([
@@ -406,7 +406,7 @@ console.log("first",documentLines)
               color="secondary"
               onClick={handleSubmit}
             >
-              {loading ? 'Saving...' : 'Submit'}
+              {createLoading ? 'Saving...' : 'Submit'}
             </Button>
           </Box>
         </Box>

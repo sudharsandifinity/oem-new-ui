@@ -14,18 +14,18 @@ const CusAdmin = {
   type: 'group',
   children: [
     {
-      id: 'UserManagement',
+      id: 'CusUserManagement',
       title: 'UserManagement',
       type: 'item',
-      url: '/UserManagement/list',
+      url: '/CusUserManagement/list', 
       icon: icons.ManageAccountsIcon,
       breadcrumbs: false
     },
     {
-      id: 'RoleManagement',
+      id: 'CusRoleManagement',
       title: ' Role Management',
       type: 'item',
-      url: '/RoleManagement/list',
+      url: '/CusRoleManagement/list',
       icon: icons.SupervisedUserCircleIcon,
       breadcrumbs: false
     }

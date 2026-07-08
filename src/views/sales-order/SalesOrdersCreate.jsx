@@ -32,9 +32,7 @@ export default function SalesOrdersCreate() {
   const navigate=useNavigate();
 const location = useLocation();
 
-  useEffect(() => {
-    console.log('location.state', location?.state?.salesQuotation);
-  },[location?.state]);
+
   const { loading, error, saveSuccess } = useSelector(
     (state) => state.salesOrder
   );

@@ -102,7 +102,7 @@ const columns = [
           size="small"
           color="primary"
           onClick={() =>
-            navigate(`/UserManagement/view/${params.row.id}`)
+            navigate(`/CusUserManagement/view/${params.row.id}`)
           }
         >
           <VisibilityIcon fontSize="small" />
@@ -112,7 +112,7 @@ const columns = [
           size="small"
           color="secondary"
           onClick={() =>
-            navigate(`/UserManagement/edit/${params.row.id}`) 
+            navigate(`/CusUserManagement/edit/${params.row.id}`) 
           }
         >
           <EditIcon fontSize="small" />
@@ -167,7 +167,7 @@ const columns = [
             variant="contained"
             color="secondary"
             startIcon={<AddIcon />}
-            onClick={() => navigate('/UserManagement/create')}
+            onClick={() => navigate('/CusUserManagement/create')}
             sx={{ minWidth: 140, whiteSpace: 'nowrap' }}
           >
             Create

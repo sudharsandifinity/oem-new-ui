@@ -66,7 +66,7 @@ export default function RoleManagementEdit() {
     if (rolesaveSuccess) {
       setSnackbar({ open: true, severity: 'success', message: 'Material Request updated successfully!' });
       dispatch(resetAdminRoleState());
-      setTimeout(() => navigate(`/RoleManagement/view/${id}`), 1500);
+      setTimeout(() => navigate(`/CusRoleManagement/view/${id}`), 1500);
     }
     if (roleerror) {
       setSnackbar({ open: true, severity: 'error', message: roleerror });

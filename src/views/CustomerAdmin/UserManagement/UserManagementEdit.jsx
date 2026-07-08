@@ -65,7 +65,7 @@ export default function UserManagementEdit() {
     if (saveSuccess) {
       setSnackbar({ open: true, severity: 'success', message: 'Material Request updated successfully!' });
       dispatch(resetAdminUserState());
-      setTimeout(() => navigate(`/UserManagement/view/${id}`), 1500);
+      setTimeout(() => navigate(`/CusUserManagement/view/${id}`), 1500);
     }
     if (error) {
       setSnackbar({ open: true, severity: 'error', message: error });

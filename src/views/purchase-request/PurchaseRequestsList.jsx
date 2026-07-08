@@ -115,21 +115,16 @@ export default function PurchaseRequestsList() {
             gap: 2
           }}
         >
-          <Box>
-            <Typography variant="h4">Purchase Request</Typography>
-            <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />} sx={{ mt: 0.5 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <HomeIcon sx={{ fontSize: 18, color: 'secondary.main' }} />
-              </Box>
-              <Typography variant="body2">Purchase Request</Typography>
-              <Typography variant="body2" color="secondary" fontWeight={600}>
-                List
-              </Typography>
-            </Breadcrumbs>
-          </Box>
-          <Button variant="contained" color="secondary" startIcon={<AddIcon />} onClick={() => navigate('/purchase-request/create')}>
-            Create
-          </Button>
+          <Typography variant="h4">Purchase Request</Typography>
+          <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />}>
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <HomeIcon sx={{ fontSize: 18, color: 'secondary.main' }} />
+            </Box>
+            <Typography variant="body2">Purchase Request</Typography>
+            <Typography variant="body2" color="secondary" fontWeight={600}>
+              List
+            </Typography>
+          </Breadcrumbs>
         </Box>
       </MainCard>
 

@@ -29,14 +29,14 @@ const adminMenuItems = {
       icon: icons.IconBusinessplan,
       breadcrumbs: false
     },
-    {
-      id: 'FormManagement',
-      title: ' Form Management',
-      type: 'item',
-      url: '/Forms/list',
-      icon: icons.FormatListBulletedAddIcon,
-      breadcrumbs: false
-    },
+    // {
+    //   id: 'FormManagement',
+    //   title: ' Form Management',
+    //   type: 'item',
+    //   url: '/Forms/list',
+    //   icon: icons.FormatListBulletedAddIcon,
+    //   breadcrumbs: false
+    // },
     {
       id: 'MenuManagement',
       title: ' Menu Management',
@@ -44,7 +44,7 @@ const adminMenuItems = {
       url: '/Menu/list',
       icon: icons.MenuOpenIcon,
       breadcrumbs: false
-    },
+    }, 
     {
       id: 'RoleManagement',
       title: ' Role Management',

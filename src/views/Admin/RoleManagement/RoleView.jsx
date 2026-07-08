@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams, useNavigate } from 'react-router-dom';
-import { mapApiToForm, mapApiLineToRow, buildPayload } from './RMHelpers';
+import { mapApiToForm, mapApiLineToRow, buildPayload } from './RoleHelpers';
 
 import { Alert, Box, Breadcrumbs, Button, CircularProgress, Divider, Skeleton, Snackbar, Tab, Tabs, Typography } from '@mui/material';
 
@@ -11,8 +11,9 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import RefreshIcon from '@mui/icons-material/Refresh';
 
 import MainCard from 'ui-component/cards/MainCard';
-import { getAdminRoleById, resetAdminRoleState, updateAdminRoles } from '../../../store/slices/cusAdminroleSlice';
+import { getRoleId, resetRoleState, updateRole } from '../../../store/slices/roleSlice';
 import RoleForm from './RoleForm';
+
 
 function ContentSkeleton() {
   return (
@@ -34,14 +35,17 @@ function ContentSkeleton() {
   );
 }
 
-export default function RoleManagementView() {
+export default function RolesView() {
   const { id } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const { currentAdminRole, currentAdminRoleLoading, currentAdminRoleError, updateroleLoading, rolesaveSuccess, roleerror } = useSelector((s) => s.cusAdminrole);
-    const { companies } = useSelector((s) => s.commonCustomer);
+    const { currentRole, currentRoleloading, currentRoleError, updateLoading, saveSuccess, error } = useSelector((s) => s.roles);
+    const { companies } = useSelector((state) => state.companies);
 
+  
+
+    const [rows, setRows] = useState([]);
 
   const [tabValue, setTabValue] = useState(0);
   const [form, setForm] = useState(null);
@@ -50,39 +54,40 @@ export default function RoleManagementView() {
   const [stockLoading, setStockLoading] = useState(false);
   const [snackbar, setSnackbar] = useState({ open: false, severity: 'success', message: '' });
 
-  useEffect(() => {
-    if (id) dispatch(getAdminRoleById(id));
+ useEffect(() => {
+    console.log("useeffect",id)
+    if (id) dispatch(getRoleId(id));
     return () => {
-      dispatch(resetAdminRoleState());
+      dispatch(resetRoleState());
     };
   }, [dispatch, id]);
+  useEffect(() => {
+    if (!currentRole) return;
+    console.log("currentrole",currentRole)
+    setForm(mapApiToForm(currentRole,companies));
+  }, [currentRole]);
 
   useEffect(() => {
-    if (!currentAdminRole) return;
-    setForm(mapApiToForm(currentAdminRole,companies));
-  }, [currentAdminRole]);
-
-  useEffect(() => {
-    if (rolesaveSuccess) {
-      setSnackbar({ open: true, severity: 'success', message: 'Role Management updated successfully!' });
-      dispatch(resetAdminRoleState());
-      setTimeout(() => navigate(`/CusRoleManagement/view/${id}`), 1500);
+    if (saveSuccess) {
+      setSnackbar({ open: true, severity: 'success', message: 'Role updated successfully!' });
+      dispatch(resetRoleState());
+      setTimeout(() => navigate(`/Roles/view/${id}`), 1500);
     }
-    if (roleerror) {
+    if (error) {
       setSnackbar({ open: true, severity: 'error', message: error });
-      dispatch(resetAdminRoleState());
+      dispatch(resetRoleState());
     }
-  }, [rolesaveSuccess, roleerror, dispatch, id, navigate]);
+  }, [saveSuccess, error, dispatch, id, navigate]);
 
  
 
   const handleSubmit = () => {
-    dispatch(updateAdminRoles({ docEntry: id, payload: buildPayload(form, lines) }));
+    dispatch(updateRole({ id: id, payload: buildPayload(form) }));
   };
 
 
 
-  const loading = currentAdminRoleLoading || !form;
+  const loading = currentRole || !form;
 
   return (
     <Box>
@@ -117,24 +122,24 @@ export default function RoleManagementView() {
       {/* CONTENT */}
       <MainCard content={false}>
        
-
+{console.log("formedit",form)}
         <Box sx={{ p: 3 }}>
-          {currentAdminRoleError ? (
+          {currentRoleError ? (
             <Box sx={{ py: 6, textAlign: 'center' }}>
               <Typography color="error" variant="h5">
                 Failed to load Role Management 
               </Typography>
               <Typography color="text.secondary" sx={{ mt: 1 }}>
-                {currentAdminRoleError}
+                {currentRoleError}
               </Typography>
             </Box>
-          ) : updateroleLoading ? (
+          ) : updateLoading ? (
             <ContentSkeleton />
           ) : (
             <>
               {/* Always mounted — CSS show/hide avoids unmount errors on tab switch */}
               <Box sx={{ display: tabValue === 0 ? 'block' : 'none' }}>
-                <RoleForm data={form} setData={setForm} lockCustomerProject readOnly/>
+                <RoleForm data={form} setData={setForm} rows={rows} setRows={setRows} readOnly />
               </Box>
              
             </>
@@ -150,7 +155,7 @@ export default function RoleManagementView() {
               <Button variant="outlined" color="error" onClick={() => navigate(-1)}>
                 Cancel
               </Button>
-             
+              
             </Box>
           </Box>
         </Box>

@@ -56,7 +56,7 @@ export default function RoleManagementCreate() {
     if (rolesaveSuccess) {
       setSnackbar({ open: true, severity: 'success', message: 'Role created successfully!' });
       dispatch(resetAdminRoleState());
-      setTimeout(() => navigate('/RoleManagement/list'), 1500);
+      setTimeout(() => navigate('/CusRoleManagement/list'), 1500);
     }
     if (roleerror) {
       setSnackbar({ open: true, severity: 'error', message: roleerror });
@@ -123,7 +123,7 @@ export default function RoleManagementCreate() {
             
 
             <Box sx={{ display: 'flex', gap: 2 }}>
-              <Button variant="outlined" color="error" onClick={() => navigate('/RoleManagement/list')}>
+              <Button variant="outlined" color="error" onClick={() => navigate('/CusRoleManagement/list')}>
                 Cancel
               </Button>
               <Button

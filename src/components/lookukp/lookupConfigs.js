@@ -5,6 +5,10 @@ import { getWarehouses } from '../../store/slices/warehouseSlice';
 import { getCustomers } from '../../store/slices/customerSlice';
 import { getadminCompanies, getmenus } from '../../store/slices/commonCustomerSlice';
 import { getadminRoles } from '../../store/slices/cusAdminroleSlice';
+import { getcompanies } from '../../store/slices/companySlice';
+import { getforms } from '../../store/slices/FormSlice';
+import { getadminmenus } from '../../store/slices/MenuSlice';
+import { getroles } from '../../store/slices/roleSlice';
 
 
 export const LOOKUP_CONFIGS = {
@@ -351,6 +355,97 @@ export const LOOKUP_CONFIGS = {
       }
     ]
   },
+  admincompany: {
+    title: 'Company Selection',
+
+    selector: (state) => ({
+      data: state.companies.companies,
+      loading: state.companies.listLoading,
+      error: state.companies.error
+    }),
+
+    loadAction: getcompanies,
+
+    filters: [
+      {
+        key: 'company_code',
+        label: ' Company Code',
+        dataKey: 'company_code'
+      },
+      {
+        key: 'name',
+        label: ' Name',
+        dataKey: 'name'
+      }
+    ],
+
+    columns: [
+      {
+        field: 'company_code',
+        label: 'Company code'
+      },
+      {
+        field: 'name',
+        label: 'Name'
+      }
+    ]
+  },
+  adminMenu: {
+    title: 'Menu Selection',
+
+    selector: (state) => ({
+      data: state.menus.menus,
+      loading: state.menus.listLoading,
+      error: state.menus.error
+    }),
+
+    loadAction: getadminmenus,
+
+    filters: [
+      {
+        key: 'display_name',
+        label: ' Display Name',
+        dataKey: 'display_name'
+      },
+     
+    ],
+
+    columns: [
+      {
+        field: 'display_name',
+        label: 'Display Name'
+      },
+      
+    ]
+  },
+  adminForm: {
+    title: 'Form Selection',
+
+    selector: (state) => ({
+      data: state.forms.forms,
+      loading: state.forms.listLoading,
+      error: state.forms.error
+    }),
+
+    loadAction: getforms,
+
+    filters: [
+      {
+        key: 'display_name',
+        label: ' Display Name',
+        dataKey: 'display_name'
+      },
+     
+    ],
+
+    columns: [
+      {
+        field: 'display_name',
+        label: 'Display Name'
+      },
+      
+    ]
+  },
   role: {
     title: 'Role Selection',
 
@@ -361,6 +456,34 @@ export const LOOKUP_CONFIGS = {
     }),
 
     loadAction: getadminRoles,
+
+    filters: [
+      
+      {
+        key: 'name',
+        label: ' Name',
+        dataKey: 'name'
+      }
+    ],
+
+    columns: [
+      
+      {
+        field: 'name',
+        label: 'Name'
+      }
+    ]
+  },
+  adminrole: {
+    title: 'Role Selection',
+
+    selector: (state) => ({
+      data: state.roles.roles,
+      loading: state.roles.listLoading,
+      error: state.roles.error
+    }),
+
+    loadAction: getroles,
 
     filters: [
       

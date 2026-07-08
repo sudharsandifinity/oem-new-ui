@@ -136,7 +136,7 @@ export default function SalesQuotationsView() {
               variant="contained"
               color="secondary"
               disabled={isLoading || !!error}
-              onClick={() => navigate(`/sales-order/edit/${id}`)}
+              onClick={() => navigate(`/sales-Quotation/edit/${id}`)}
             >
               Edit
             </Button>

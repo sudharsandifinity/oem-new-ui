@@ -84,7 +84,7 @@ const columns = [
           size="small"
           color="primary"
           onClick={() =>
-            navigate(`/RoleManagement/view/${params.row.id}`)
+            navigate(`/CusRoleManagement/view/${params.row.id}`)
           }
         >
           <VisibilityIcon fontSize="small" />
@@ -94,7 +94,7 @@ const columns = [
           size="small"
           color="secondary"
           onClick={() =>
-            navigate(`/RoleManagement/edit/${params.row.id}`) 
+            navigate(`/CusRoleManagement/edit/${params.row.id}`) 
           }
         >
           <EditIcon fontSize="small" />
@@ -149,7 +149,7 @@ const columns = [
             variant="contained"
             color="secondary"
             startIcon={<AddIcon />}
-            onClick={() => navigate('/RoleManagement/create')}
+            onClick={() => navigate('/CusRoleManagement/create')}
             sx={{ minWidth: 140, whiteSpace: 'nowrap' }}
           >
             Create
