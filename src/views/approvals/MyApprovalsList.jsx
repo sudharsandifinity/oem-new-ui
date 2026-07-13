@@ -147,7 +147,6 @@ export default function MyApprovalsList() {
           <FormControl size="small" sx={{ minWidth: 200 }}>
             <InputLabel>Status</InputLabel>
             <Select label="Status" value={status} onChange={(e) => handleStatusChange(e.target.value)}>
-              <MenuItem value="all">All</MenuItem>
               <MenuItem value="pending">Pending</MenuItem>
               <MenuItem value="approved">Approved</MenuItem>
               <MenuItem value="sent_back">Rejected</MenuItem>

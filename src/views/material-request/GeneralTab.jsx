@@ -83,13 +83,10 @@ export default function MRGeneralTab({ data, setData, readOnly = false, lockCust
         />
 
         <TextField fullWidth label="Project Name" value={data?.ProjectName || ''} disabled />
-
-        <TextField fullWidth label="BOM No" value={data?.BOMNo || ''} disabled />
       </Box>
 
       <Box sx={{ flex: 1, minWidth: 350, display: 'flex', flexDirection: 'column', gap: 3 }}>
         {showRequisitionNo && <TextField fullWidth label="Requisition Number" value={data?.RequisitionNo || ''} disabled />}
-
         <AppDatePicker label="Requisition Date" value={data?.RequisitionDate || today} disabled />
 
         <TextField
@@ -107,6 +104,7 @@ export default function MRGeneralTab({ data, setData, readOnly = false, lockCust
           onChange={(val) => !readOnly && handleChange('RequiredDate', val)}
           disabled={readOnly}
         />
+        <TextField fullWidth label="BOM No" value={data?.BOMNo || ''} disabled />
       </Box>
     </Box>
   );

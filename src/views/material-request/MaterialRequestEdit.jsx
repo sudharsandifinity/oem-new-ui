@@ -287,7 +287,7 @@ export default function MaterialRequestEdit() {
               {sentBackId && (
                 <Button
                   variant="contained"
-                  color="success"
+                  color="primary"
                   onClick={handleResubmit}
                   disabled={loading || updateLoading || decisionLoading}
                   startIcon={
