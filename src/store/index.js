@@ -19,6 +19,7 @@ import commonCustomerReducer from './slices/commonCustomerSlice'
 import draftReducer from './slices/draftSlice';
 import roleReducer from './slices/roleSlice';
 import approvalReducer from './slices/approvalSlice';
+import dashboardReducer from './slices/dashboardSlice';
 
 export const store = configureStore({
   reducer: {
@@ -42,6 +43,7 @@ export const store = configureStore({
     commonCustomer:commonCustomerReducer,
     role:roleReducer,
     approval: approvalReducer,
+    dashboard: dashboardReducer,
   }
 });
 
