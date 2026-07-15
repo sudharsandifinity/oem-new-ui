@@ -7,28 +7,40 @@ import { alpha } from '@mui/material/styles';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
+import FactCheckIcon from '@mui/icons-material/FactCheck';
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import RefreshIcon from '@mui/icons-material/Refresh';
 
 import { getPendingCounts } from '../../../store/slices/dashboardSlice';
+import { getMyApprovals } from '../../../store/slices/approvalSlice';
 
-function HeroStat({ label, value }) {
+const TILE_REGISTRY = {
+  'Material Request': { count: 'mr', label: 'Material Requests Pending', color: 'secondary', icon: <ShoppingCartIcon />, to: '/material-request/list' },
+  'Purchase Request': { count: 'pr', label: 'Purchase Requests Pending', color: 'primary', icon: <ReceiptLongIcon />, to: '/purchase-request/list' },
+  GRPO: { count: 'grpo', label: 'Goods Receipt PO Pending', color: 'warning', icon: <LocalShippingIcon />, to: '/GRPO/list' },
+  'My Approvals': { count: 'approvals', label: 'Approvals Pending', color: 'success', icon: <FactCheckIcon />, to: '/my-approvals/list' }
+};
+
+function HeroStat({ label, value, color = 'primary' }) {
   return (
     <Box
       sx={{
         px: 2,
         py: 1.25,
         borderRadius: 2,
-        minWidth: 88,
+        minWidth: 96,
         textAlign: 'center',
-        bgcolor: 'rgba(255,255,255,0.15)',
-        backdropFilter: 'blur(4px)'
+        bgcolor: 'background.paper',
+        border: '1px solid',
+        borderColor: 'divider'
       }}
     >
-      <Typography sx={{ color: '#fff', fontWeight: 700, lineHeight: 1.1 }} variant="h3">
+      <Typography variant="h3" sx={{ fontWeight: 700, lineHeight: 1.1, color: (t) => t.palette[color].main }}>
         {value == null ? '—' : value}
       </Typography>
-      <Typography sx={{ color: 'rgba(255,255,255,0.85)', fontSize: 12 }}>{label}</Typography>
+      <Typography variant="caption" color="text.secondary">
+        {label}
+      </Typography>
     </Box>
   );
 }
@@ -84,49 +96,52 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const { user } = useSelector((s) => s.auth);
   const { counts, loading } = useSelector((s) => s.dashboard);
+  const { count: approvalsCount, listLoading: approvalsLoading } = useSelector((s) => s.approval);
 
   const fullName = [user?.first_name, user?.last_name].filter(Boolean).join(' ') || 'there';
   const projects = Array.isArray(user?.Projects) ? user.Projects : [];
-
   const initials = ([user?.first_name, user?.last_name].filter(Boolean).map((s) => s[0]).join('') || 'U').toUpperCase();
   const hour = new Date().getHours();
   const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
   const today = new Date().toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-  const totalPending = ['mr', 'pr', 'grpo'].reduce((sum, k) => sum + (counts[k] || 0), 0);
 
-  const load = () => dispatch(getPendingCounts({ email: user?.email || '' }));
+  const isComAdmin = Boolean(user?.is_com_admin);
+  const menuNames = new Set(
+    (user?.Roles || [])
+      .flatMap((role) => role.UserMenus || [])
+      .flatMap((menu) => [menu, ...(menu.children || [])])
+      .filter((m) => m?.status === 1)
+      .map((m) => m.display_name)
+  );
+
+  const countByKey = { mr: counts.mr, pr: counts.pr, grpo: counts.grpo, approvals: approvalsCount };
+  const loadingByKey = { mr: loading, pr: loading, grpo: loading, approvals: approvalsLoading };
+
+  const tiles = Object.entries(TILE_REGISTRY)
+    .filter(([name]) => isComAdmin || menuNames.has(name))
+    .map(([name, cfg]) => ({
+      key: cfg.count,
+      name,
+      label: cfg.label,
+      color: cfg.color,
+      icon: cfg.icon,
+      to: cfg.to,
+      value: countByKey[cfg.count],
+      loading: loadingByKey[cfg.count]
+    }));
+
+  const hasApprovalsTile = tiles.some((t) => t.key === 'approvals');
+  const totalPending = tiles.reduce((sum, t) => sum + (t.value || 0), 0);
+
+  const load = () => {
+    dispatch(getPendingCounts({ email: user?.email || '' }));
+    if (hasApprovalsTile) dispatch(getMyApprovals({ docType: 'MR', status: 'pending', top: 1 }));
+  };
 
   useEffect(() => {
     load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.email]);
-
-  const tiles = [
-    {
-      key: 'mr',
-      label: 'Material Requests Pending',
-      value: counts.mr,
-      color: 'secondary',
-      icon: <ShoppingCartIcon />,
-      to: '/material-request/list'
-    },
-    {
-      key: 'pr',
-      label: 'Purchase Requests Pending',
-      value: counts.pr,
-      color: 'primary',
-      icon: <ReceiptLongIcon />,
-      to: '/purchase-request/list'
-    },
-    {
-      key: 'grpo',
-      label: 'Goods Receipt PO Pending',
-      value: counts.grpo,
-      color: 'warning',
-      icon: <LocalShippingIcon />,
-      to: '/GRPO/list'
-    }
-  ];
 
   return (
     <Box sx={{ p: 3 }}>
@@ -136,30 +151,24 @@ export default function Dashboard() {
           p: { xs: 3, md: 4 },
           mb: 4,
           borderRadius: 3,
-          position: 'relative',
-          overflow: 'hidden',
-          color: '#fff',
-          background: 'linear-gradient(135deg,#5e35b1 0%,#4527a0 55%,#7b1fa2 100%)'
+          border: '1px solid',
+          borderColor: 'divider',
+          background: (t) => `linear-gradient(135deg, ${alpha(t.palette.primary.light, 0.18)} 0%, ${alpha(t.palette.secondary.light, 0.14)} 100%)`
         }}
       >
-        <Box sx={{ position: 'absolute', right: -40, top: -50, width: 190, height: 190, borderRadius: '50%', bgcolor: 'rgba(255,255,255,0.08)' }} />
-        <Box sx={{ position: 'absolute', right: 80, bottom: -70, width: 150, height: 150, borderRadius: '50%', bgcolor: 'rgba(255,255,255,0.06)' }} />
-
-        <Box sx={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 2.5, flexWrap: 'wrap' }}>
-          <Avatar sx={{ width: 60, height: 60, bgcolor: 'rgba(255,255,255,0.2)', color: '#fff', fontWeight: 700, fontSize: 22 }}>
-            {initials}
-          </Avatar>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2.5, flexWrap: 'wrap' }}>
+          <Avatar sx={{ width: 60, height: 60, bgcolor: 'primary.main', color: '#fff', fontWeight: 700, fontSize: 22 }}>{initials}</Avatar>
           <Box sx={{ flex: 1, minWidth: 220 }}>
-            <Typography variant="h2" sx={{ color: '#fff', fontWeight: 700, lineHeight: 1.15 }}>
+            <Typography variant="h2" sx={{ fontWeight: 700, lineHeight: 1.15 }}>
               {greeting}, {fullName}!
             </Typography>
-            <Typography sx={{ color: 'rgba(255,255,255,0.85)', mt: 0.5 }}>
+            <Typography color="text.secondary" sx={{ mt: 0.5 }}>
               {today} &nbsp;·&nbsp; Here&apos;s what needs your attention.
             </Typography>
           </Box>
           <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap' }}>
-            <HeroStat label="Pending" value={loading ? null : totalPending} />
-            <HeroStat label="Projects" value={projects.length} />
+            <HeroStat label="Pending" value={loading ? null : totalPending} color="primary" />
+            <HeroStat label="Projects" value={projects.length} color="secondary" />
           </Box>
         </Box>
       </Paper>
@@ -167,19 +176,25 @@ export default function Dashboard() {
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1.5 }}>
         <Typography variant="h4">Pending</Typography>
         <Tooltip title="Refresh">
-          <IconButton size="small" onClick={load} disabled={loading}>
+          <IconButton size="small" onClick={load} disabled={loading || approvalsLoading}>
             <RefreshIcon fontSize="small" />
           </IconButton>
         </Tooltip>
       </Box>
 
-      <Grid container spacing={3} sx={{ mb: 4 }}>
-        {tiles.map((t) => (
-          <Grid item xs={12} sm={6} md={4} key={t.key}>
-            <StatTile icon={t.icon} label={t.label} value={t.value} color={t.color} loading={loading} onClick={() => navigate(t.to)} />
-          </Grid>
-        ))}
-      </Grid>
+      {tiles.length === 0 ? (
+        <Paper variant="outlined" sx={{ p: 4, mb: 4, borderRadius: 2, textAlign: 'center' }}>
+          <Typography color="text.secondary">No modules assigned to your account.</Typography>
+        </Paper>
+      ) : (
+        <Grid container spacing={3} sx={{ mb: 4 }}>
+          {tiles.map((t) => (
+            <Grid item xs={12} sm={6} md={4} key={t.key}>
+              <StatTile icon={t.icon} label={t.label} value={t.value} color={t.color} loading={t.loading} onClick={() => navigate(t.to)} />
+            </Grid>
+          ))}
+        </Grid>
+      )}
 
       <Grid container spacing={3}>
         <Grid item xs={12} md={7} lg={6}>
@@ -187,7 +202,7 @@ export default function Dashboard() {
             <Box sx={{ px: 2.5, py: 1.75, display: 'flex', alignItems: 'center', gap: 1.5 }}>
               <AccountTreeIcon color="secondary" fontSize="small" />
               <Typography variant="h4" sx={{ flex: 1 }}>
-                My Projects
+                Projects
               </Typography>
               <Chip size="small" color="secondary" label={projects.length} />
             </Box>

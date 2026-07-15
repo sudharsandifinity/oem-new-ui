@@ -15,25 +15,26 @@ import { useSelector } from 'react-redux';
 import {
   IconDashboard,
   IconUsers,
-  IconShoppingCart,
+  IconClipboardList,
   IconFileInvoice,
-  IconBuilding,
-  IconBriefcase,
+  IconPackageImport,
+  IconBuildingSkyscraper,
   IconClipboardCheck,
-  IconReportAnalytics,
+  IconChecklist,
+  IconChecks,
   IconTruckDelivery
 } from '@tabler/icons-react';
 
 const menuIcons = {
   Dashboard: IconDashboard,
   '': IconUsers,
-  'Material Request': IconShoppingCart,
+  'Material Request': IconClipboardList,
   'Purchase Request': IconFileInvoice,
-  'GRPO': IconBriefcase,
-  'Contracting Management': IconBuilding,
-  'Approvals': IconClipboardCheck,
+  'GRPO': IconPackageImport,
+  'Contracting Management': IconBuildingSkyscraper,
+  'Approvals': IconChecklist,
   'My Approvals': IconClipboardCheck,
-  'Pending Approvals': IconReportAnalytics,
+  'Pending Approvals': IconChecks,
   'Pending Delivery': IconTruckDelivery
 };
 
