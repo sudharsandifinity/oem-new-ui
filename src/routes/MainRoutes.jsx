@@ -4,7 +4,7 @@ import { lazy } from 'react';
 import MainLayout from 'layout/MainLayout';
 import Loadable from 'ui-component/Loadable';
 import PrivateRoute from './PrivateRoute';
-import Admin from '../views/Admin/Admin';
+import Admin from '../views/Admin/Admin'; 
 
 // dashboard routing
 const DashboardDefault = Loadable(lazy(() => import('views/dashboard/Default')));

@@ -76,7 +76,7 @@ export default function MenuEdit() {
     if (saveSuccess) {
       setSnackbar({ open: true, severity: 'success', message: 'Menu updated successfully!' });
       dispatch(resetMenuState());
-      setTimeout(() => navigate(`/Menus/view/${id}`), 1500);
+      setTimeout(() => navigate(`/Menu/view/${id}`), 1500);
     }
     if (error) {
       setSnackbar({ open: true, severity: 'error', message: error });
@@ -164,7 +164,7 @@ export default function MenuEdit() {
                 variant="contained"
                 color="secondary"
                 onClick={handleSubmit}
-                disabled={loading || updateLoading}
+                disabled={currentMenuloading || updateLoading}
                 startIcon={updateLoading ? <CircularProgress size={16} color="inherit" /> : null}
               >
                 Update

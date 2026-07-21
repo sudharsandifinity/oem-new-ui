@@ -63,12 +63,11 @@ function MenuList() {
  const isSuperUser = Number(user?.is_super_user) === 1;
 const isCompanyAdmin = Number(user?.is_com_admin) === 1;
 const isSapUser = Number(user?.is_sap_user) === 1;
-
 let menuItems;
 
 if (isCompanyAdmin) {
   menuItems = cusmenuItems;
-} else if (isSapUser) {
+} else if (isSuperUser) {
   menuItems = AdminMenu;
 } else {
   menuItems = {

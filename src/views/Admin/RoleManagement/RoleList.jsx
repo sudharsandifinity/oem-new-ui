@@ -12,7 +12,14 @@ import {
   Link,
   Chip,
   IconButton,
-  Paper
+  Paper,
+  Snackbar,
+  Alert,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions
 } from '@mui/material';
 import { Add, Delete, Edit, Visibility } from '@mui/icons-material';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
@@ -31,27 +38,52 @@ const RoleList = () => {
   let data = [];
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { roles, listLoading } = useSelector((state) => state.roles);
-    const { companies } = useSelector((state) => state.companies);
+  const { roles, listLoading, saveSuccess, error } = useSelector((state) => state.roles);
+  const { companies } = useSelector((state) => state.companies);
+  const [snackbar, setSnackbar] = useState({ open: false, severity: 'success', message: '' });
+  const [openDeleteModal, setOpenDeleteModal] = useState(false);
+  const [roleToDelete, setRoleToDelete] = useState(null);
 
-  
   useEffect(() => {
     dispatch(getroles());
     dispatch(getcompanies());
   }, [dispatch]);
- console.log("companies",companies)
- const DeleteRole = (roleId) => {
-   // Implementation for deleting a role
-   dispatch(deleteRole(roleId))
- };
+  console.log("companies", companies)
+  const DeleteRow = async () => {
+    const result = await dispatch(deleteRole(roleToDelete));
+
+    if (deleteRole.fulfilled.match(result)) {
+
+      setSnackbar({ open: true, severity: 'success', message: 'Role Deleted successfully!' });
+    setOpenDeleteModal(false)
+
+      dispatch(getroles());
+    } else {
+      setSnackbar({ open: true, severity: 'error', message: error });
+
+    }
+  }
+  const DeleteRole = async (roleId) => {
+    // Implementation for deleting a role
+    setOpenDeleteModal(true)
+    setRoleToDelete(roleId);
+
+
+
+
+  };
+  const handleClose = () => {
+    setOpenDeleteModal(false);
+  };
+
   const columns = useMemo(
     () => [
-       {
-    id: 'slNo',
-    header: 'Sl No',
-    size: 80,
-    Cell: ({ row }) => row.index + 1,
-  },
+      {
+        id: 'slNo',
+        header: 'Sl No',
+        size: 80,
+        Cell: ({ row }) => row.index + 1,
+      },
       {
         accessorKey: 'name',
         header: 'Roles Name'
@@ -59,7 +91,7 @@ const RoleList = () => {
       {
         accessorKey: 'display_name',
         header: 'Company',
-        Cell:({cell})=>companies?.find((com) => com.id===String(cell.row.original.companyId))?.name|| "-"
+        Cell: ({ cell }) => companies?.find((com) => com.id === String(cell.row.original.companyId))?.name || "-"
 
       },
 
@@ -85,7 +117,7 @@ const RoleList = () => {
             <IconButton size="small" color="secondary" onClick={() => navigate(`/Roles/edit/${cell.row.original.id}`)}>
               <Edit fontSize="small" />
             </IconButton>
-              <IconButton size="small" color="secondary" onClick={() => DeleteRole(cell.row.original.id)}>
+            <IconButton size="small" color="secondary" onClick={() => DeleteRole(cell.row.original.id)}>
               <Delete fontSize="small" />
             </IconButton>
           </Stack>
@@ -137,7 +169,7 @@ const RoleList = () => {
           }}
         >
           <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', flex: 1 }}></Box>
-          
+
           <Button
             variant="contained"
             color="secondary"
@@ -173,7 +205,38 @@ const RoleList = () => {
           />
         </CardContent>
       </Card>
-      
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={5000}
+        onClose={() => setSnackbar((p) => ({ ...p, open: false }))}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+      >
+        <Alert severity={snackbar.severity} onClose={() => setSnackbar((p) => ({ ...p, open: false }))}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
+      <Dialog
+        open={openDeleteModal}
+        onClose={() => setOpenDeleteModal(false)}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+        role="alertdialog"
+      >
+        <DialogTitle id="alert-dialog-title">
+          {"Delete Role"}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            Are you sure you want to delete this role? This action cannot be undone.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenDeleteModal(false)} autoFocus>
+            Cancel
+          </Button>
+          <Button onClick={DeleteRow}>OK</Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

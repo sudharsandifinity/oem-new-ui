@@ -136,7 +136,7 @@ export default function UserEdit() {
             <>
               {/* Always mounted — CSS show/hide avoids unmount errors on tab switch */}
               <Box sx={{ display: tabValue === 0 ? 'block' : 'none' }}>
-                <UserForm data={form} setData={setForm}  />
+                <UserForm data={form} setData={setForm}  lockUserPassword/>
               </Box>
              
             </>
@@ -156,7 +156,7 @@ export default function UserEdit() {
                 variant="contained"
                 color="secondary"
                 onClick={handleSubmit}
-                disabled={loading || updateLoading}
+                disabled={currentUserloading || updateLoading}
                 startIcon={updateLoading ? <CircularProgress size={16} color="inherit" /> : null}
               >
                 Update

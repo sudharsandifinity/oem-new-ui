@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams, useNavigate } from 'react-router-dom';
-import { mapApiToForm, mapApiLineToRow, buildPayload } from './RoleHelpers';
+import { mapApiToForm, buildPayload } from './RoleHelpers';
 
 import { Alert, Box, Breadcrumbs, Button, CircularProgress, Divider, Skeleton, Snackbar, Tab, Tabs, Typography } from '@mui/material';
 
@@ -43,6 +43,7 @@ export default function RolesEdit() {
     const { currentRole, currentRoleloading, currentRoleError, updateLoading, saveSuccess, error } = useSelector((s) => s.roles);
     const { companies } = useSelector((state) => state.companies);
     const [rows, setRows] = useState([]);
+    const [permissionIds, setPermissionIds] = useState([]);
 
   
 
@@ -65,6 +66,7 @@ export default function RolesEdit() {
     if (!currentRole) return;
     console.log("currentrole",currentRole)
     setForm(mapApiToForm(currentRole,companies));
+    setPermissionIds({permissionIds: currentRole.Permissions.map((p) => p.id) || []});
   }, [currentRole]);
 
   useEffect(() => {
@@ -82,7 +84,7 @@ export default function RolesEdit() {
  
 
   const handleSubmit = () => {
-    dispatch(updateRole({ id: id, payload: buildPayload(form) }));
+    dispatch(updateRole({ id: id, payload: buildPayload(form,rows,permissionIds) }));
   };
 
 
@@ -139,7 +141,7 @@ export default function RolesEdit() {
             <>
               {/* Always mounted — CSS show/hide avoids unmount errors on tab switch */}
               <Box sx={{ display: tabValue === 0 ? 'block' : 'none' }}>
-                <RoleForm data={form} setData={setForm} rows={rows} setRows={setRows} />
+                <RoleForm data={form} setData={setForm} rows={rows} setRows={setRows} permissionIds={permissionIds} setPermissionIds={setPermissionIds}/>
               </Box>
              
             </>
@@ -159,7 +161,7 @@ export default function RolesEdit() {
                 variant="contained"
                 color="secondary"
                 onClick={handleSubmit}
-                disabled={loading || updateLoading}
+                disabled={currentRoleloading || updateLoading}
                 startIcon={updateLoading ? <CircularProgress size={16} color="inherit" /> : null}
               >
                 Update

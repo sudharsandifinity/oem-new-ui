@@ -96,7 +96,7 @@ console.log("first",customer)
           <TextField
             fullWidth
             label="Contact Person"
-            value={data.ContactPerson}
+            value={vendor.find((c) => c.CardCode === data.VendorCode)?.ContactPerson || data?.ContactPerson}
             disabled={readOnly}
             onChange={(e) => handleChange('ContactPerson', e.target.value)}
           />

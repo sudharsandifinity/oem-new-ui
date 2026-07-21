@@ -28,7 +28,7 @@ const EMP_COLS = ['EmployeeID', 'FirstName', 'LastName', 'Email'];
 const USER_LABELS = { UserCode: 'User Code', UserName: 'Username', Email: 'Email' };
 const EMP_LABELS = { EmployeeID: 'Employee ID', FirstName: 'First Name', LastName: 'Last Name', Email: 'Email' };
 
-export default function RequestorSelectModal({ open, onClose, onSelect, requestorType = 'User' }) {
+export default function RequestorSelectModal({ open, onClose, onSelect, requestorType = '12' }) {
   const dispatch = useDispatch();
   const { users, usersLoading, employees, employeesLoading, departments } = useSelector((s) => s.common);
 

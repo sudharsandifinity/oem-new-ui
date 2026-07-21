@@ -39,7 +39,7 @@ export default function MenuCreate() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-    const { currentMenu, currentMenuloading, currentMenuError, updateLoading, saveSuccess, error } = useSelector((s) => s.companies);
+    const { currentMenu, currentMenuloading, currentMenuError, updateLoading, saveSuccess, error } = useSelector((s) => s.menus);
   
 
 

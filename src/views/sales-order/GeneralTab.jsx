@@ -9,11 +9,11 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getCustomers } from '../../store/slices/customerSlice';
 
 export default function GeneralTab({ data, setData, readOnly = false }) {
-const { customers } = useSelector((state) => state.customer);
-const dispatch=useDispatch();
+  const { customers } = useSelector((state) => state.customer);
+  const dispatch = useDispatch();
   useEffect(() => {
-      if (!customers.length) dispatch(getCustomers());
-    }, [dispatch]);
+    if (!customers.length) dispatch(getCustomers());
+  }, [dispatch]);
   const handleChange = (field, value) => {
     setData({ ...data, [field]: value });
   };
@@ -29,19 +29,19 @@ const dispatch=useDispatch();
     });
     setOpenCustomerPopup(false);
   };
-useEffect(() => {
-  if (!data?.CardCode || !customers?.length) return;
-
-  const customer = customers.find((c) => c.CardCode === data.CardCode);
-
-  if (customer) {
-    setData((prev) => ({
-      ...prev,
-      CardName: prev.CardName || customer.CardName,
-      ContactPerson: customer.ContactPerson || ''
-    }));
-  }
-}, [data?.CardCode, customers]);
+  useEffect(() => {
+    if (!data?.CardCode || !customers?.length) return;
+    console.log("viewcontactperson", data, customers)
+    const customer = customers.find((c) => c.CardCode === data.CardCode);
+    if (customer) {
+      console.log("first", customer.ContactPerson)
+      setData((prev) => ({
+        ...prev,
+        CardName: prev.CardName || customer.CardName,
+        ContactPerson: customer?.ContactPerson || ''
+      }));
+    }
+  }, [data?.CardCode, customers]);
   return (
     <>
 
@@ -88,11 +88,11 @@ useEffect(() => {
             disabled={readOnly}
             onChange={(e) => handleChange('CardName', e.target.value)}
           />
-
+          {console.log("contactpersonview", data.ContactPerson)}
           <TextField
             fullWidth
             label="Contact Person"
-            value={data.ContactPerson}
+            value={customers.find((c) => c.CardCode === data.CardCode)?.ContactPerson || data?.ContactPerson}
             disabled={readOnly}
             onChange={(e) => handleChange('ContactPerson', e.target.value)}
           />

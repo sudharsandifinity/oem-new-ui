@@ -9,7 +9,8 @@ import {
   MenuItem,
   Select,
   Switch,
-  TextField
+  TextField,
+  Typography
 } from '@mui/material';
 import PersonSearchIcon from '@mui/icons-material/PersonSearch';
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
@@ -57,6 +58,54 @@ export default function MenuForm({ data, setData, readOnly = false, lockMenuPass
   const { openLookup } = useLookup();
   const [is_super_Menu, setIs_super_Menu] = useState('0');
   const [is_com_admin, setIs_com_admin] = useState('0');
+  const [errorMsg, setErrorMsg] = useState({
+    menuError: '',
+    formError: ''
+  });
+  const [errors, setErrors] = useState({
+    name: '',
+    companyNames: '',
+    MenuNames: '',
+    display_name: '',
+    formNames: '',
+  });
+ 
+  const validateField = (field, value) => {
+    let message = '';
+
+    switch (field) {
+      case 'name':
+        if (!value.trim()) message = 'Company Name is required';
+        break;
+
+      case 'companyNames':
+        if (!value.trim()) message = 'Company  Name is required';
+        break;
+
+      case 'MenuNames':
+        if (!value.trim()) message = 'Menu Name is required';
+        break;
+
+      case 'display_name':
+        if (!value.trim()) message = 'Display Name is required';
+        break;
+
+      case 'formNames':
+        if (!value.trim()) message = 'Form Name is required';
+        break;
+
+      default:
+        break;
+    }
+
+    setErrors((prev) => ({
+      ...prev,
+      [field]: message
+    }));
+
+    return message === '';
+  };
+
 
   const handleChange = (field, value) => {
     setData((prev) => ({ ...prev, [field]: value }));
@@ -66,14 +115,23 @@ export default function MenuForm({ data, setData, readOnly = false, lockMenuPass
   const passwordDisabled = readOnly || lockMenuPassword;
 
   const handleOpenMenuLookup = () => {
+    if (!data?.companyId) {
+      setErrorMsg((prev) => ({ ...prev, menuError: 'Please select a company first' }));
+      return;
+    } else {
+      setErrorMsg((prev) => ({ ...prev, menuError: '' }));
+
+    }
+    console.log(" data?.companyId", data?.companyId)
     openLookup({
       type: 'adminMenu',
       //multiSelect: true,
       //selectedIds: data?.MenuIds || [],
-
+      companyId: data?.companyId,
       onSelect: (menu) => {
         setData((prev) => ({
           ...prev,
+
           //companies: companies,
           MenuId: menu.id,
           MenuNames: menu.name
@@ -85,10 +143,18 @@ export default function MenuForm({ data, setData, readOnly = false, lockMenuPass
 
 
   const handleOpenFormLookup = () => {
+    if (!data?.companyId) {
+      setErrorMsg((prev) => ({ ...prev, formError: 'Please select a company first' }));
+      return;
+    } else {
+      setErrorMsg((prev) => ({ ...prev, formError: '' }));
+
+    }
     openLookup({
       type: 'adminForm',
       //multiSelect: true,
       //selectedIds: data?.FormIds || [],
+      companyId: data?.companyId,
 
       onSelect: (form) => {
         setData((prev) => ({
@@ -103,7 +169,7 @@ export default function MenuForm({ data, setData, readOnly = false, lockMenuPass
   const handleOpenCompanyLookup = () => {
     openLookup({
       type: 'admincompany',
-     // multiSelect: true,
+      // multiSelect: true,
       //selectedIds: data?.companyIds || [],
 
       onSelect: (company) => {
@@ -111,8 +177,15 @@ export default function MenuForm({ data, setData, readOnly = false, lockMenuPass
           ...prev,
           //companies: companies,
           companyId: company.id,
-          companyNames: company.name
+          companyNames: company.name,
+
+          MenuId: null,
+          MenuNames: '',
+          FormId: null,
+          formNames: '',
         }));
+        setErrorMsg((prev) => ({ ...prev, formError: '', menuError: '' }));
+
       }
     });
   };
@@ -163,31 +236,21 @@ export default function MenuForm({ data, setData, readOnly = false, lockMenuPass
           gap: 3
         }}
       >
-        <TextField
-          fullWidth
-          label="Menu Form Name"
-          disabled={idDisabled}
-          value={data?.name || ''}
-          onChange={(e) => setData((prev) => ({ ...prev, name: e.target.value.trim() }))}
-        />
 
         <TextField
           fullWidth
-          label="Display Name"
+          required
+          label="Menu Name"
           disabled={idDisabled}
-          value={data?.display_name || ''}
-          onChange={(e) => setData((prev) => ({ ...prev, display_name: e.target.value.trim() }))}
+          value={data?.name || ''}
+          onChange={(e) => setData((prev) => ({ ...prev, name: e.target.value.trim() }))}
+          onBlur={(e) => validateField('name', e.target.value)}
+          error={!!errors.name}
+          helperText={errors.name}
         />
-        <FormControl fullWidth disabled={readOnly}>
-          <InputLabel>Scope</InputLabel>
-          <Select label="Scope" value={data?.scope || '1'} onChange={(e) => setData((prev) => ({ ...prev, scope: e.target.value }))}>
-            <MenuItem value="global">Global</MenuItem>
-            <MenuItem value="company">Company</MenuItem>
-            <MenuItem value="branch">Branch</MenuItem>
-          </Select>
-        </FormControl>
         <TextField
           fullWidth
+          required
           label="Company"
           disabled={idDisabled}
           value={data?.companyNames || ''}
@@ -201,21 +264,19 @@ export default function MenuForm({ data, setData, readOnly = false, lockMenuPass
               </InputAdornment>
             )
           }}
+          
         />
-      </Box>
-
-      {/* RIGHT */}
-      <Box
-        sx={{
-          flex: 1,
-          minWidth: 350,
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 3
-        }}
-      >
+        {errorMsg?.menuError ? (
+          <Typography
+            color="error"
+            sx={{ mb: 0.5, display: 'block' }}
+          >
+            {errorMsg.menuError}
+          </Typography>
+        ) : null}
         <TextField
           fullWidth
+
           label="Parent"
           disabled={idDisabled}
           value={data?.MenuNames || ''}
@@ -230,8 +291,43 @@ export default function MenuForm({ data, setData, readOnly = false, lockMenuPass
             )
           }}
         />
+
+
+
+      </Box>
+
+      {/* RIGHT */}
+      <Box
+        sx={{
+          flex: 1,
+          minWidth: 350,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 3
+        }}
+      >
         <TextField
           fullWidth
+          required
+          label="Display Name"
+          disabled={idDisabled}
+          value={data?.display_name || ''}
+          onChange={(e) => setData((prev) => ({ ...prev, display_name: e.target.value.trim() }))}
+          onBlur={(e) => validateField('display_name', e.target.value)}
+          error={!!errors.display_name}
+          helperText={errors.display_name}
+        />
+          {errorMsg?.formError ? (
+          <Typography
+            color="error"
+            sx={{ mb: 0.5, display: 'block' }}
+          >
+            {errorMsg.menuError}
+          </Typography>
+        ) : null}
+        <TextField
+          fullWidth
+          required
           label="Form"
           disabled={idDisabled}
           value={data?.formNames || ''}
@@ -246,8 +342,11 @@ export default function MenuForm({ data, setData, readOnly = false, lockMenuPass
             )
           }}
         />
+
+
         <TextField
           fullWidth
+
           label="Order Number"
           disabled={idDisabled}
           value={data?.order_number || ''}
@@ -267,7 +366,7 @@ export default function MenuForm({ data, setData, readOnly = false, lockMenuPass
             control={
               <Android12Switch
                 checked={data?.status === 1}
-          disabled={idDisabled}
+                disabled={idDisabled}
 
                 onChange={(e) =>
                   setData((prev) => ({

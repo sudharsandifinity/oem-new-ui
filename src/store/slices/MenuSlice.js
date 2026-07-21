@@ -37,7 +37,7 @@ export const getMenuId = createAsyncThunk('menus/getById', async (id, thunkAPI) 
 
 export const updateMenu = createAsyncThunk('menus/update', async ({ id, payload }, thunkAPI) => {
   try {
-    const response = await axios.patch(`/admin/user-menus/${id}`, payload);
+    const response = await axios.put(`/admin/user-menus/${id}`, payload);
     return response.data;
   } catch (error) {
     const d = error.response?.data;
@@ -53,7 +53,7 @@ const initialState = {
   listLoading: false,
   createLoading:false,
   updateloading:false,
-  savesuccess:false,
+  saveSuccess:false,
   totalCount:0,
   error: null,
 
@@ -78,15 +78,15 @@ const menusSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(getadminmenus.pending, (state) => {
-        state.loading = true;
+        state.listLoading = true;
         state.error = null;
       })
       .addCase(getadminmenus.fulfilled, (state, action) => {
-        state.loading = false;
+        state.listLoading = false;
         state.menus = action.payload || [];
       })
       .addCase(getadminmenus.rejected, (state, action) => {
-        state.loading = false;
+        state.listLoading = false;
         state.error = action.payload;
       })
       .addCase(getMenuId.pending, (state) => {
@@ -109,6 +109,7 @@ const menusSlice = createSlice({
               state.saveSuccess = false;
             })
             .addCase(createMenu.fulfilled, (state) => {
+              console.log("fullfilled")
               state.createLoading = false;
               state.saveSuccess = true;
             })

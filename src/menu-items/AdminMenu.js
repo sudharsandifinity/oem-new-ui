@@ -1,11 +1,11 @@
 // ==============================|| MENU ITEMS ||============================== //
 
+import adminDashboard from "./adminDashboard";
 import adminMenuItems from "./adminMenuItems";
-import dashboard from "./dashboard";
 
 const AdminMenu = {
   
-  items: [adminMenuItems]
+  items: [adminDashboard, adminMenuItems]
 };
 
 export default  AdminMenu;

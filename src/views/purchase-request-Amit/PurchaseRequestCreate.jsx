@@ -97,7 +97,7 @@ export default function PurchaseRequestsCreate() {
     
 
   const initialState = () => ({
-    RequestorType: '',
+    RequestorType: '12',
     ReqCode: '',
     RequestorName: '',
     Department: '',
@@ -140,7 +140,7 @@ StatusLabel:'',
 console.log("first",documentLines)
     const payload = {
       DocType: purchaseRequest.DocType,
-      ReqType: Number(purchaseRequest.RequestorType)  ,
+      ReqType: purchaseRequest.RequestorType,
       ReqCode: purchaseRequest.ReqCode,
       RequestorName: purchaseRequest.RequestorName,
       Department: purchaseRequest.Department,

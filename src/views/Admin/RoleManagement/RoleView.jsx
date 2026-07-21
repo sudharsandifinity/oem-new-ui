@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams, useNavigate } from 'react-router-dom';
-import { mapApiToForm, mapApiLineToRow, buildPayload } from './RoleHelpers';
+import { mapApiToForm, buildPayload } from './RoleHelpers';
 
 import { Alert, Box, Breadcrumbs, Button, CircularProgress, Divider, Skeleton, Snackbar, Tab, Tabs, Typography } from '@mui/material';
 
@@ -44,6 +44,7 @@ export default function RolesView() {
     const { companies } = useSelector((state) => state.companies);
 
   
+    const [permissionIds, setPermissionIds] = useState([]);
 
     const [rows, setRows] = useState([]);
 
@@ -139,7 +140,7 @@ export default function RolesView() {
             <>
               {/* Always mounted — CSS show/hide avoids unmount errors on tab switch */}
               <Box sx={{ display: tabValue === 0 ? 'block' : 'none' }}>
-                <RoleForm data={form} setData={setForm} rows={rows} setRows={setRows} readOnly />
+                <RoleForm data={form} setData={setForm} rows={rows} setRows={setRows} permissionIds={permissionIds} setPermissionIds={setPermissionIds} readOnly />
               </Box>
              
             </>

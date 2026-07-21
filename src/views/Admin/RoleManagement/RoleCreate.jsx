@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams, useNavigate } from 'react-router-dom';
-// import { mapApiToForm, mapApiLineToRow, buildPayload, updatebuildPayload } from './CompanyHelpers';
 
 import { Alert, Box, Breadcrumbs, Button, CircularProgress, Divider, Skeleton, Snackbar, Tab, Tabs, Typography } from '@mui/material';
 
@@ -52,13 +51,14 @@ export default function RoleCreate() {
   const [stockLoading, setStockLoading] = useState(false);
   const [snackbar, setSnackbar] = useState({ open: false, severity: 'success', message: '' });
     const [rows, setRows] = useState([]);
+    const [permissionIds, setPermissionIds] = useState([]);
   
 
 
 
   useEffect(() => {
     if (saveSuccess) {
-      setSnackbar({ open: true, severity: 'success', message: 'Role updated successfully!' });
+      setSnackbar({ open: true, severity: 'success', message: 'Role Created successfully!' });
       dispatch(resetRoleState());
       setTimeout(() => navigate(`/Roles/list`), 1500);
     }
@@ -71,8 +71,8 @@ export default function RoleCreate() {
  
 
   const handleSubmit = () => {
-    console.log("handlesubmit",form,rows)
-    dispatch(createRole( buildPayload(form,rows) ));
+    console.log("handlesubmit rows",rows,"form",form)
+    dispatch(createRole( buildPayload(form,rows,permissionIds) ));
   };
 
 
@@ -129,7 +129,7 @@ export default function RoleCreate() {
             <>
               {/* Always mounted — CSS show/hide avoids unmount errors on tab switch */}
               <Box sx={{ display: tabValue === 0 ? 'block' : 'none' }}>
-                <RoleForm data={form} setData={setForm} rows={rows} setRows={setRows}  />
+                <RoleForm data={form} setData={setForm} rows={rows} setRows={setRows} permissionIds={permissionIds} setPermissionIds={setPermissionIds} />
               </Box>
              
             </>

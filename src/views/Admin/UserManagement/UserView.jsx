@@ -134,7 +134,7 @@ export default function UserView() {
             <>
               {/* Always mounted — CSS show/hide avoids unmount errors on tab switch */}
               <Box sx={{ display: tabValue === 0 ? 'block' : 'none' }}>
-                <UserForm data={form} setData={setForm} lockCustomerProject readOnly/>
+                <UserForm data={form} setData={setForm} lockCustomerProject readOnly lockUserPassword/>
               </Box>
              
             </>

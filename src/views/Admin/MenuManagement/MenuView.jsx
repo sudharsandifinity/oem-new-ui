@@ -68,7 +68,8 @@ export default function MenuView() {
   }, [dispatch, id]);
   useEffect(() => {
     if (!currentMenu) return;
-    console.log("currentmenuEdit",currentMenu,companies,forms,menus)
+    console.log("currentmenuEdit",currentMenu,companies,menus,forms,String(currentMenu.parentUserMenuId))
+    console.log("selected menu", menus?.filter(m => String(currentMenu.parentUserMenuId)===String(m.id)))
     setForm(mapApiToForm(currentMenu,companies,forms,menus));
   }, [currentMenu]);
 

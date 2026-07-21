@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams, useNavigate } from 'react-router-dom';
-import { mapApiToForm, mapApiLineToRow, buildPayload, updatebuildPayload } from './CompanyHelpers';
+import { mapApiToForm, buildPayload, updatebuildPayload } from './CompanyHelpers';
 
 import { Alert, Box, Breadcrumbs, Button, CircularProgress, Divider, Skeleton, Snackbar, Tab, Tabs, Typography } from '@mui/material';
 
@@ -66,8 +66,8 @@ export default function CompanyCreate() {
 
  
 
-  const handleSubmit = () => {
-    dispatch(createCompany(buildPayload(form) ));
+  const handleSubmit = (data) => {
+    dispatch(createCompany(buildPayload(data) ));
   };
 
 
@@ -107,7 +107,6 @@ export default function CompanyCreate() {
       {/* CONTENT */}
       <MainCard content={false}>
        
-{console.log("formedit",form)}
         <Box sx={{ p: 3 }}>
           {currentCompanyError ? (
             <Box sx={{ py: 6, textAlign: 'center' }}>
@@ -124,7 +123,7 @@ export default function CompanyCreate() {
             <>
               {/* Always mounted — CSS show/hide avoids unmount errors on tab switch */}
               <Box sx={{ display: tabValue === 0 ? 'block' : 'none' }}>
-                <CompanyForm data={form} setData={setForm}  />
+                <CompanyForm data={form} setData={setForm} onSubmit={handleSubmit} mode="create" />
               </Box>
              
             </>

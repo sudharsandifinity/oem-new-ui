@@ -393,13 +393,15 @@ export const LOOKUP_CONFIGS = {
   adminMenu: {
     title: 'Menu Selection',
 
-    selector: (state) => ({
-      data: state.menus.menus,
+    selector: (state,lookupConfig) => ({
+      data: state.menus.menus.filter(
+      (menu) => menu?.companyId === lookupConfig?.companyId
+    ),
       loading: state.menus.listLoading,
       error: state.menus.error
     }),
 
-    loadAction: getadminmenus,
+    loadAction: getadminmenus, 
 
     filters: [
       {
@@ -421,8 +423,10 @@ export const LOOKUP_CONFIGS = {
   adminForm: {
     title: 'Form Selection',
 
-    selector: (state) => ({
-      data: state.forms.forms,
+    selector: (state, lookupConfig) => ({
+      data: state.forms.forms.filter(
+      (form) => form?.companyId === lookupConfig?.companyId
+    ),
       loading: state.forms.listLoading,
       error: state.forms.error
     }),
@@ -477,8 +481,8 @@ export const LOOKUP_CONFIGS = {
   adminrole: {
     title: 'Role Selection',
 
-    selector: (state) => ({
-      data: state.roles.roles,
+    selector: (state,lookupConfig) => ({
+      data: state.roles.roles.filter((role) => role?.companyId === lookupConfig?.companyId.map((id) => id)),
       loading: state.roles.listLoading,
       error: state.roles.error
     }),
