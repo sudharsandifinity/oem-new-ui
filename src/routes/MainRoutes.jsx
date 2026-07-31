@@ -8,7 +8,11 @@ import Admin from '../views/Admin/Admin';
 
 // dashboard routing
 const DashboardDefault = Loadable(lazy(() => import('views/dashboard/Default')));
+const AmitDashboard = Loadable(lazy(() => import('views/dashboard/AmitDashboard')));
 const CusDashboard = Loadable(lazy(() => import('views/CustomerAdmin/dashboard/CusDashboard')));
+
+//Workflow routing
+//const Workflow = Loadable(lazy(() => import('views/dashboard/Workflow/FlowBuilder/WorlflowBuilder.jsx')));
 
 //Admin routing
 const AdminDashboard = Loadable(lazy(() => import('views/Admin/Admin.jsx')));
@@ -127,10 +131,18 @@ const MainRoutes = {
       element: <DashboardDefault />
     },
     {
+      path: 'amitdashboard',
+      element: <AmitDashboard />
+    },
+    {
       path: 'CustomerAdmin',
       element: <CusDashboard />,
       
     },
+    // {
+    //   path:'Workflow',
+    //   element:<Workflow />
+    // },
     //Admin
     {
       path: 'admin',
@@ -416,6 +428,7 @@ const MainRoutes = {
       path: '/sample-page',
       element: <SamplePage />
     }
+    
   ]
 };
 

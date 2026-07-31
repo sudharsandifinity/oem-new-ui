@@ -482,7 +482,7 @@ export const LOOKUP_CONFIGS = {
     title: 'Role Selection',
 
     selector: (state,lookupConfig) => ({
-      data: state.roles.roles.filter((role) => role?.companyId === lookupConfig?.companyId.map((id) => id)),
+      data: state.roles.roles.filter((role) => String(role?.companyId) === String(lookupConfig?.companyId.map((id) => id))),
       loading: state.roles.listLoading,
       error: state.roles.error
     }),

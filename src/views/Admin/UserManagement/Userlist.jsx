@@ -32,42 +32,56 @@ const Userlist = () => {
   const navigate = useNavigate();
   const { adminusers, listLoading } = useSelector((state) => state.users);
 
-  
+
   useEffect(() => {
     dispatch(getusers());
   }, [dispatch]);
-  
+
   const columns = useMemo(
     () => [
-       {
-    id: 'slNo',
-    header: 'Sl No',
-    size: 80,
-    Cell: ({ row }) => row.index + 1,
-  },
       {
+        id: 'slNo',
+        header: 'Sl No',
+        size: 80,
+        Cell: ({ row }) => row.index + 1,
+      },
+      {
+        accessorFn: (row) => `${row.first_name} ${row.last_name}`,
         accessorKey: 'name',
         header: 'Users Name',
-        Cell:({cell})=>`${cell.row.original.first_name} ${cell.row.original.last_name}`,
+        //Cell:({cell})=>`${cell.row.original.first_name} ${cell.row.original.last_name}`,
       },
       {
+        accessorFn: (row) => row.Branches.map((branch) => branch.name).join(', '),
         accessorKey: 'branch',
         header: 'Branch',
-        Cell:({cell})=>`${cell.row.original.Branches.map(b=>b.name).join(", ")}`,
-
-      },
-{
-        accessorKey: 'roles',
-        header: 'Roles',
-        Cell:({cell})=>`${cell.row.original.Roles.map(b=>b.name).join(", ")}`,
+        //Cell:({cell})=>`${cell.row.original.Branches.map(b=>b.name).join(", ")}`,
 
       },
       {
-        accessorKey: 'status',
+        accessorFn: (row) => row.Roles.map((role) => role.name).join(', '),
+        accessorKey: 'roles',
+        header: 'Roles',
+        //Cell:({cell})=>`${cell.row.original.Roles.map(b=>b.name).join(", ")}`,
+
+      },
+      // {
+      //   accessorKey: 'status',
+      //   header: 'Status',
+      //   Cell: ({ cell }) => (
+      //     <Chip label={cell.getValue() === 1 ? 'Active' : 'Inactive'} color={cell.getValue() === 1 ? 'success' : 'error'} />
+      //   )
+      // },
+      {
+        accessorFn: (row) => (row.status === 1 ? 'Active' : 'Inactive'),
+        id: 'status',
         header: 'Status',
-        Cell: ({ cell }) => (
-          <Chip label={cell.getValue() === 1 ? 'Active' : 'Inactive'} color={cell.getValue() === 1 ? 'success' : 'error'} />
-        )
+        Cell: ({ row }) => (
+          <Chip
+            label={row.original.status === 1 ? 'Active' : 'Inactive'}
+            color={row.original.status === 1 ? 'success' : 'error'}
+          />
+        ),
       },
       {
         accessorKey: 'action',
@@ -84,7 +98,7 @@ const Userlist = () => {
             <IconButton size="small" color="secondary" onClick={() => navigate(`/User/edit/${cell.row.original.id}`)}>
               <Edit fontSize="small" />
             </IconButton>
-            
+
           </Stack>
         )
       }
@@ -134,7 +148,7 @@ const Userlist = () => {
           }}
         >
           <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', flex: 1 }}></Box>
-          
+
           <Button
             variant="contained"
             color="secondary"
@@ -146,7 +160,7 @@ const Userlist = () => {
           </Button>
         </Box>
       </Paper>
-{console.log("userlist",adminusers)}
+      {console.log("userlist", adminusers)}
       {/* Table Card */}
       <Card elevation={1}>
         <CardContent>
@@ -170,7 +184,7 @@ const Userlist = () => {
           />
         </CardContent>
       </Card>
-      
+
     </Box>
   );
 };

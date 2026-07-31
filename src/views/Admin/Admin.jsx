@@ -1,6 +1,6 @@
 
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   Avatar,
   Box,
@@ -31,15 +31,37 @@ import {
   Security,
   ArrowForward
 } from '@mui/icons-material';
+import { useDispatch, useSelector } from 'react-redux';
+import { getusers } from '../../store/slices/userSlice';
+import { getroles } from '../../store/slices/roleSlice';
+import { getcompanies } from '../../store/slices/companySlice';
+import { getadminmenus } from '../../store/slices/MenuSlice';
+import { useNavigate } from 'react-router';
 
 const Admin = () => {
 
+
+  const { adminusers,totalCount } = useSelector((state) => state.users);
+  const { roles, saveSuccess, error } = useSelector((state) => state.roles);
+  const { menus } = useSelector((state) => state.menus);
+
+  const { companies } = useSelector((state) => state.companies);
+  const dispatch = useDispatch();
+  const navigate=useNavigate();
+
+  useEffect(() => {
+    dispatch(getusers());
+     dispatch(getroles());
+        dispatch(getcompanies());
+            dispatch(getadminmenus());
+        
+  }, [dispatch]);
   // Replace with Redux data
   const summary = {
-    totalUsers: 125,
-    activeUsers: 110,
-    inactiveUsers: 15,
-    totalRoles: 8
+    totalUsers: totalCount,
+    totalRoles: roles.length,
+    TotalCompanies: companies.length,
+    totalMenus: menus.length
   };
 
   const recentUsers = [
@@ -88,27 +110,27 @@ const Admin = () => {
       color: '#1976d2'
     },
     {
-      title: 'Active Users',
-      value: summary.activeUsers,
+      title: 'Active Roles',
+      value: summary.totalRoles,
       icon: <ManageAccounts fontSize="large" />,
       color: '#2e7d32'
     },
     {
-      title: 'Inactive Users',
-      value: summary.inactiveUsers,
-      icon: <Security fontSize="large" />,
+      title: 'Total Companies',
+      value: summary.TotalCompanies,
+      icon: <GroupAdd fontSize="large" />,
       color: '#ef6c00'
     },
     {
-      title: 'Roles',
-      value: summary.totalRoles,
+      title: 'Total Menus',
+      value: summary.totalMenus,
       icon: <AdminPanelSettings fontSize="large" />,
       color: '#6a1b9a'
     }
   ];
 
   return (
-   <Box sx={{ p: 3 }}>
+    <Box sx={{ p: 3 }}>
 
       {/* Header */}
 
@@ -220,6 +242,7 @@ const Admin = () => {
           <Button
             variant="contained"
             startIcon={<PersonAdd />}
+            onClick={() => navigate('/User/create')}
           >
             Add User
           </Button>
@@ -228,6 +251,7 @@ const Admin = () => {
             variant="contained"
             color="secondary"
             startIcon={<GroupAdd />}
+             onClick={() => navigate('/Roles/create')}
           >
             Create Role
           </Button>
@@ -235,6 +259,7 @@ const Admin = () => {
           <Button
             variant="outlined"
             startIcon={<People />}
+            onClick={() => navigate('/Users/list')}
           >
             User Management
           </Button>
@@ -242,6 +267,7 @@ const Admin = () => {
           <Button
             variant="outlined"
             startIcon={<AdminPanelSettings />}
+               onClick={() => navigate('/Roles/list')}
           >
             Role Management
           </Button>
@@ -275,9 +301,9 @@ const Admin = () => {
             Recently Added Users
           </Typography>
 
-          <IconButton>
+          {/* <IconButton>
             <ArrowForward />
-          </IconButton>
+          </IconButton> */}
 
         </Box>
 
@@ -304,65 +330,68 @@ const Admin = () => {
             </TableHead>
 
             <TableBody>
+              {console.log("adminusers", adminusers)}
+              {[...adminusers]
+                .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
+                .slice(0, 5)
+                .map((user) => (
 
-              {recentUsers.map((user) => (
+                  <TableRow
+                    hover
+                    key={user.id}
+                  >
 
-                <TableRow
-                  hover
-                  key={user.id}
-                >
+                    <TableCell>
 
-                  <TableCell>
+                      <Stack
+                        direction="row"
+                        spacing={2}
+                        alignItems="center"
+                      >
 
-                    <Stack
-                      direction="row"
-                      spacing={2}
-                      alignItems="center"
-                    >
+                        <Avatar>
+                          {user.first_name.charAt(0)}
+                        </Avatar>
 
-                      <Avatar>
-                        {user.name.charAt(0)}
-                      </Avatar>
+                        <Typography>
+                          {user.first_name} {user.last_name}
+                        </Typography>
 
-                      <Typography>
-                        {user.name}
-                      </Typography>
+                      </Stack>
 
-                    </Stack>
+                    </TableCell>
 
-                  </TableCell>
+                    <TableCell>
+                      {user.email}
+                    </TableCell>
 
-                  <TableCell>
-                    {user.email}
-                  </TableCell>
+                    <TableCell>
 
-                  <TableCell>
+                      <Chip
+                        label={user.Roles.map((role) => role.name).join(', ')}
+                        color="primary"
+                        size="small"
+                      />
 
-                    <Chip
-                      label={user.role}
-                      color="primary"
-                      size="small"
-                    />
+                    </TableCell>
 
-                  </TableCell>
+                    <TableCell>
 
-                  <TableCell>
+                      <Chip
+                        label={user.status == '1' ? 'Active' : 'Inactive'}
+                        color={
+                          user.status == '1'
+                            ? 'success'
+                            : 'error'
+                        }
+                        size="small"
+                      />
 
-                    <Chip
-                      label={user.status}
-                      color={
-                        user.status === 'Active'
-                          ? 'success'
-                          : 'error'
-                      }
-                      size="small"
-                    />
+                    </TableCell>
 
-                  </TableCell>
+                  </TableRow>
 
-                </TableRow>
-
-              ))}
+                ))}
 
             </TableBody>
 

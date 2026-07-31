@@ -35,7 +35,7 @@ export const getUserId = createAsyncThunk('user/getById', async (id, thunkAPI) =
 
 export const updateUser = createAsyncThunk('user/update', async ({ id, payload }, thunkAPI) => {
   try {
-    const response = await axios.patch(`/admin/users/${id}`, payload);
+    const response = await axios.put(`/admin/users/${id}`, payload);
     return response.data;
   } catch (error) {
     const d = error.response?.data;
@@ -82,6 +82,7 @@ const userSlice = createSlice({
       .addCase(getusers.fulfilled, (state, action) => {
         state.loading = false;
         state.adminusers = action.payload || [];
+         state.totalCount = action.payload.length;
       })
       .addCase(getusers.rejected, (state, action) => {
         state.loading = false;

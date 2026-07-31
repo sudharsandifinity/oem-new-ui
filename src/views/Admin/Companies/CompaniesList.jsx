@@ -65,11 +65,15 @@ const CompaniesList = () => {
         header: 'Company DB Name'
       },
       {
-        accessorKey: 'status',
+        accessorFn: (row) => (row.status === 1 ? 'Active' : 'Inactive'),
+        id: 'status',
         header: 'Status',
-        Cell: ({ cell }) => (
-          <Chip label={cell.getValue() === 1 ? 'Active' : 'Inactive'} color={cell.getValue() === 1 ? 'success' : 'error'} />
-        )
+        Cell: ({ row }) => (
+          <Chip
+            label={row.original.status === 1 ? 'Active' : 'Inactive'}
+            color={row.original.status === 1 ? 'success' : 'error'}
+          />
+        ),
       },
       {
         accessorKey: 'action',

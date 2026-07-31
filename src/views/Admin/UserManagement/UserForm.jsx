@@ -151,11 +151,12 @@ export default function UserForm({ data, setData, readOnly = false, lockUserPass
       setErrorMsg((prev) => ({ ...prev, roleError: '' }));
 
     }
+    console.log("Opening role lookup", data?.companyIds);
     openLookup({
       type: 'adminrole',
       multiSelect: true,
       selectedIds: data?.roleIds || [],
-      companyId: data.companyIds,
+      companyId: data?.companyIds,
       onSelect: (role) => {
         const roles = Array.isArray(role) ? role : [role];
         console.log('Selected Roles', roles);
@@ -207,7 +208,7 @@ export default function UserForm({ data, setData, readOnly = false, lockUserPass
           ...prev,
           //companies: companies,
           companyIds: company.map((c) => c.id),
-          companyNames: company.map((c) => c.name).join(', ')
+          companyNames:company.map((c) => c.name).join(', ')
         }));
         setErrorMsg((prev) => ({ ...prev, roleError: '', projectError: '' }));
 
@@ -363,7 +364,7 @@ export default function UserForm({ data, setData, readOnly = false, lockUserPass
             )
           }}
         />
-        {errorMsg?.projectError ? (
+        {/* {errorMsg?.projectError ? (
           <Typography
             color="error"
             sx={{ mb: 0.5, display: 'block' }}
@@ -387,7 +388,7 @@ export default function UserForm({ data, setData, readOnly = false, lockUserPass
               </InputAdornment>
             )
           }}
-        />
+        /> */}
 
         <Box
           sx={{
@@ -435,11 +436,11 @@ export default function UserForm({ data, setData, readOnly = false, lockUserPass
               <Android12Switch
                 disabled={idDisabled}
 
-                checked={data?.is_com_admin === 1}
+                checked={data?.is_com_admin === true}
                 onChange={(e) =>
                   setData((prev) => ({
                     ...prev,
-                    is_com_admin: e.target.checked ? 1 : 0
+                    is_com_admin: e.target.checked ? true : false
                   }))
                 }
               />

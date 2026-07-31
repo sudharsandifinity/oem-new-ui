@@ -41,7 +41,7 @@ export default function UserEdit() {
   const navigate = useNavigate();
 
     const { currentUser, currentUserloading, currentUserError, updateLoading, saveSuccess, error } = useSelector((s) => s.users);
-  
+  const { companies, listLoading } = useSelector((state) => state.companies);
 
 
   const [tabValue, setTabValue] = useState(0);
@@ -61,7 +61,7 @@ export default function UserEdit() {
   useEffect(() => {
     if (!currentUser) return;
     console.log("currentuser",currentUser)
-    setForm(mapApiToForm(currentUser));
+    setForm(mapApiToForm(currentUser, companies));
   }, [currentUser]);
 
   useEffect(() => {

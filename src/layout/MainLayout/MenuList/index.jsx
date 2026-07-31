@@ -81,12 +81,27 @@ if (isCompanyAdmin) {
             id: 'dashboard-item',
             title: 'Dashboard',
             type: 'item',
-            url: '/dashboard',
+            url: '/amitdashboard',
             icon: IconDashboard,
             breadcrumbs: false
           }
         ]
       },
+      // {
+      //   id: 'workflow',
+      //   title: 'Workflow',
+      //   type: 'group',
+      //   children: [
+      //     {
+      //       id: 'workflow-item',
+      //       title: 'Workflow',
+      //       type: 'item',
+      //       url: '/workflow',
+      //       icon: IconDashboard,
+      //       breadcrumbs: false
+      //     }
+      //   ]
+      // },
 
       ...authUserMenus
         .filter((menu) => menu.status === 1)

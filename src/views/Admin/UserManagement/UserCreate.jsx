@@ -39,7 +39,8 @@ export default function UserCreate() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-    const { currentUser, currentUserloading, currentUserError, updateLoading, saveSuccess, error } = useSelector((s) => s.companies);
+    const { currentUser, currentUserloading, currentUserError, updateLoading, saveSuccess, error } = useSelector((s) => s.users);
+  const { companies, listLoading } = useSelector((state) => state.companies);
   
 
 
@@ -67,6 +68,7 @@ export default function UserCreate() {
  
 
   const handleSubmit = () => {
+    console.log("handlesubmit", form,buildPayload(form))
     dispatch(createUser( buildPayload(form) ));
   };
 
