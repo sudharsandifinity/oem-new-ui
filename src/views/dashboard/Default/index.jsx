@@ -151,9 +151,13 @@ export default function Dashboard() {
           p: { xs: 3, md: 4 },
           mb: 4,
           borderRadius: 3,
+          position: 'relative',
+          overflow: 'hidden',
           border: '1px solid',
-          borderColor: 'divider',
-          background: (t) => `linear-gradient(135deg, ${alpha(t.palette.primary.light, 0.18)} 0%, ${alpha(t.palette.secondary.light, 0.14)} 100%)`
+          borderColor: (t) => alpha(t.palette.primary.main, 0.3),
+          borderLeft: (t) => `6px solid ${t.palette.primary.main}`,
+          boxShadow: (t) => `0 6px 20px ${alpha(t.palette.primary.main, 0.15)}`,
+          background: (t) => `linear-gradient(135deg, ${alpha(t.palette.primary.main, 0.16)} 0%, ${alpha(t.palette.secondary.main, 0.12)} 100%)`
         }}
       >
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2.5, flexWrap: 'wrap' }}>
