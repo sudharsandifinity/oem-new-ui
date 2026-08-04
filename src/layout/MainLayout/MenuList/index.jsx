@@ -34,7 +34,7 @@ const menuIcons = {
   Dashboard: IconDashboard,
   '': IconUsers,
   'Material Request': IconShoppingCart,
-  'Purchase Request': IconFileInvoice,
+  // 'Purchase Request': IconFileInvoice,
   'GRPO': IconBriefcase,
   'Contracting Management': IconBuilding,
   'Approvals': IconClipboardCheck,
