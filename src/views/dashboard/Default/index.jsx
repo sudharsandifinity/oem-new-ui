@@ -154,10 +154,10 @@ export default function Dashboard() {
           position: 'relative',
           overflow: 'hidden',
           border: '1px solid',
-          borderColor: (t) => alpha(t.palette.primary.main, 0.3),
+          borderColor: 'divider',
           borderLeft: (t) => `6px solid ${t.palette.primary.main}`,
-          boxShadow: (t) => `0 6px 20px ${alpha(t.palette.primary.main, 0.15)}`,
-          background: (t) => `linear-gradient(135deg, ${alpha(t.palette.primary.main, 0.16)} 0%, ${alpha(t.palette.secondary.main, 0.12)} 100%)`
+          boxShadow: (t) => `0 6px 20px ${alpha(t.palette.primary.main, 0.12)}`,
+          bgcolor: 'background.default'
         }}
       >
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2.5, flexWrap: 'wrap' }}>
