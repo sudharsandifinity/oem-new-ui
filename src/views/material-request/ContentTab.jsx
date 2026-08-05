@@ -362,7 +362,7 @@ export default function MRContentTab({
       />
     );
 
-    if (col.key === 'FullDescription' && row[col.key]) {
+    if (readOnly && col.key === 'FullDescription' && row[col.key]) {
       return (
         <Tooltip title={row[col.key]} placement="top" arrow>
           <span style={{ display: 'block', width: '100%' }}>{field}</span>

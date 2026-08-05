@@ -88,6 +88,19 @@ export default function MaterialRequestCreate() {
     }
   }, [saveSuccess, error, dispatch, navigate]);
 
+  useEffect(() => {
+    if (!form.ProjectCode) return;
+    setLines((prev) => {
+      let changed = false;
+      const next = prev.map((r) => {
+        if (r.ProjectCode === form.ProjectCode) return r;
+        changed = true;
+        return { ...r, ProjectCode: form.ProjectCode };
+      });
+      return changed ? next : prev;
+    });
+  }, [form.ProjectCode, lines.length]);
+
   const handleBOMSelect = (bom) => {
     setPendingBOM(bom);
     setBomItemModalOpen(true);
@@ -101,7 +114,6 @@ export default function MaterialRequestCreate() {
     const parentCodes = [];
     const parentLineMap = {};
     for (const row of mapped) {
-      // Parent BOM items are not added as rows; collect them for one shared child picker.
       if (row.ItemCode && (await fetchHasChildren(dispatch, row.ItemCode))) {
         if (!parentCodes.includes(row.ItemCode)) parentCodes.push(row.ItemCode);
         if (parentLineMap[row.ItemCode] === undefined) parentLineMap[row.ItemCode] = row.BOMLineNum;
@@ -110,7 +122,6 @@ export default function MaterialRequestCreate() {
       }
     }
 
-    // A single combined picker for all the BOM's parents' children.
     if (parentCodes.length) {
       finalRows.push(buildBomChildPicker(parentCodes, parentLineMap));
     }
