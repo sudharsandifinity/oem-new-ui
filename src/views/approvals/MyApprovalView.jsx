@@ -209,9 +209,19 @@ export default function MyApprovalView() {
               <Divider sx={{ my: 4 }} />
 
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
-                <Button variant="outlined" onClick={() => navigate(-1)}>
-                  Back
-                </Button>
+                <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+                  <Button variant="outlined" onClick={() => navigate(-1)}>
+                    Back
+                  </Button>
+                  <Button
+                    variant="contained"
+                    color="secondary"
+                    disabled={loading || !isPending || !current?.mr?.DocEntry}
+                    onClick={() => navigate(`/material-request/edit/${current.mr.DocEntry}`)}
+                  >
+                    Edit
+                  </Button>
+                </Box>
 
                 {isPending && (
                   <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
