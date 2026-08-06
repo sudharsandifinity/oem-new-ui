@@ -11,6 +11,9 @@ export const emptyRow = () => ({
   id: Date.now() + Math.random(),
   LineId: null,
   BOMLineNum: '',
+  BOMEntry: '',
+  BOMDocNum: '',
+  BOMType: '',
   ItemCode: '',
   ItemDescription: '',
   FullDescription: '',
@@ -56,33 +59,32 @@ export const withTrailingChildSlot = (rows, childRowId) => {
   return [...rows.slice(0, idx + 1), slot, ...rows.slice(idx + 1)];
 };
 
-// A single combined child picker for a BOM: lets the user pick from the children
-// of all the BOM's parent items at once. Each pick auto-takes its parent's BOM line
-// (resolved via parentLineMap keyed by U_HLB_ParItm).
-export const buildBomChildPicker = (parentCodes, parentLineMap) => ({
+export const buildBomChildPicker = (parentCodes, parentLineMap, bomMeta = {}) => ({
   ...emptyRow(),
   IsChildRow: true,
   IsBomChildPicker: true,
   BomParentCodes: parentCodes,
-  BomParentLineMap: parentLineMap
+  BomParentLineMap: parentLineMap,
+  BOMEntry: bomMeta.BOMEntry ?? '',
+  BOMDocNum: bomMeta.BOMDocNum ?? '',
+  BOMType: bomMeta.BOMType ?? ''
 });
 
-// Ensure exactly one trailing empty combined picker exists (so the user can keep
-// adding children). Appended at the end, after the filled picker rows.
 export const withTrailingBomChildPicker = (rows) => {
   const pickers = rows.filter((r) => r.IsBomChildPicker);
   if (!pickers.length) return rows;
   if (pickers.some((r) => !String(r.ItemCode || '').trim())) return rows;
   const last = pickers[pickers.length - 1];
-  return [...rows, buildBomChildPicker(last.BomParentCodes, last.BomParentLineMap)];
+  return [
+    ...rows,
+    buildBomChildPicker(last.BomParentCodes, last.BomParentLineMap, {
+      BOMEntry: last.BOMEntry,
+      BOMDocNum: last.BOMDocNum,
+      BOMType: last.BOMType
+    })
+  ];
 };
 
-// Rebuild rows for a BOM-based MR loaded from SAP (Edit). Parent items are never
-// stored as lines — only their children are. A line is a child when its item has a
-// U_HLB_ParItm (parent) in the item master. All such children become combined-picker
-// rows (one shared picker scope across the BOM's parents); each maps back to its
-// parent's BOM line. Non-parent lines stay as locked BOM rows. One empty picker is
-// appended so more children can be added.
 export const groupBomLinesWithChildren = (rows, itemMap) => {
   const bomRows = [];
   const childRows = [];
@@ -199,6 +201,10 @@ export const buildPayload = (form, lines, user) => ({
       U_Project: r.ProjectCode,
       U_Whs: r.WarehouseCode,
       U_SQlineNum: r.BOMLineNum ? String(r.BOMLineNum) : null,
+      U_BOMEntry: r.BOMEntry !== '' && r.BOMEntry != null ? Number(r.BOMEntry) : null,
+      U_BOMNum: r.BOMDocNum !== '' && r.BOMDocNum != null ? Number(r.BOMDocNum) : null,
+      U_BOMLine: r.BOMLineNum !== '' && r.BOMLineNum != null ? String(r.BOMLineNum) : null,
+      U_BOMType: r.BOMType || null,
       U_BOMQty: Number(r.BOMQty) || 0,
       U_BOMOpenQty: Number(r.BOMOpenQty) || 0,
       U_MROpenQty: Number(r.MROpenQty) || 0,

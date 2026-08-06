@@ -40,9 +40,12 @@ const initialForm = () => ({
   Remark: ''
 });
 
-const boqLineToRow = (line, projectCode) => ({
+const boqLineToRow = (line, projectCode, bom = {}) => ({
   ...emptyRow(),
-  BOMLineNum: String(line.LineId ?? ''),
+  BOMLineNum: String(line.U_UniqueID ?? ''),
+  BOMEntry: bom.DocEntry ?? '',
+  BOMDocNum: bom.DocNum ?? '',
+  BOMType: bom.Object ?? '',
   ItemCode: line.U_ItemCode ?? '',
   ItemDescription: line.U_Desc ?? '',
   FullDescription: line.U_FullDesc ?? '',
@@ -108,7 +111,7 @@ export default function MaterialRequestCreate() {
 
   const handleBOMItemsConfirm = async (selectedLines) => {
     const projCode = pendingBOM.U_PrjCode || form.ProjectCode;
-    const mapped = selectedLines.map((l) => boqLineToRow(l, projCode));
+    const mapped = selectedLines.map((l) => boqLineToRow(l, projCode, pendingBOM));
 
     const finalRows = [];
     const parentCodes = [];
@@ -123,7 +126,13 @@ export default function MaterialRequestCreate() {
     }
 
     if (parentCodes.length) {
-      finalRows.push(buildBomChildPicker(parentCodes, parentLineMap));
+      finalRows.push(
+        buildBomChildPicker(parentCodes, parentLineMap, {
+          BOMEntry: pendingBOM.DocEntry,
+          BOMDocNum: pendingBOM.DocNum,
+          BOMType: pendingBOM.Object
+        })
+      );
     }
 
     setLines(finalRows.length ? finalRows : [emptyRow()]);
