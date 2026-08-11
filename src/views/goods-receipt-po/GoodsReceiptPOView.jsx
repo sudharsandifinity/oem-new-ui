@@ -14,6 +14,10 @@ import GRPOGeneralTab from './GeneralTab';
 import GRPOContentTab from './ContentTab';
 import GRPOAttachmentTab from './AttachmentTab';
 
+import { useRef } from 'react';
+
+import logo from "../../assets/images/logo.png";
+
 const noop = () => {};
 
 function ContentSkeleton() {
@@ -40,12 +44,13 @@ export default function GoodsReceiptPOView() {
   const { id } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
-  const { currentGRPO, currentGRPOLoading, currentGRPOError } = useSelector((s) => s.goodsReceiptPO);
+const { currentGRPO, currentGRPOLoading, currentGRPOError } = useSelector((s) => s.goodsReceiptPO);
 
   const [tabValue, setTabValue] = useState(0);
   const [form, setForm] = useState(null);
   const [lines, setLines] = useState([]);
+
+  
 
   useEffect(() => {
     if (id) dispatch(getGRPOById(id));
@@ -77,6 +82,17 @@ export default function GoodsReceiptPOView() {
           }}
         >
           <Typography variant="h4">Goods Receipt PO</Typography>
+
+          {/* <div
+            style={{
+              position: 'absolute',
+              //left: "-9999px",
+              top: 0
+            }}
+            ref={contentRef}
+          >
+            <MRPrintTemplate data={form} />
+          </div> */}
           <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />}>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <HomeIcon sx={{ fontSize: 18, color: 'secondary.main' }} />
@@ -92,8 +108,17 @@ export default function GoodsReceiptPOView() {
       </MainCard>
 
       <MainCard content={false}>
-        <Box sx={{ borderBottom: 1, borderColor: 'divider', px: 3, pt: 1 }}>
-          <Tabs value={tabValue} onChange={(_, v) => !loading && setTabValue(v)}>
+        <Box
+          sx={{
+            borderBottom: 1,
+            borderColor: 'divider',
+            px: 3,
+            pt: 1,
+            display: 'flex',
+            alignItems: 'center'
+          }}
+        >
+          <Tabs  sx={{ flexGrow: 1 }} value={tabValue} onChange={(_, v) => !loading && setTabValue(v)}>
             <Tab label="General" />
             <Tab label="Contents" />
             <Tab label="Attachments" />

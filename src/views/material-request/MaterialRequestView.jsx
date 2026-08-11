@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getMRById, resetMRState } from '../../store/slices/materialRequestSlice';
@@ -6,7 +6,7 @@ import { getDepartments } from '../../store/slices/commonSlice';
 import { mapApiToForm, mapApiLineToRow, MR_STATUS_META } from './mrHelpers';
 import { resolveDepartmentName } from 'utils/department';
 
-import { Alert, Box, Breadcrumbs, Button, Chip, Divider, Tab, Tabs, Typography } from '@mui/material';
+import { Alert, Box, Breadcrumbs, Button, Chip, Divider, Skeleton, Tab, Tabs, Typography } from '@mui/material';
 
 import HomeIcon from '@mui/icons-material/Home';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
@@ -16,9 +16,31 @@ import MainCard from 'ui-component/cards/MainCard';
 import MRGeneralTab from './GeneralTab';
 import MRContentTab from './ContentTab';
 import PurchaseRequestModal from './PurchaseRequestModal';
-import ContentSkeleton from './ContentSkeleton';
 
-const noop = () => {};
+import { useReactToPrint } from 'react-to-print';
+import MRPrintTemplate from '../../utils/MRPrintTemplate';
+
+const noop = () => { };
+
+function ContentSkeleton() {
+  return (
+    <Box>
+      <Box sx={{ display: 'flex', gap: 4 }}>
+        <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
+          {[1, 2, 3, 4, 5].map((i) => (
+            <Skeleton key={i} variant="rounded" height={40} />
+          ))}
+        </Box>
+        <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
+          {[1, 2, 3, 4].map((i) => (
+            <Skeleton key={i} variant="rounded" height={40} />
+          ))}
+        </Box>
+      </Box>
+      <Skeleton variant="rounded" height={180} sx={{ mt: 4 }} />
+    </Box>
+  );
+}
 
 export default function MaterialRequestView() {
   const { id } = useParams();
@@ -32,6 +54,42 @@ export default function MaterialRequestView() {
   const [form, setForm] = useState(null);
   const [lines, setLines] = useState([]);
   const [prModalOpen, setPrModalOpen] = useState(false);
+
+  //print
+  const contentRef = useRef(null);
+
+const handlePrint = () => {
+  const printWindow = window.open(
+    "",
+    "_blank",
+    "width=900,height=900"
+  );
+
+  if (!printWindow) {
+    alert("Please allow popups to print.");
+    return;
+  }
+
+  const printContent = MRPrintTemplate({
+    form,
+    lines,
+  });
+
+  printWindow.document.open();
+  printWindow.document.write(printContent);
+  printWindow.document.close();
+
+  printWindow.onload = () => {
+    printWindow.focus();
+
+    printWindow.onafterprint = () => {
+      printWindow.close();
+    };
+
+    printWindow.print();
+  };
+};
+  //print
 
   useEffect(() => {
     if (id) dispatch(getMRById(id));
@@ -118,11 +176,31 @@ export default function MaterialRequestView() {
       </MainCard>
 
       <MainCard content={false}>
-        <Box sx={{ borderBottom: 1, borderColor: 'divider', px: 3, pt: 1 }}>
-          <Tabs value={tabValue} onChange={(_, v) => !loading && setTabValue(v)}>
+        <Box
+          sx={{
+            borderBottom: 1,
+            borderColor: "divider",
+            px: 3,
+            pt: 1,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
+          <Tabs
+            value={tabValue}
+            onChange={(_, v) => !loading && setTabValue(v)}
+          >
             <Tab label="General" />
             <Tab label="Contents" />
           </Tabs>
+          {docStatus==="O" && ( 
+          <Button
+            variant="contained"
+            onClick={handlePrint}
+          >
+            Print
+          </Button>)}
         </Box>
 
         <Box sx={{ p: 3 }}>
