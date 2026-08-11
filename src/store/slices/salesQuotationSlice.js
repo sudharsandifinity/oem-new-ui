@@ -16,7 +16,7 @@ export const getSalesQuotations = createAsyncThunk('SalesQuotation/getAll', asyn
     const response = await API.get('/sap/quotations', { params: { top, skip } });
     return {
       quotationlist: response.data.value,
-      totalCount: response.data['odata.count'] || 0
+      totalCount: response.data['@odata.count'] || 0
     };
   } catch (error) {
     return thunkAPI.rejectWithValue(error.response?.data?.message || 'Failed to fetch sales orders');

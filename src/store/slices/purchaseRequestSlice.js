@@ -6,7 +6,7 @@ export const getPRList = createAsyncThunk('purchaseRequest/getList', async ({ to
     const response = await API.get('/sap/purchase-requests', { params: { top, skip } });
     return {
       list: response.data.value ?? response.data,
-      totalCount: response.data['odata.count'] || 0
+      totalCount: response.data['@odata.count'] || 0
     };
   } catch (error) {
     return thunkAPI.rejectWithValue(error.response?.data?.message || 'Failed to fetch PR list');
@@ -22,7 +22,7 @@ export const getMyPRList = createAsyncThunk('purchaseRequest/getMyList', async (
     });
     return {
       list: response.data.value ?? response.data,
-      totalCount: response.data['odata.count'] || 0
+      totalCount: response.data['@odata.count'] || 0
     };
   } catch (error) {
     return thunkAPI.rejectWithValue(error.response?.data?.message || 'Failed to fetch PR list');

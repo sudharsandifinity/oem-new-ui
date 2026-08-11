@@ -96,7 +96,7 @@ body{
 }
 
 .mrno{
-    font-size:32px;
+    //font-size:15px;
     color:red;
     font-weight:bold;
 }
@@ -197,7 +197,7 @@ Doc Entry :
 </span>
 
 <span class="value">
-${form?.DocEntry ?? ''}
+${form?.BOMDocEntry ?? ''}
 </span>
 
 </div>
@@ -211,7 +211,7 @@ ${form?.DocEntry ?? ''}
 <b>PO No :</b>
 
 <span class="mrno">
-${form?.PONumber ?? ''}
+${form?.ProjectCode ?? ''}
 </span>
 
 </div>
@@ -222,7 +222,7 @@ ${form?.PONumber ?? ''}
 
 <b>Date :</b>
 
-${form?.DocDate ?? ''}
+${form?.RequiredDate ?? ''}
 
 </div>
 
@@ -240,11 +240,11 @@ ${form?.DocDate ?? ''}
 
 <th>DESCRIPTION</th>
 
-<th style="width:10%">UoMCode</th>
+<th style="width:10%">ITEM CODE</th>
 
-<th style="width:15%">BUDGET</th>
+<th style="width:15%">QUANTITY</th>
 
-<th style="width:15%">REMARKS</th>
+<th style="width:15%">UOM</th>
 
 </tr>
 
@@ -262,11 +262,11 @@ ${(lines ?? [])
 
 <td>${item.ItemDescription ?? ''}</td>
 
-<td align="center">${item.UoMCode ?? ''}</td>
+<td align="center">${item.ItemCode ?? ''}</td>
 
-<td></td>
+<td>$${item.ApprovedQuantity ?? ''}</td>
 
-<td>${item.Remark ?? ''}</td>
+<td>${item.UoMCode ?? ''}</td>
 
 </tr>
 

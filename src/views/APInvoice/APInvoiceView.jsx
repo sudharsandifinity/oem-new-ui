@@ -1,8 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getGRPOById, resetGRPOState } from '../../store/slices/goodsReceiptPOSlice';
-import { mapApiToForm, mapApiLineToRow } from './grpoHelpers';
 
 import { Box, Breadcrumbs, Button, Divider, Skeleton, Tab, Tabs, Typography } from '@mui/material';
 
@@ -10,13 +8,11 @@ import HomeIcon from '@mui/icons-material/Home';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 
 import MainCard from 'ui-component/cards/MainCard';
-import GRPOGeneralTab from './GeneralTab';
-import GRPOContentTab from './ContentTab';
-import GRPOAttachmentTab from './AttachmentTab';
-
-import { useRef } from 'react';
-
-import logo from "../../assets/images/logo.png";
+import GeneralTab from './GeneralTab';
+import ContentTab from './ContentTab';
+import AttachmentTab from './AttachmentTab';
+import { mapApiToForm, mapApiToRows } from './APInvoiceHelpers';
+import { getAPInvoiceById, resetAPInvoiceState } from '../../store/slices/APInvoiceSlice';
 
 const noop = () => {};
 
@@ -25,47 +21,47 @@ function ContentSkeleton() {
     <Box>
       <Box sx={{ display: 'flex', gap: 4 }}>
         <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
-          {[1, 2, 3].map((i) => (
+          {[1, 2, 3, 4].map((i) => (
             <Skeleton key={i} variant="rounded" height={40} />
           ))}
         </Box>
         <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
-          {[1, 2, 3].map((i) => (
+          {[1, 2, 3, 4].map((i) => (
             <Skeleton key={i} variant="rounded" height={40} />
           ))}
         </Box>
       </Box>
-      <Skeleton variant="rounded" height={200} sx={{ mt: 4 }} />
+      <Skeleton variant="rounded" height={180} sx={{ mt: 4 }} />
     </Box>
   );
 }
 
-export default function GoodsReceiptPOView() {
+export default function PurchaseInvoicesView() {
   const { id } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
-const { currentGRPO, currentGRPOLoading, currentGRPOError } = useSelector((s) => s.goodsReceiptPO);
+
+  const { currentInvoice, loading, error } = useSelector((state) => state.APInvoice);
 
   const [tabValue, setTabValue] = useState(0);
-  const [form, setForm] = useState(null);
-  const [lines, setLines] = useState([]);
-
-  
+  const [purchaseInvoice, setPurchaseInvoice] = useState(null);
+  const [documentLines, setDocumentLines] = useState([]);
 
   useEffect(() => {
-    if (id) dispatch(getGRPOById(id));
+    if (id) dispatch(getAPInvoiceById(id));
     return () => {
-      dispatch(resetGRPOState());
+      dispatch(resetAPInvoiceState());
     };
   }, [dispatch, id]);
 
   useEffect(() => {
-    if (!currentGRPO) return;
-    setForm(mapApiToForm(currentGRPO));
-    setLines((currentGRPO.DocumentLines || []).map(mapApiLineToRow));
-  }, [currentGRPO]);
+    console.log("invoices",currentInvoice)
+    if (!currentInvoice) return;
+    setPurchaseInvoice(mapApiToForm(currentInvoice));
+    setDocumentLines(mapApiToRows(currentInvoice));
+  }, [currentInvoice]);
 
-  const loading = currentGRPOLoading || !form;
+  const isLoading = loading || !purchaseInvoice;
 
   return (
     <Box>
@@ -73,7 +69,7 @@ const { currentGRPO, currentGRPOLoading, currentGRPOError } = useSelector((s) =>
         <Box
           sx={{
             px: 3,
-            py: 1.5,
+            py: 2.5,
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: { xs: 'flex-start', md: 'center' },
@@ -81,24 +77,13 @@ const { currentGRPO, currentGRPOLoading, currentGRPOError } = useSelector((s) =>
             gap: 2
           }}
         >
-          <Typography variant="h4">Goods Receipt PO</Typography>
-
-          {/* <div
-            style={{
-              position: 'absolute',
-              //left: "-9999px",
-              top: 0
-            }}
-            ref={contentRef}
-          >
-            <MRPrintTemplate data={form} />
-          </div> */}
+          <Typography variant="h3">Purchase Invoices</Typography>
           <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />}>
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <HomeIcon sx={{ fontSize: 18, color: 'secondary.main' }} />
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+              <HomeIcon color="secondary" sx={{ fontSize: 18 }} />
             </Box>
             <Typography variant="body2" color="text.primary">
-              Goods Receipt PO
+              Purchase Invoices
             </Typography>
             <Typography variant="body2" color="secondary" fontWeight={600}>
               View
@@ -108,17 +93,8 @@ const { currentGRPO, currentGRPOLoading, currentGRPOError } = useSelector((s) =>
       </MainCard>
 
       <MainCard content={false}>
-        <Box
-          sx={{
-            borderBottom: 1,
-            borderColor: 'divider',
-            px: 3,
-            pt: 1,
-            display: 'flex',
-            alignItems: 'center'
-          }}
-        >
-          <Tabs  sx={{ flexGrow: 1 }} value={tabValue} onChange={(_, v) => !loading && setTabValue(v)}>
+        <Box sx={{ borderBottom: 1, borderColor: 'divider', px: 3, pt: 1 }}>
+          <Tabs value={tabValue} onChange={(_, v) => !isLoading && setTabValue(v)} variant="scrollable" scrollButtons="auto">
             <Tab label="General" />
             <Tab label="Contents" />
             <Tab label="Attachments" />
@@ -126,34 +102,44 @@ const { currentGRPO, currentGRPOLoading, currentGRPOError } = useSelector((s) =>
         </Box>
 
         <Box sx={{ p: 3 }}>
-          {currentGRPOError ? (
+          {error ? (
             <Box sx={{ py: 6, textAlign: 'center' }}>
               <Typography color="error" variant="h5">
-                Failed to load Goods Receipt PO
+                Failed to load Purchase Invoice
               </Typography>
               <Typography color="text.secondary" sx={{ mt: 1 }}>
-                {currentGRPOError}
+                {error}
               </Typography>
             </Box>
-          ) : loading ? (
+          ) : isLoading ? (
             <ContentSkeleton />
           ) : (
             <>
               <Box sx={{ display: tabValue === 0 ? 'block' : 'none' }}>
-                <GRPOGeneralTab data={form} setData={noop} readOnly />
+                <GeneralTab data={purchaseInvoice} setData={noop} readOnly />
               </Box>
               <Box sx={{ display: tabValue === 1 ? 'block' : 'none' }}>
-                <GRPOContentTab data={form} setData={noop} rows={lines} setRows={noop} readOnly />
+                <ContentTab data={purchaseInvoice} setData={noop} rows={documentLines} setRows={noop} readOnly />
               </Box>
-              {tabValue === 2 && <GRPOAttachmentTab attachmentEntry={currentGRPO?.AttachmentEntry} />}
+              <Box sx={{ display: tabValue === 2 ? 'block' : 'none' }}>
+                <AttachmentTab data={purchaseInvoice} setData={noop} readOnly />
+              </Box>
             </>
           )}
 
           <Divider sx={{ my: 4 }} />
 
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, flexWrap: 'wrap' }}>
             <Button variant="outlined" onClick={() => navigate(-1)}>
               Back
+            </Button>
+            <Button
+              variant="contained"
+              color="secondary"
+              disabled={isLoading || !!error}
+              onClick={() => navigate(`/A/P-Invoice/edit/${id}`)}
+            >
+              Edit
             </Button>
           </Box>
         </Box>

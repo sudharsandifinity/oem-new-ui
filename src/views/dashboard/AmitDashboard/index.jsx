@@ -15,7 +15,8 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Typography, Divider
+  Typography, Divider,
+  CircularProgress
 } from '@mui/material';
 import {
   Chip,
@@ -46,51 +47,68 @@ export default function Dashboard() {
   } = useSelector(
       (state) => state.PurchaseQuotation
     );
-
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 25 });
 
-  useEffect(() => {
-    dispatch(getSalesOrders());
-    dispatch(
-      getSalesQuotations({
-        page: paginationModel.pageIndex + 1,
-        limit: paginationModel.pageSize
-      })
-    );
-    dispatch(
-      getPRList({
-        top: paginationModel.pageSize,
-        skip: paginationModel.page * paginationModel.pageSize,
-        email: user?.email || ''
-      })
-    );
-    dispatch(getPurchaseQuotations());
-  }, [paginationModel, user?.email, dispatch]);
+const [dashboardLoading, setDashboardLoading] = useState(true);
+
+useEffect(() => {
+  if (!user?.email) return;
+
+  const loadDashboard = async () => {
+    try {
+      setDashboardLoading(true);
+
+      await Promise.all([
+        dispatch(getSalesOrders()).unwrap(),
+        dispatch(
+          getSalesQuotations({
+            page: paginationModel.page + 1,
+            limit: paginationModel.pageSize,
+          })
+        ).unwrap(),
+        dispatch(
+          getPRList({
+            top: paginationModel.pageSize,
+            skip: paginationModel.page * paginationModel.pageSize,
+            email: user.email,
+          })
+        ).unwrap(),
+        dispatch(getPurchaseQuotations()).unwrap(),
+      ]);
+    } catch (err) {
+      console.error("Dashboard load failed:", err);
+    } finally {
+      setDashboardLoading(false);
+    }
+  };
+
+  loadDashboard();
+}, [dispatch, user?.email]);
 
 
 
   const stats = [
-    {
-      title: 'Sales Orders',
-      value: salesordercount ?? 0,
-      color: '#1976d2'
-    },
-    {
-      title: 'Sales Quotations',
-      value: salesquotationcount ?? 0,
-      color: '#fb8c00'
-    },
-    {
-      title: 'Purchase Requests',
-      value: prCount ?? 0,
-      color: '#43a047'
-    },
-    {
-      title: 'Purchase Quotations',
-      value: purchaseQuotationCount ?? 0,
-      color: '#e53935'
-    }
-  ];
+  {
+    title: "Sales Orders",
+    value: dashboardLoading ? "..." : salesordercount || 0,
+    color: "#1976d2",
+  },
+  {
+    title: "Sales Quotations",
+    value: dashboardLoading ? "..." : salesquotationcount || 0,
+    color: "#fb8c00",
+  },
+  {
+    title: "Purchase Requests",
+    value: dashboardLoading ? "..." : prCount || 0,
+    color: "#43a047",
+  },
+  {
+    title: "Purchase Quotations",
+    value: dashboardLoading ? "..." : purchaseQuotationCount || 0,
+    color: "#e53935",
+  },
+];
   const recentRequests = [{
     id: 'MR-1001', type: 'Sales Order',
     requester: 'Warehouse', status: 'Pending'
@@ -114,6 +132,7 @@ export default function Dashboard() {
 
   return (
     <>
+{console.log("salesordercount",salesordercount,salesquotationcount,prCount,purchaseQuotationCount)}
       <Box sx={{ p: 3, color: 'bg-blue-500', minHeight: '90vh' }}>
         <Typography variant="h4" fontWeight={700}>
           SAP Procurement Dashboard
@@ -143,9 +162,9 @@ export default function Dashboard() {
                     {item.title}
                   </Typography>
 
-                  <Typography variant="h4" fontWeight={700}>
-                    {item.value}
-                  </Typography>
+                 <Typography variant="h4" fontWeight={700}>
+  {dashboardLoading ? <CircularProgress size={25} /> : item.value}
+</Typography>
                 </CardContent>
               </Card>
             </Grid>

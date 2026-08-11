@@ -55,7 +55,7 @@ export default function MenuCreate() {
   useEffect(() => {
     console.log("saveSuccess",saveSuccess)
     if (saveSuccess) {
-      setSnackbar({ open: true, severity: 'success', message: 'Menu updated successfully!' });
+      setSnackbar({ open: true, severity: 'success', message: 'Menu Created successfully!' });
       dispatch(resetMenuState());
       setTimeout(() => navigate(`/Menu/list`), 1500);
     }

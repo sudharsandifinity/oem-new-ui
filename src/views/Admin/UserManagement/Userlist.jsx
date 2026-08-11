@@ -52,14 +52,14 @@ const Userlist = () => {
         //Cell:({cell})=>`${cell.row.original.first_name} ${cell.row.original.last_name}`,
       },
       {
-        accessorFn: (row) => row.Branches.map((branch) => branch.name).join(', '),
+        accessorFn: (row) => row?.Branches?.map((branch) => branch.name).join(', '),
         accessorKey: 'branch',
         header: 'Branch',
         //Cell:({cell})=>`${cell.row.original.Branches.map(b=>b.name).join(", ")}`,
 
       },
       {
-        accessorFn: (row) => row.Roles.map((role) => role.name).join(', '),
+        accessorFn: (row) => row?.Roles?.map((role) => role.name).join(', '),
         accessorKey: 'roles',
         header: 'Roles',
         //Cell:({cell})=>`${cell.row.original.Roles.map(b=>b.name).join(", ")}`,

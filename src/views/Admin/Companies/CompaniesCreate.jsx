@@ -66,8 +66,9 @@ export default function CompanyCreate() {
 
  
 
-  const handleSubmit = (data) => {
-    dispatch(createCompany(buildPayload(data) ));
+  const handleSubmit = () => {
+    console.log("cretepayload",form,buildPayload(form))
+    dispatch(createCompany(buildPayload(form) ));
   };
 
 

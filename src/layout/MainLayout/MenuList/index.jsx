@@ -29,6 +29,7 @@ import AssignmentIcon from '@mui/icons-material/Assignment';
 import TextSnippetIcon from '@mui/icons-material/TextSnippet';
 import ArticleIcon from '@mui/icons-material/Article';
 import DescriptionIcon from '@mui/icons-material/Description';
+import ListAltIcon from '@mui/icons-material/ListAlt';
 
 const menuIcons = {
   Dashboard: IconDashboard,
@@ -42,7 +43,7 @@ const menuIcons = {
   'Sales Order':EditDocumentIcon,
   'A/R Invoice':AssignmentIcon,
   'Purchase Quotation':TextSnippetIcon,
-  'Purchase Order':ArticleIcon,
+  'Purchase Order':ListAltIcon,
   'Purchase Request':DescriptionIcon,
   'A/P Invoice':AssignmentIcon,
 };

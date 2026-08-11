@@ -35,7 +35,19 @@ export const createPurchaseOrder = createAsyncThunk('purchaseOrder/create', asyn
     return rejectWithValue(err.response?.data?.message || err.message);
   }
 });
-
+export const updatePurchaseOrder = createAsyncThunk('purchaseOrder/update', async ({ docEntry, formData }, thunkAPI) => {
+  try {
+    const response = await API.patch(`/sap/purchase-orders/${docEntry}`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+    return response.data;
+  } catch (error) {
+    const responseData = error.response?.data;
+    return thunkAPI.rejectWithValue({
+      status: error.response?.status,
+      message: responseData?.error?.error?.message?.value || responseData?.message || 'Purchase Order Update Failed',
+      sapCode: responseData?.error?.error?.code
+    });
+  }
+});
 export const getPurchaseOrderById = createAsyncThunk('purchaseOrder/getById', async (docEntry, { rejectWithValue }) => {
   try {
     const response = await API.get(`/sap/purchase-orders/${docEntry}`);
@@ -109,6 +121,22 @@ const purchaseOrderSlice = createSlice({
         state.error = action.payload || action.error.message || 'Failed to create Purchase Order';
       })
 
+       .addCase(updatePurchaseOrder.pending, (state) => {
+             state.loading = true;
+             state.error = null;
+             state.saveSuccess = false;
+           })
+     
+           .addCase(updatePurchaseOrder.fulfilled, (state, action) => {
+             state.loading = false;
+             state.currentPO = action.payload;
+             state.saveSuccess = true;
+           })
+     
+           .addCase(updatePurchaseOrder.rejected, (state, action) => {
+             state.loading = false;
+             state.error = action.payload?.message || action.payload;
+           })
       .addCase(getPurchaseOrderById.pending, (state) => {
         state.currentPOLoading = true;
         state.currentPOError = null;

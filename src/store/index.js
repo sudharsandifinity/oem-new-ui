@@ -23,7 +23,9 @@ import FormReducer from './slices/FormSlice';
 import MenuReducer from './slices/MenuSlice';
 import RoleReducer from './slices/roleSlice';
 import UserReducer from './slices/userSlice';
-import purchaseQuotationReducer from './slices/purchaseQuotationSlice'
+import purchaseQuotationReducer from './slices/purchaseQuotationSlice';
+import ARInvoiceReducer from './slices/ARInvoiceSlice';
+import APInvoiceReducer from './slices/APInvoiceSlice';
 export const store = configureStore({
   reducer: {
     auth: authReducer,
@@ -32,6 +34,9 @@ export const store = configureStore({
     roles:RoleReducer,
     menus:MenuReducer,
     users:UserReducer,
+    ARInvoice:ARInvoiceReducer,
+    APInvoice:APInvoiceReducer,
+
     salesOrder: salesOrderReducer,
     salesQuotation:salesQuotationReducer,
     customer: customerReducer,
