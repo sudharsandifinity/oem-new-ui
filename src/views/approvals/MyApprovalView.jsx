@@ -240,7 +240,7 @@ export default function MyApprovalView() {
                     variant="contained"
                     color="secondary"
                     disabled={loading || !isPending || !current?.mr?.DocEntry}
-                    onClick={() => navigate(`/material-request/edit/${current.mr.DocEntry}`)}
+                    onClick={() => navigate(`/material-request/edit/${current.mr.DocEntry}`, { state: { approverEdit: true, approvalId: id } })}
                   >
                     Edit
                   </Button>

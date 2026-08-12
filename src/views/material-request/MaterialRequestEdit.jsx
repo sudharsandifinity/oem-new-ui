@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { getMRById, updateMR, resetMRState } from '../../store/slices/materialRequestSlice';
 import { getMySentBack, resubmitApprovalRequest } from '../../store/slices/approvalSlice';
 import { getItems } from '../../store/slices/itemSlice';
@@ -23,6 +23,9 @@ export default function MaterialRequestEdit() {
   const { id } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { state } = useLocation();
+  const isApproverEdit = !!state?.approverEdit;
+  const approvalReturnId = state?.approvalId;
 
   const { currentMR, currentMRLoading, currentMRError, updateLoading, saveSuccess, error } = useSelector((s) => s.materialRequest);
   const { departments } = useSelector((s) => s.common);
@@ -99,12 +102,16 @@ export default function MaterialRequestEdit() {
     if (saveSuccess) {
       setSnackbar({ open: true, severity: 'success', message: 'Material Request updated successfully!' });
       dispatch(resetMRState());
-      setTimeout(() => navigate(`/material-request/view/${id}`), 1500);
+      setTimeout(
+        () => navigate(isApproverEdit && approvalReturnId ? `/my-approvals/view/${approvalReturnId}` : `/material-request/view/${id}`),
+        1500
+      );
     }
     if (error) {
       setSnackbar({ open: true, severity: 'error', message: error });
       dispatch(resetMRState());
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [saveSuccess, error, dispatch, id, navigate]);
 
   // Refresh Stock
@@ -138,7 +145,9 @@ export default function MaterialRequestEdit() {
 
   const buildEditPayload = () => {
     // eslint-disable-next-line no-unused-vars
-    const { U_OEM_UID, U_OEM_UEMAIL, U_OEM_UName, U_PreparedBy, ...payload } = buildPayload(form, lines);
+    const { U_OEM_UID, U_OEM_UEMAIL, U_OEM_UName, U_PreparedBy, ...payload } = buildPayload(form, lines, undefined, {
+      useApprovedQty: isApproverEdit
+    });
     return payload;
   };
 
@@ -234,10 +243,18 @@ export default function MaterialRequestEdit() {
           ) : (
             <>
               <Box sx={{ display: tabValue === 0 ? 'block' : 'none' }}>
-                <MRGeneralTab data={form} setData={setForm} lockCustomerProject />
+                <MRGeneralTab data={form} setData={setForm} lockCustomerProject readOnly={isApproverEdit} />
               </Box>
               <Box sx={{ display: tabValue === 1 ? 'block' : 'none' }}>
-                <MRContentTab data={form} setData={setForm} rows={lines} setRows={setLines} isBOM={!!form?.BOMNo} />
+                <MRContentTab
+                  data={form}
+                  setData={setForm}
+                  rows={lines}
+                  setRows={setLines}
+                  isBOM={!!form?.BOMNo}
+                  readOnly={isApproverEdit}
+                  canEditApprovedQty={isApproverEdit}
+                />
               </Box>
             </>
           )}
