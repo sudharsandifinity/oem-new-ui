@@ -11,6 +11,7 @@ export const mapApiToForm = (pr) => ({
   ReqType: pr.ReqType ?? null,
   RequestorTypeLabel: pr.ReqType === 'E' ? 'Employee' : pr.ReqType === 'U' ? 'User' : '',
   RequestorName: pr.RequesterName ?? '',
+  PreparedBy: pr.U_PreparedBy ?? '',
   Department: pr.RequesterDepartment != null ? String(pr.RequesterDepartment) : '',
   DeptId: pr.RequesterDepartment != null ? String(pr.RequesterDepartment) : '',
   Comments: pr.Comments ?? ''

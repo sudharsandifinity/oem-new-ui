@@ -12,6 +12,7 @@ import {
   Tooltip,
   Typography
 } from '@mui/material';
+import { useSelector } from 'react-redux';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AppDatePicker from 'ui-component/AppDatePicker';
 
@@ -33,6 +34,7 @@ const TABLE_COLUMNS = [
 ];
 
 export default function PRContentTab({ data, setData, rows, setRows, readOnly = false }) {
+  const { user } = useSelector((s) => s.auth);
   const updateRow = (id, field, value) => {
     setRows((prev) => prev.map((r) => (r.id === id ? { ...r, [field]: value } : r)));
   };
@@ -140,16 +142,25 @@ export default function PRContentTab({ data, setData, rows, setRows, readOnly = 
           <Typography variant="h5" sx={{ mb: 2.5 }}>
             Additional Information
           </Typography>
-          <TextField
-            fullWidth
-            multiline
-            rows={4}
-            size="small"
-            label="Comments"
-            value={data?.Comments || ''}
-            disabled={readOnly}
-            onChange={(e) => !readOnly && setData((prev) => ({ ...prev, Comments: e.target.value }))}
-          />
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <TextField
+              fullWidth
+              size="small"
+              label="Prepared By"
+              value={readOnly ? data?.PreparedBy || '' : data?.PreparedBy || [user?.first_name, user?.last_name].filter(Boolean).join(' ') || ''}
+              disabled
+            />
+            <TextField
+              fullWidth
+              multiline
+              rows={4}
+              size="small"
+              label="Comments"
+              value={data?.Comments || ''}
+              disabled={readOnly}
+              onChange={(e) => !readOnly && setData((prev) => ({ ...prev, Comments: e.target.value }))}
+            />
+          </Box>
         </Paper>
       </Box>
     </Box>

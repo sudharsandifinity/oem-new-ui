@@ -35,8 +35,11 @@ import MainCard from 'ui-component/cards/MainCard';
 import MRGeneralTab from '../material-request/GeneralTab';
 import MRContentTab from '../material-request/ContentTab';
 import ContentSkeleton from '../material-request/ContentSkeleton';
-import { mapApiToForm, mapApiLineToRow } from '../material-request/mrHelpers';
+import { mapApiToForm, mapApiLineToRow, buildPayload } from '../material-request/mrHelpers';
 import { getApprovalRequestById, approveApprovalRequest, rejectApprovalRequest, resetApprovalState } from '../../store/slices/approvalSlice';
+import { updateMR, resetMRState } from '../../store/slices/materialRequestSlice';
+import { getDepartments } from '../../store/slices/commonSlice';
+import { resolveDepartmentName } from 'utils/department';
 import { formatDateDDMMYYYY } from 'utils/dataGridFormatters';
 
 const noop = () => {};
@@ -47,34 +50,54 @@ export default function MyApprovalView() {
   const navigate = useNavigate();
 
   const { current, currentLoading, currentError, decisionLoading } = useSelector((s) => s.approval);
+  const { updateLoading } = useSelector((s) => s.materialRequest);
+  const { departments } = useSelector((s) => s.common);
 
   const [tabValue, setTabValue] = useState(0);
+  const [lines, setLines] = useState([]);
   const [confirm, setConfirm] = useState({ open: false, type: null });
   const [remark, setRemark] = useState('');
   const [snackbar, setSnackbar] = useState({ open: false, severity: 'success', message: '' });
 
   useEffect(() => {
     if (id) dispatch(getApprovalRequestById(id));
+    if (!departments.length) dispatch(getDepartments());
     return () => {
       dispatch(resetApprovalState());
+      dispatch(resetMRState());
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, id]);
+
+  useEffect(() => {
+    if (!current?.mr) return;
+    setLines((current.mr.HLB_MRQ1Collection || []).map(mapApiLineToRow));
+  }, [current]);
 
   const loading = currentLoading || !current;
   const form = current?.mr ? mapApiToForm(current.mr) : null;
-  const lines = current?.mr ? (current.mr.HLB_MRQ1Collection || []).map(mapApiLineToRow) : [];
+  // Resolve the department id (e.g. -2) to its name, as the Create/Edit screens do.
+  if (form) form.Department = resolveDepartmentName(departments, form.DeptId) || form.Department;
   const stages = current?.stages || [];
   const activeStep = (current?.currentStageOrder || 1) - 1;
   const isPending = current?.status === 'pending';
+  const busy = decisionLoading || updateLoading;
 
   const closeConfirm = () => {
-    if (!decisionLoading) setConfirm({ open: false, type: null });
+    if (!busy) setConfirm({ open: false, type: null });
   };
 
   const handleDecision = async () => {
     const isApprove = confirm.type === 'approve';
     const action = isApprove ? approveApprovalRequest : rejectApprovalRequest;
     try {
+      if (isApprove && current?.mr?.DocEntry) {
+        // eslint-disable-next-line no-unused-vars
+        const { U_OEM_UID, U_OEM_UEMAIL, U_OEM_UName, U_PreparedBy, ...payload } = buildPayload(form, lines, null, {
+          useApprovedQty: true
+        });
+        await dispatch(updateMR({ docEntry: current.mr.DocEntry, payload })).unwrap();
+      }
       const result = await dispatch(action({ id, remark })).unwrap();
       const pr = isApprove ? result?.purchaseRequest : null;
       let message;
@@ -93,7 +116,7 @@ export default function MyApprovalView() {
       setRemark('');
       setTimeout(() => navigate('/my-approvals/list'), 1200);
     } catch (err) {
-      setSnackbar({ open: true, severity: 'error', message: typeof err === 'string' ? err : 'Action failed' });
+      setSnackbar({ open: true, severity: 'error', message: typeof err === 'string' ? err : err?.message || 'Action failed' });
       setConfirm({ open: false, type: null });
     }
   };
@@ -170,7 +193,7 @@ export default function MyApprovalView() {
 
               <Box sx={{ display: tabValue === 0 ? 'block' : 'none' }}>{form && <MRGeneralTab data={form} setData={noop} readOnly />}</Box>
               <Box sx={{ display: tabValue === 1 ? 'block' : 'none' }}>
-                <MRContentTab data={form} setData={noop} rows={lines} setRows={noop} readOnly />
+                <MRContentTab data={form} setData={noop} rows={lines} setRows={setLines} readOnly canEditApprovedQty={isPending} />
               </Box>
               <Box sx={{ display: tabValue === 2 ? 'block' : 'none' }}>
                 {(current.actions || []).length === 0 ? (
@@ -229,7 +252,7 @@ export default function MyApprovalView() {
                       variant="outlined"
                       color="success"
                       startIcon={<CheckCircleIcon />}
-                      disabled={decisionLoading}
+                      disabled={busy}
                       onClick={() => {
                         setRemark('');
                         setConfirm({ open: true, type: 'approve' });
@@ -241,7 +264,7 @@ export default function MyApprovalView() {
                       variant="outlined"
                       color="error"
                       startIcon={<CancelIcon />}
-                      disabled={decisionLoading}
+                      disabled={busy}
                       onClick={() => {
                         setRemark('');
                         setConfirm({ open: true, type: 'reject' });
@@ -274,19 +297,19 @@ export default function MyApprovalView() {
             sx={{ mt: 2 }}
             value={remark}
             onChange={(e) => setRemark(e.target.value)}
-            disabled={decisionLoading}
+            disabled={busy}
           />
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2 }}>
-          <Button onClick={closeConfirm} color="inherit" disabled={decisionLoading}>
+          <Button onClick={closeConfirm} color="inherit" disabled={busy}>
             Cancel
           </Button>
           <Button
             onClick={handleDecision}
             variant="outlined"
             color={confirm.type === 'approve' ? 'success' : 'error'}
-            disabled={decisionLoading}
-            startIcon={decisionLoading ? <CircularProgress size={16} color="inherit" /> : null}
+            disabled={busy}
+            startIcon={busy ? <CircularProgress size={16} color="inherit" /> : null}
           >
             {confirm.type === 'approve' ? 'Approve' : 'Reject'}
           </Button>

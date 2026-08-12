@@ -85,6 +85,7 @@ export default function MRContentTab({
         const next = { ...r, [field]: value };
         if (field === 'Quantity') {
           next.BOMOpenQty = (Number(next.BOMQty) || 0) - (Number(value) || 0);
+          if (!canEditApprovedQty) next.ApprovedQuantity = value;
         }
         return next;
       });
@@ -209,7 +210,7 @@ export default function MRContentTab({
           fullWidth
           type="number"
           value={row.Quantity || ''}
-          disabled={readOnly}
+          disabled={readOnly || canEditApprovedQty}
           onChange={(e) => updateRow(row.id, 'Quantity', e.target.value)}
           sx={{ minWidth: 80 }}
         />

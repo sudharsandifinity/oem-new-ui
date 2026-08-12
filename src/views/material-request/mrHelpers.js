@@ -157,7 +157,7 @@ export const mapApiLineToRow = (line, index) => ({
   ItemCode: line.U_ItmSerCode ?? '',
   ItemDescription: line.U_ItemDesc ?? '',
   FullDescription: line.U_SerDesc ?? '',
-  Quantity: line.U_ReqQty ?? '',
+  Quantity: line.U_MRQty ?? line.U_ReqQty ?? '',
   ApprovedQuantity: line.U_ReqQty ?? '',
   UoMCode: line.U_UOM ?? '',
   BOMQty: line.U_BOMQty ?? '',
@@ -171,7 +171,7 @@ export const mapApiLineToRow = (line, index) => ({
   Remark: line.U_HLB_Rmarks ?? ''
 });
 
-export const buildPayload = (form, lines, user) => ({
+export const buildPayload = (form, lines, user, { useApprovedQty = false } = {}) => ({
   U_DocDate: form.RequisitionDate ? `${form.RequisitionDate}T00:00:00Z` : null,
   U_ReqDate: form.RequiredDate ? `${form.RequiredDate}T00:00:00Z` : null,
   U_ReqTime: form.RequisitionTime ? `${form.RequisitionTime}:00` : null,
@@ -191,26 +191,31 @@ export const buildPayload = (form, lines, user) => ({
   U_PreparedBy: [user?.first_name, user?.last_name].filter(Boolean).join(' ') || null,
   HLB_MRQ1Collection: lines
     .filter((r) => String(r.ItemCode || '').trim() && String(r.Quantity || '').trim())
-    .map((r) => ({
-      ...(r.LineId != null ? { LineId: r.LineId } : {}),
-      U_ItmSerCode: r.ItemCode,
-      U_ItemDesc: r.ItemDescription,
-      U_SerDesc: r.FullDescription,
-      U_ReqQty: Number(r.Quantity) || 0,
-      U_UOM: r.UoMCode,
-      U_Project: r.ProjectCode,
-      U_Whs: r.WarehouseCode,
-      U_SQlineNum: r.BOMLineNum ? String(r.BOMLineNum) : null,
-      U_BOMEntry: r.BOMEntry !== '' && r.BOMEntry != null ? Number(r.BOMEntry) : null,
-      U_BOMNum: r.BOMDocNum !== '' && r.BOMDocNum != null ? Number(r.BOMDocNum) : null,
-      U_BOMLine: r.BOMLineNum !== '' && r.BOMLineNum != null ? String(r.BOMLineNum) : null,
-      U_BOMType: r.BOMType || null,
-      U_BOMQty: Number(r.BOMQty) || 0,
-      U_BOMOpenQty: Number(r.BOMOpenQty) || 0,
-      U_MROpenQty: Number(r.MROpenQty) || 0,
-      U_IssuedQty: Number(r.IssuedQty) || 0,
-      U_InStock: Number(r.InStock) || 0,
-      U_ReqDate: r.RequiredDate ? `${r.RequiredDate}T00:00:00Z` : null,
-      U_HLB_Rmarks: r.Remark
-    }))
+    .map((r) => {
+      const requestedQty = Number(r.Quantity) || 0;
+      const approvedQty = Number(r.ApprovedQuantity) || 0;
+      return {
+        ...(r.LineId != null ? { LineId: r.LineId } : {}),
+        U_ItmSerCode: r.ItemCode,
+        U_ItemDesc: r.ItemDescription,
+        U_SerDesc: r.FullDescription,
+        U_MRQty: requestedQty,
+        U_ReqQty: useApprovedQty ? approvedQty : requestedQty,
+        U_UOM: r.UoMCode,
+        U_Project: r.ProjectCode,
+        U_Whs: r.WarehouseCode,
+        U_SQlineNum: r.BOMLineNum ? String(r.BOMLineNum) : null,
+        U_BOMEntry: r.BOMEntry !== '' && r.BOMEntry != null ? Number(r.BOMEntry) : null,
+        U_BOMNum: r.BOMDocNum !== '' && r.BOMDocNum != null ? Number(r.BOMDocNum) : null,
+        U_BOMLine: r.BOMLineNum !== '' && r.BOMLineNum != null ? String(r.BOMLineNum) : null,
+        U_BOMType: r.BOMType || null,
+        U_BOMQty: Number(r.BOMQty) || 0,
+        U_BOMOpenQty: Number(r.BOMOpenQty) || 0,
+        U_MROpenQty: Number(r.MROpenQty) || 0,
+        U_IssuedQty: Number(r.IssuedQty) || 0,
+        U_InStock: Number(r.InStock) || 0,
+        U_ReqDate: r.RequiredDate ? `${r.RequiredDate}T00:00:00Z` : null,
+        U_HLB_Rmarks: r.Remark
+      };
+    })
 });

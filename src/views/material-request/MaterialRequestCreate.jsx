@@ -56,7 +56,7 @@ const boqLineToRow = (line, projectCode, bom = {}) => ({
   WarehouseCode: line.U_Whs || '03',
   ProjectCode: projectCode ?? '',
   Quantity: line.U_PQty ?? 0,
-  ApprovedQuantity: 0,
+  ApprovedQuantity: line.U_PQty ?? 0,
   MROpenQty: 0,
   InStock: 0,
   IsBOMRow: true
