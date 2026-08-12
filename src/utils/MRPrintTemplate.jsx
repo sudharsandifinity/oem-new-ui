@@ -237,10 +237,11 @@ ${form?.RequiredDate ?? ''}
 <tr>
 
 <th style="width:8%">SL.NO.</th>
+<th style="width:10%">ITEM CODE</th>
+
 
 <th>DESCRIPTION</th>
 
-<th style="width:10%">ITEM CODE</th>
 
 <th style="width:15%">QUANTITY</th>
 
@@ -259,10 +260,10 @@ ${(lines ?? [])
 <tr>
 
 <td align="center">${index + 1}</td>
+<td align="center">${item.ItemCode ?? ''}</td>
 
 <td>${item.ItemDescription ?? ''}</td>
 
-<td align="center">${item.ItemCode ?? ''}</td>
 
 <td>$${item.ApprovedQuantity ?? ''}</td>
 
