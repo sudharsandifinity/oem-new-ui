@@ -181,11 +181,11 @@ MATERIAL REQUISITION
 <div class="field">
 
 <span class="label">
-Project Name :
+Project Code :
 </span>
 
 <span class="value">
-${form?.ProjectName ?? ''} 
+${form?.ProjectCode ?? ''}
 </span>
 
 </div>
@@ -193,11 +193,11 @@ ${form?.ProjectName ?? ''}
 <div class="field">
 
 <span class="label">
-Doc Entry :
+Project Name :
 </span>
 
 <span class="value">
-${form?.BOMDocEntry ?? ''}
+${form?.ProjectName ?? ''}
 </span>
 
 </div>
@@ -205,18 +205,6 @@ ${form?.BOMDocEntry ?? ''}
 </div>
 
 <div class="right-info">
-
-<div>
-
-<b>PO No :</b>
-
-<span class="mrno">
-${form?.ProjectCode ?? ''}
-</span>
-
-</div>
-
-<br>
 
 <div>
 
@@ -265,7 +253,7 @@ ${(lines ?? [])
 <td>${item.ItemDescription ?? ''}</td>
 
 
-<td>$${item.ApprovedQuantity ?? ''}</td>
+<td>${item.ApprovedQuantity ?? ''}</td>
 
 <td>${item.UoMCode ?? ''}</td>
 
