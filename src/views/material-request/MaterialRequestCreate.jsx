@@ -109,12 +109,28 @@ export default function MaterialRequestCreate() {
     setPendingBOM(bom);
     setBomOpenMap({});
     setBomItemModalOpen(true);
-    try {
-      const map = await dispatch(getBOQOpenQty({ docEntry: bom.DocEntry })).unwrap();
-      setBomOpenMap(map);
-    } catch {
-      setBomOpenMap({});
+
+    const plannedByUid = {};
+    for (const l of bom.HLB_BOQT1Collection || []) {
+      if (String(l.U_Type || '').trim() === 'Regular' && l.U_UniqueID != null && String(l.U_UniqueID) !== '') {
+        plannedByUid[String(l.U_UniqueID)] = Number(l.U_PQty) || 0;
+      }
     }
+
+    let usedByUid = {};
+    try {
+      usedByUid = await dispatch(getBOQOpenQty({ docEntry: bom.DocEntry })).unwrap();
+    } catch {
+      usedByUid = {};
+    }
+
+    const map = {};
+    Object.keys(plannedByUid).forEach((uid) => {
+      const planned = plannedByUid[uid];
+      const used = Number(usedByUid[uid]?.used) || 0;
+      map[uid] = { planned, used, available: planned - used };
+    });
+    setBomOpenMap(map);
   };
 
   const handleBOMItemsConfirm = async (selectedLines) => {
@@ -174,7 +190,9 @@ export default function MaterialRequestCreate() {
       setSnackbar({
         open: true,
         severity: 'error',
-        message: `Requested qty exceeds available BOM qty: ${overQty.map((r) => `${r.ItemCode} (available ${r.BOMAvailable})`).join(', ')}`
+        message: `Requested qty exceeds available BOM qty: ${overQty
+          .map((r) => `${r.ItemCode} (BOM line ${r.BOMLineNum}): requested ${r.Quantity}, available ${r.BOMAvailable}`)
+          .join('; ')}`
       });
       return;
     }
