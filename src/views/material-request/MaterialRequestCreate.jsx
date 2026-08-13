@@ -14,7 +14,7 @@ import MRGeneralTab from './GeneralTab';
 import MRContentTab, { emptyRow } from './ContentTab';
 import BOMSelectModal from './BOMSelectModal';
 import BOMItemSelectModal from './BOMItemSelectModal';
-import { createMR, resetMRState } from '../../store/slices/materialRequestSlice';
+import { createMR, resetMRState, getBOQOpenQty } from '../../store/slices/materialRequestSlice';
 import { createDraft } from '../../store/slices/draftSlice';
 import { buildPayload, buildBomChildPicker, fetchHasChildren } from './mrHelpers';
 
@@ -74,6 +74,7 @@ export default function MaterialRequestCreate() {
   const [bomModalOpen, setBomModalOpen] = useState(false);
   const [bomItemModalOpen, setBomItemModalOpen] = useState(false);
   const [pendingBOM, setPendingBOM] = useState(null);
+  const [bomOpenMap, setBomOpenMap] = useState({});
   const [snackbar, setSnackbar] = useState({ open: false, severity: 'success', message: '' });
 
   const canCopyFromBOM = !!(form.CardCode?.trim() || form.ProjectCode?.trim());
@@ -104,9 +105,16 @@ export default function MaterialRequestCreate() {
     });
   }, [form.ProjectCode, lines.length]);
 
-  const handleBOMSelect = (bom) => {
+  const handleBOMSelect = async (bom) => {
     setPendingBOM(bom);
+    setBomOpenMap({});
     setBomItemModalOpen(true);
+    try {
+      const map = await dispatch(getBOQOpenQty({ docEntry: bom.DocEntry })).unwrap();
+      setBomOpenMap(map);
+    } catch {
+      setBomOpenMap({});
+    }
   };
 
   const handleBOMItemsConfirm = async (selectedLines) => {
@@ -118,7 +126,11 @@ export default function MaterialRequestCreate() {
       if (type === 'Text') currentTitle = l.U_Desc || '';
       else if (type === 'Regular') titleByLineId[l.LineId] = currentTitle;
     }
-    const mapped = selectedLines.map((l) => ({ ...boqLineToRow(l, projCode, pendingBOM), Title: titleByLineId[l.LineId] || '' }));
+    const mapped = selectedLines.map((l) => ({
+      ...boqLineToRow(l, projCode, pendingBOM),
+      Title: titleByLineId[l.LineId] || '',
+      BOMAvailable: bomOpenMap[String(l.U_UniqueID)]?.available
+    }));
 
     const finalRows = [];
     const parentCodes = [];
@@ -157,6 +169,15 @@ export default function MaterialRequestCreate() {
   };
 
   const handleSubmit = () => {
+    const overQty = lines.filter((r) => r.ItemCode && r.BOMAvailable != null && Number(r.Quantity) > Number(r.BOMAvailable));
+    if (overQty.length) {
+      setSnackbar({
+        open: true,
+        severity: 'error',
+        message: `Requested qty exceeds available BOM qty: ${overQty.map((r) => `${r.ItemCode} (available ${r.BOMAvailable})`).join(', ')}`
+      });
+      return;
+    }
     const payload = buildPayload(form, lines, user);
     dispatch(createMR(payload));
   };
@@ -257,6 +278,7 @@ const handleSubmitasDraft=()=>{
         }}
         onConfirm={handleBOMItemsConfirm}
         bomLines={(pendingBOM?.HLB_BOQT1Collection || []).filter((l) => l.U_ItemCode)}
+        openQtyMap={bomOpenMap}
       />
 
       <Snackbar

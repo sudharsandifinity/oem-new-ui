@@ -99,6 +99,19 @@ export const getBOQList = createAsyncThunk('materialRequest/getBOQList', async (
   }
 });
 
+export const getBOQOpenQty = createAsyncThunk('materialRequest/getBOQOpenQty', async ({ docEntry, excludeMr } = {}, thunkAPI) => {
+  try {
+    const response = await API.get(`/sap/boq/${docEntry}/open-qty`, { params: excludeMr ? { excludeMr } : {} });
+    const map = {};
+    (response.data?.lines || []).forEach((l) => {
+      map[String(l.U_UniqueID)] = l;
+    });
+    return map;
+  } catch (error) {
+    return thunkAPI.rejectWithValue(error.response?.data?.message || 'Failed to fetch BOQ open quantity');
+  }
+});
+
 const materialRequestSlice = createSlice({
   name: 'materialRequest',
   initialState: {

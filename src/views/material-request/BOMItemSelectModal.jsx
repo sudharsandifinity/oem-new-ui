@@ -30,7 +30,7 @@ const COLUMNS = [
   { key: 'U_PQty', label: 'BOM Qty', width: 100 }
 ];
 
-export default function BOMItemSelectModal({ open, onClose, onConfirm, bomLines = [] }) {
+export default function BOMItemSelectModal({ open, onClose, onConfirm, bomLines = [], openQtyMap = {} }) {
   const [selected, setSelected] = useState(new Set());
   const [filters, setFilters] = useState({ U_ItemCode: '', U_Desc: '' });
   const [submitting, setSubmitting] = useState(false);
@@ -45,8 +45,15 @@ export default function BOMItemSelectModal({ open, onClose, onConfirm, bomLines 
     [bomLines, filters]
   );
 
-  const allSelected = filtered.length > 0 && filtered.every((l) => selected.has(l.LineId));
-  const someSelected = filtered.some((l) => selected.has(l.LineId));
+  const availableOf = (line) => openQtyMap[String(line.U_UniqueID)]?.available;
+  const isSelectable = (line) => {
+    const a = availableOf(line);
+    return a == null || a > 0;
+  };
+
+  const selectable = filtered.filter(isSelectable);
+  const allSelected = selectable.length > 0 && selectable.every((l) => selected.has(l.LineId));
+  const someSelected = selectable.some((l) => selected.has(l.LineId));
 
   const toggleRow = (lineId) => {
     setSelected((prev) => {
@@ -60,13 +67,13 @@ export default function BOMItemSelectModal({ open, onClose, onConfirm, bomLines 
     if (allSelected) {
       setSelected((prev) => {
         const next = new Set(prev);
-        filtered.forEach((l) => next.delete(l.LineId));
+        selectable.forEach((l) => next.delete(l.LineId));
         return next;
       });
     } else {
       setSelected((prev) => {
         const next = new Set(prev);
-        filtered.forEach((l) => next.add(l.LineId));
+        selectable.forEach((l) => next.add(l.LineId));
         return next;
       });
     }
@@ -146,33 +153,41 @@ export default function BOMItemSelectModal({ open, onClose, onConfirm, bomLines 
                     {col.label}
                   </TableCell>
                 ))}
+                <TableCell sx={{ fontWeight: 700, whiteSpace: 'nowrap', backgroundColor: 'grey.100' }}>Available</TableCell>
               </TableRow>
             </TableHead>
 
             <TableBody>
-              {filtered.map((line, index) => (
-                <TableRow
-                  key={line.LineId}
-                  hover
-                  selected={selected.has(line.LineId)}
-                  onClick={() => toggleRow(line.LineId)}
-                  sx={{ cursor: 'pointer' }}
-                >
-                  <TableCell padding="checkbox">
-                    <Checkbox size="small" checked={selected.has(line.LineId)} />
-                  </TableCell>
-                  <TableCell>{index + 1}</TableCell>
-                  {COLUMNS.map((col) => (
-                    <TableCell key={col.key} sx={{ whiteSpace: 'nowrap' }}>
-                      {line[col.key]}
+              {filtered.map((line, index) => {
+                const canSelect = isSelectable(line);
+                const avail = availableOf(line);
+                return (
+                  <TableRow
+                    key={line.LineId}
+                    hover
+                    selected={selected.has(line.LineId)}
+                    onClick={() => canSelect && toggleRow(line.LineId)}
+                    sx={{ cursor: canSelect ? 'pointer' : 'not-allowed', opacity: canSelect ? 1 : 0.5 }}
+                  >
+                    <TableCell padding="checkbox">
+                      <Checkbox size="small" checked={selected.has(line.LineId)} disabled={!canSelect} />
                     </TableCell>
-                  ))}
-                </TableRow>
-              ))}
+                    <TableCell>{index + 1}</TableCell>
+                    {COLUMNS.map((col) => (
+                      <TableCell key={col.key} sx={{ whiteSpace: 'nowrap' }}>
+                        {line[col.key]}
+                      </TableCell>
+                    ))}
+                    <TableCell sx={{ whiteSpace: 'nowrap', fontWeight: 700, color: avail != null && avail <= 0 ? 'error.main' : 'text.primary' }}>
+                      {avail == null ? '—' : avail}
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
 
               {filtered.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={COLUMNS.length + 2} align="center" sx={{ py: 4, color: 'text.secondary' }}>
+                  <TableCell colSpan={COLUMNS.length + 3} align="center" sx={{ py: 4, color: 'text.secondary' }}>
                     No items found
                   </TableCell>
                 </TableRow>
