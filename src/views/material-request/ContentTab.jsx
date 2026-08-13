@@ -83,10 +83,6 @@ export default function MRContentTab({
       const updated = prev.map((r) => {
         if (r.id !== id) return r;
         const next = { ...r, [field]: value };
-        if (field === 'Quantity') {
-          next.BOMOpenQty = (Number(next.BOMQty) || 0) - (Number(value) || 0);
-          if (!canEditApprovedQty) next.ApprovedQuantity = value;
-        }
         return next;
       });
 

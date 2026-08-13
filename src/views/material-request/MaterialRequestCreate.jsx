@@ -42,7 +42,7 @@ const initialForm = () => ({
 
 const boqLineToRow = (line, projectCode, bom = {}) => ({
   ...emptyRow(),
-  BOMLineNum: String(line.U_UniqueID ?? ''),
+  BOMLineNum: String(line.LineId ?? ''),
   BOMEntry: bom.DocEntry ?? '',
   BOMDocNum: bom.DocNum ?? '',
   BOMType: bom.Object ?? '',
@@ -56,7 +56,7 @@ const boqLineToRow = (line, projectCode, bom = {}) => ({
   WarehouseCode: line.U_Whs || '03',
   ProjectCode: projectCode ?? '',
   Quantity: line.U_PQty ?? 0,
-  ApprovedQuantity: line.U_PQty ?? 0,
+  ApprovedQuantity: 0,
   MROpenQty: 0,
   InStock: 0,
   IsBOMRow: true
@@ -142,11 +142,15 @@ export default function MaterialRequestCreate() {
       if (type === 'Text') currentTitle = l.U_Desc || '';
       else if (type === 'Regular') titleByLineId[l.LineId] = currentTitle;
     }
-    const mapped = selectedLines.map((l) => ({
-      ...boqLineToRow(l, projCode, pendingBOM),
-      Title: titleByLineId[l.LineId] || '',
-      BOMAvailable: bomOpenMap[String(l.U_UniqueID)]?.available
-    }));
+    const mapped = selectedLines.map((l) => {
+      const available = bomOpenMap[String(l.U_UniqueID)]?.available;
+      return {
+        ...boqLineToRow(l, projCode, pendingBOM),
+        Title: titleByLineId[l.LineId] || '',
+        BOMAvailable: available,
+        BOMOpenQty: available ?? 0
+      };
+    });
 
     const finalRows = [];
     const parentCodes = [];

@@ -153,7 +153,7 @@ export default function BOMItemSelectModal({ open, onClose, onConfirm, bomLines 
                     {col.label}
                   </TableCell>
                 ))}
-                <TableCell sx={{ fontWeight: 700, whiteSpace: 'nowrap', backgroundColor: 'grey.100' }}>Available</TableCell>
+                <TableCell sx={{ fontWeight: 700, whiteSpace: 'nowrap', backgroundColor: 'grey.100' }}>Open BOM Qty</TableCell>
               </TableRow>
             </TableHead>
 
