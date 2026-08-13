@@ -10,6 +10,7 @@ export const MR_STATUS_META = {
 export const emptyRow = () => ({
   id: Date.now() + Math.random(),
   LineId: null,
+  Title: '',
   BOMLineNum: '',
   BOMEntry: '',
   BOMDocNum: '',
@@ -153,6 +154,7 @@ export const mapApiToForm = (mr) => ({
 export const mapApiLineToRow = (line, index) => ({
   id: line.LineId ?? Date.now() + index,
   LineId: line.LineId ?? null,
+  Title: line.U_Title ?? '',
   BOMLineNum: line.U_SQlineNum ?? '',
   ItemCode: line.U_ItmSerCode ?? '',
   ItemDescription: line.U_ItemDesc ?? '',
@@ -199,6 +201,7 @@ export const buildPayload = (form, lines, user, { useApprovedQty = false } = {})
         U_ItmSerCode: r.ItemCode,
         U_ItemDesc: r.ItemDescription,
         U_SerDesc: r.FullDescription,
+        U_Title: r.Title || null,
         U_MRQty: requestedQty,
         U_ReqQty: useApprovedQty ? approvedQty : requestedQty,
         U_UOM: r.UoMCode,

@@ -111,7 +111,14 @@ export default function MaterialRequestCreate() {
 
   const handleBOMItemsConfirm = async (selectedLines) => {
     const projCode = pendingBOM.U_PrjCode || form.ProjectCode;
-    const mapped = selectedLines.map((l) => boqLineToRow(l, projCode, pendingBOM));
+    const titleByLineId = {};
+    let currentTitle = '';
+    for (const l of pendingBOM.HLB_BOQT1Collection || []) {
+      const type = String(l.U_Type || '').trim();
+      if (type === 'Text') currentTitle = l.U_Desc || '';
+      else if (type === 'Regular') titleByLineId[l.LineId] = currentTitle;
+    }
+    const mapped = selectedLines.map((l) => ({ ...boqLineToRow(l, projCode, pendingBOM), Title: titleByLineId[l.LineId] || '' }));
 
     const finalRows = [];
     const parentCodes = [];

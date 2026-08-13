@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   Box,
@@ -406,26 +406,42 @@ export default function MRContentTab({
           </TableHead>
 
           <TableBody>
-            {rows.map((row, index) => (
-              <TableRow key={row.id} hover sx={row.IsChildRow ? { backgroundColor: 'action.hover' } : undefined}>
-                <TableCell>{index + 1}</TableCell>
-                {TABLE_COLUMNS.slice(1).map((col) => (
-                  <TableCell key={col.key}>{renderCell(row, col)}</TableCell>
-                ))}
-                {!readOnly && (
-                  <TableCell align="center">
-                    <IconButton
-                      color="error"
-                      size="small"
-                      disabled={isBOM && row.IsBOMRow && !allowBomRowDelete}
-                      onClick={() => deleteRow(row.id)}
-                    >
-                      <DeleteIcon fontSize="small" />
-                    </IconButton>
-                  </TableCell>
-                )}
-              </TableRow>
-            ))}
+            {rows.map((row, index) => {
+              const showTitle = row.Title && row.Title !== (index > 0 ? rows[index - 1].Title || '' : '');
+              const colCount = TABLE_COLUMNS.length + (readOnly ? 0 : 1);
+              return (
+                <Fragment key={row.id}>
+                  {showTitle && (
+                    <TableRow>
+                      <TableCell
+                        colSpan={colCount}
+                        sx={{ fontWeight: 700, backgroundColor: '#e8f5e9', color: 'text.primary', whiteSpace: 'nowrap' }}
+                      >
+                        {row.Title}
+                      </TableCell>
+                    </TableRow>
+                  )}
+                  <TableRow hover sx={row.IsChildRow ? { backgroundColor: 'action.hover' } : undefined}>
+                    <TableCell>{index + 1}</TableCell>
+                    {TABLE_COLUMNS.slice(1).map((col) => (
+                      <TableCell key={col.key}>{renderCell(row, col)}</TableCell>
+                    ))}
+                    {!readOnly && (
+                      <TableCell align="center">
+                        <IconButton
+                          color="error"
+                          size="small"
+                          disabled={isBOM && row.IsBOMRow && !allowBomRowDelete}
+                          onClick={() => deleteRow(row.id)}
+                        >
+                          <DeleteIcon fontSize="small" />
+                        </IconButton>
+                      </TableCell>
+                    )}
+                  </TableRow>
+                </Fragment>
+              );
+            })}
           </TableBody>
         </Table>
       </TableContainer>
