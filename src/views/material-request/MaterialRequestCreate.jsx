@@ -117,18 +117,21 @@ export default function MaterialRequestCreate() {
       }
     }
 
-    let usedByUid = {};
+    let backendMap = {};
     try {
-      usedByUid = await dispatch(getBOQOpenQty({ docEntry: bom.DocEntry })).unwrap();
+      backendMap = await dispatch(getBOQOpenQty({ docEntry: bom.DocEntry })).unwrap();
     } catch {
-      usedByUid = {};
+      backendMap = {};
     }
 
     const map = {};
     Object.keys(plannedByUid).forEach((uid) => {
       const planned = plannedByUid[uid];
-      const used = Number(usedByUid[uid]?.used) || 0;
-      map[uid] = { planned, used, available: planned - used };
+      const b = backendMap[uid] || {};
+      const bomOpenQty = b.bomOpenQty != null ? b.bomOpenQty : planned;
+      const mrOpenQty = b.mrOpenQty != null ? b.mrOpenQty : 0;
+      const tempAvailable = b.tempAvailable != null ? b.tempAvailable : bomOpenQty;
+      map[uid] = { planned, bomOpenQty, mrOpenQty, tempAvailable };
     });
     setBomOpenMap(map);
   };
@@ -143,12 +146,14 @@ export default function MaterialRequestCreate() {
       else if (type === 'Regular') titleByLineId[l.LineId] = currentTitle;
     }
     const mapped = selectedLines.map((l) => {
-      const available = bomOpenMap[String(l.U_UniqueID)]?.available;
+      const info = bomOpenMap[String(l.U_UniqueID)] || {};
       return {
         ...boqLineToRow(l, projCode, pendingBOM),
         Title: titleByLineId[l.LineId] || '',
-        BOMAvailable: available,
-        BOMOpenQty: available ?? 0
+        BOMAvailable: info.tempAvailable,
+        BOMOpenQty: info.bomOpenQty ?? 0,
+        MROpenQty: info.mrOpenQty ?? 0,
+        Quantity: info.tempAvailable ?? (Number(l.U_PQty) || 0)
       };
     });
 

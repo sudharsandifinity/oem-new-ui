@@ -45,10 +45,10 @@ export default function BOMItemSelectModal({ open, onClose, onConfirm, bomLines 
     [bomLines, filters]
   );
 
-  const availableOf = (line) => openQtyMap[String(line.U_UniqueID)]?.available;
+  const infoOf = (line) => openQtyMap[String(line.U_UniqueID)] || {};
   const isSelectable = (line) => {
-    const a = availableOf(line);
-    return a == null || a > 0;
+    const t = infoOf(line).tempAvailable;
+    return t == null || t > 0;
   };
 
   const selectable = filtered.filter(isSelectable);
@@ -154,13 +154,14 @@ export default function BOMItemSelectModal({ open, onClose, onConfirm, bomLines 
                   </TableCell>
                 ))}
                 <TableCell sx={{ fontWeight: 700, whiteSpace: 'nowrap', backgroundColor: 'grey.100' }}>Open BOM Qty</TableCell>
+                <TableCell sx={{ fontWeight: 700, whiteSpace: 'nowrap', backgroundColor: 'grey.100' }}>In Pending MR</TableCell>
               </TableRow>
             </TableHead>
 
             <TableBody>
               {filtered.map((line, index) => {
                 const canSelect = isSelectable(line);
-                const avail = availableOf(line);
+                const info = infoOf(line);
                 return (
                   <TableRow
                     key={line.LineId}
@@ -178,8 +179,11 @@ export default function BOMItemSelectModal({ open, onClose, onConfirm, bomLines 
                         {line[col.key]}
                       </TableCell>
                     ))}
-                    <TableCell sx={{ whiteSpace: 'nowrap', fontWeight: 700, color: avail != null && avail <= 0 ? 'error.main' : 'text.primary' }}>
-                      {avail == null ? '—' : avail}
+                    <TableCell sx={{ whiteSpace: 'nowrap', fontWeight: 700, color: !canSelect ? 'error.main' : 'text.primary' }}>
+                      {info.bomOpenQty == null ? '—' : info.bomOpenQty}
+                    </TableCell>
+                    <TableCell sx={{ whiteSpace: 'nowrap', color: info.mrOpenQty ? 'warning.dark' : 'text.secondary' }}>
+                      {info.mrOpenQty == null ? '—' : info.mrOpenQty}
                     </TableCell>
                   </TableRow>
                 );
@@ -187,7 +191,7 @@ export default function BOMItemSelectModal({ open, onClose, onConfirm, bomLines 
 
               {filtered.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={COLUMNS.length + 3} align="center" sx={{ py: 4, color: 'text.secondary' }}>
+                  <TableCell colSpan={COLUMNS.length + 4} align="center" sx={{ py: 4, color: 'text.secondary' }}>
                     No items found
                   </TableCell>
                 </TableRow>
