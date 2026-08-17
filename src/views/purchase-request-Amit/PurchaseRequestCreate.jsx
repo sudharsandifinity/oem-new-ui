@@ -306,11 +306,12 @@ console.log("first",documentLines)
                 alignItems: 'center',
                 gap: 0.5
               }}
+              onClick={() => navigate('/')}
             >
               <HomeIcon
                 color="secondary"
                 sx={{
-                  fontSize: 18
+                  fontSize: 18, cursor: 'pointer' 
                 }}
               />
             </Box>

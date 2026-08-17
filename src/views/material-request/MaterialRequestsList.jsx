@@ -138,8 +138,8 @@ export default function MaterialRequestsList() {
         >
           <Typography variant="h4">Material Request</Typography>
           <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />}>
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <HomeIcon sx={{ fontSize: 18, color: 'secondary.main' }} />
+            <Box sx={{ display: 'flex', alignItems: 'center' }} onClick={() => navigate('/')}>
+              <HomeIcon sx={{ fontSize: 18, color: 'secondary.main' , cursor: 'pointer' }} />
             </Box>
             <Typography variant="body2">Material Request</Typography>
             <Typography variant="body2" color="secondary" fontWeight={600}>

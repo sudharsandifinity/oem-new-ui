@@ -21,7 +21,9 @@ import AppDatePicker from 'ui-component/AppDatePicker';
 import TaxSelectPopup from '../modules/master-data/TaxCodeLookup';
 import ItemSelectPopup from '../modules/master-data/ItemLookupModal';
 import WarehouseLookupModal from '../modules/master-data/WarehouseLookupModal';
-import FreightPopup from '../sales-order/FreightPopup';
+//import FreightPopup from '../sales-order/FreightPopup';
+import FreightPopup from '../modules/freight/FreightPopup';
+
 import { computePRLineAmounts, emptyPRRow } from './prHelpers';
 
 const TABLE_COLUMNS = [

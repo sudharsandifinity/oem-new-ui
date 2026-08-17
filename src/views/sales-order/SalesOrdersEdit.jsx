@@ -96,8 +96,8 @@ export default function SalesOrdersEdit() {
         >
           <Typography variant="h3">Sales Orders</Typography>
           <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-              <HomeIcon color="secondary" sx={{ fontSize: 18 }} />
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }} onClick={() => navigate('/')}>
+              <HomeIcon color="secondary" sx={{ fontSize: 18, cursor: 'pointer'  }} />
             </Box>
             <Typography variant="body2" color="text.primary">
               Sales Orders

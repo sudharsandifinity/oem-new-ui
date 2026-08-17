@@ -141,17 +141,18 @@ export default function APInvoiceList() {
           <Typography variant="h3" sx={{ color: 'theme.vars.palette.grey[100]' }}>
             Purchase Invoices
           </Typography>
-          <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />}>
+          <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />} onClick={() => navigate('/')}>
             <Box
               sx={{
                 display: 'flex',
                 alignItems: 'center'
               }}
+              onClick={() => navigate('/')}
             >
               <HomeIcon
                 sx={{
                   fontSize: 18,
-                  color: 'secondary.main'
+                  color: 'secondary.main', cursor: 'pointer' 
                 }}
               />
             </Box>

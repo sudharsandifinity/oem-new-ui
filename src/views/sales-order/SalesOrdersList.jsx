@@ -99,7 +99,6 @@ export default function SalesOrderList() {
       flex: 1,
       minWidth: 120,
       Cell: ({ row }) => {
-        console.log('params', row);
         const isOpen = row.original.DocumentStatus === 'bost_Open';
         return <Chip label={isOpen ? 'Open' : 'Closed'} size="small" color={isOpen ? 'success' : 'default'} />;
       }
@@ -153,11 +152,13 @@ export default function SalesOrderList() {
                 display: 'flex',
                 alignItems: 'center'
               }}
+              onClick={() => navigate('/')}
             >
               <HomeIcon
                 sx={{
                   fontSize: 18,
-                  color: 'secondary.main'
+                  color: 'secondary.main',
+                  cursor: 'pointer',
                 }}
               />
             </Box>
