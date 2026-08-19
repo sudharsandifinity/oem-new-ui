@@ -19,6 +19,7 @@ import PurchaseRequestModal from './PurchaseRequestModal';
 
 import { useReactToPrint } from 'react-to-print';
 import MRPrintTemplate from '../../utils/MRPrintTemplate';
+import alAvonLogo from '../../assets/images/al-avon-logo.png';
 
 const noop = () => { };
 
@@ -73,6 +74,7 @@ const handlePrint = () => {
   const printContent = MRPrintTemplate({
     form,
     lines,
+    logo: `${window.location.origin}${alAvonLogo}`,
   });
 
   printWindow.document.open();

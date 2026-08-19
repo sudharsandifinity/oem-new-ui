@@ -1,7 +1,7 @@
-const MRPrintTemplate = ({ form,lines }) => `
+const MRPrintTemplate = ({ form, lines, logo }) => `
 <html>
 <head>
-<title>Material Requisition</title>
+<title>Material Request</title>
 
 <style>
 
@@ -25,79 +25,61 @@ body{
     display:flex;
     justify-content:space-between;
     align-items:flex-start;
-    margin-bottom:20px;
+    margin-bottom:10px;
 }
 
 .left{
-    width:30%;
+    width:33%;
 }
 
 .center{
-    width:40%;
+    width:34%;
     text-align:center;
+    align-self:center;
 }
 
 .right{
-    width:30%;
+    width:33%;
     text-align:right;
-    font-size:13px;
-    line-height:20px;
+    font-size:12px;
+    line-height:18px;
+    font-weight:bold;
 }
 
 .logo{
-    width:70px;
-}
-
-.company{
-    font-size:28px;
-    font-weight:bold;
-}
-
-.sub{
-    font-size:16px;
-    font-weight:bold;
+    max-width:230px;
+    max-height:90px;
 }
 
 .title{
-    margin-top:15px;
-    font-size:22px;
-    text-decoration:underline;
+    font-size:20px;
     font-weight:bold;
 }
 
 .info{
     display:flex;
     justify-content:space-between;
-    margin:20px 0;
+    margin:18px 0;
+    font-size:14px;
 }
 
-.left-info{
-    width:60%;
-}
-
-.right-info{
-    width:30%;
+.info-col{
+    width:48%;
 }
 
 .field{
-    margin-bottom:15px;
+    margin-bottom:12px;
+    display:flex;
 }
 
 .label{
     display:inline-block;
-    width:120px;
+    width:110px;
     font-weight:bold;
 }
 
-.value{
-    border-bottom:1px dotted #000;
-    display:inline-block;
-    width:250px;
-}
-
-.mrno{
-    //font-size:15px;
-    color:red;
+.sep{
+    width:12px;
     font-weight:bold;
 }
 
@@ -107,26 +89,39 @@ table{
 }
 
 table th{
-    border:2px solid #000;
+    border:1px solid #000;
     padding:8px;
     text-align:center;
+    font-size:14px;
 }
 
 table td{
     border:1px solid #000;
     padding:6px;
-    height:28px;
+    height:26px;
+    font-size:13px;
 }
 
 .footer{
     display:flex;
     justify-content:space-between;
-    margin-top:60px;
+    margin-top:70px;
 }
 
 .footer div{
-    width:200px;
-    text-align:center;
+    width:240px;
+    text-align:left;
+    font-weight:bold;
+    border-top:1px solid #000;
+    padding-top:6px;
+}
+
+.sign{
+    display:flex;
+    justify-content:space-between;
+    margin-top:80px;
+    font-weight:bold;
+    font-size:14px;
 }
 
 </style>
@@ -140,78 +135,53 @@ table td{
 <div class="header">
 
 <div class="left">
-
-<!-- Replace with your logo -->
-
-
-<div class="company">
-AL AVON
-</div>
-
-<div class="sub">
-CONTRACTING (L.L.C.)
-</div>
-
+${logo ? `<img class="logo" src="${logo}" />` : ''}
 </div>
 
 <div class="center">
-
-<div class="title">
-MATERIAL REQUISITION
-</div>
-
+<div class="title">Material Request</div>
 </div>
 
 <div class="right">
-
 <div>Tel : 04-3958771</div>
 <div>Fax : 04-3958775</div>
-<div>P.O.Box : 119070</div>
-<div>Dubai UAE</div>
-<div>www.alavoncontracting.com</div>
-
+<div>P.o.Box : 119070</div>
+<div>Dubai-United Arab Emirates</div>
+<div>E-mail : alavon@alavoncontracting.com</div>
 </div>
 
 </div>
 
 <div class="info">
 
-<div class="left-info">
+<div class="info-col">
 
 <div class="field">
-
-<span class="label">
-Project Code :
-</span>
-
-<span class="value">
-${form?.ProjectCode ?? ''}
-</span>
-
+<span class="label">Prjct Name</span>
+<span class="sep">:</span>
+<span>${form?.ProjectName ?? ''}</span>
 </div>
 
 <div class="field">
-
-<span class="label">
-Project Name :
-</span>
-
-<span class="value">
-${form?.ProjectName ?? ''}
-</span>
-
+<span class="label">Job No</span>
+<span class="sep">:</span>
+<span>${form?.ProjectCode ?? ''}</span>
 </div>
 
 </div>
 
-<div class="right-info">
+<div class="info-col" style="text-align:right">
 
-<div>
+<div class="field" style="justify-content:flex-end">
+<span class="label" style="width:auto">No</span>
+<span class="sep">:</span>
+<span>${form?.RequisitionNo ?? ''}</span>
+</div>
 
-<b>Date :</b>
-
-${form?.RequiredDate ?? ''}
-
+<div class="field" style="justify-content:flex-end">
+<span class="label" style="width:auto">Date</span>
+<span class="sep">:</span>
+<span>${form?.RequiredDate ?? ''}</span>
 </div>
 
 </div>
@@ -223,18 +193,11 @@ ${form?.RequiredDate ?? ''}
 <thead>
 
 <tr>
-
-<th style="width:8%">SL.NO.</th>
-<th style="width:10%">ITEM CODE</th>
-
-
-<th>DESCRIPTION</th>
-
-
-<th style="width:15%">QUANTITY</th>
-
-<th style="width:15%">UOM</th>
-
+<th style="width:8%">S.No</th>
+<th>Description</th>
+<th style="width:15%">Qty</th>
+<th style="width:15%">Budget</th>
+<th style="width:22%">Remarks</th>
 </tr>
 
 </thead>
@@ -244,45 +207,29 @@ ${form?.RequiredDate ?? ''}
 ${(lines ?? [])
   .map(
     (item, index) => `
-
 <tr>
-
 <td align="center">${index + 1}</td>
-<td align="center">${item.ItemCode ?? ''}</td>
-
 <td>${item.ItemDescription ?? ''}</td>
-
-
-<td>${item.ApprovedQuantity ?? ''}</td>
-
-<td>${item.UoMCode ?? ''}</td>
-
+<td align="center">${item.ApprovedQuantity ?? ''}</td>
+<td></td>
+<td>${item.Remark ?? ''}</td>
 </tr>
-
 `
   )
   .join('')}
 
 ${Array.from({
-  length: Math.max(20 - (lines?.length || 0), 0)
+  length: Math.max(11 - (lines?.length || 0), 0)
 })
   .map(
     () => `
-
 <tr>
-
 <td>&nbsp;</td>
-
 <td></td>
-
 <td></td>
-
 <td></td>
-
 <td></td>
-
 </tr>
-
 `
   )
   .join('')}
@@ -291,20 +238,9 @@ ${Array.from({
 
 </table>
 
-<div class="footer">
-
-<div>
-
-Prepared By
-
-</div>
-
-<div>
-
-Site Incharge
-
-</div>
-
+<div class="sign">
+<div>Prepared By</div>
+<div>Site Incharge</div>
 </div>
 
 </div>
