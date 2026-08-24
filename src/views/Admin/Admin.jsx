@@ -2,6 +2,7 @@
 
 import React, { useEffect } from 'react';
 import {
+  alpha,
   Avatar,
   Box,
   Button,
@@ -39,9 +40,11 @@ import { getadminmenus } from '../../store/slices/MenuSlice';
 import { useNavigate } from 'react-router';
 
 const Admin = () => {
+ const { user } = useSelector((s) => s.auth);
+  const fullName = [user?.first_name, user?.last_name].filter(Boolean).join(' ') || 'there';
+ 
 
-
-  const { adminusers,totalCount } = useSelector((state) => state.users);
+  const { adminusers,totalCount,loading } = useSelector((state) => state.users);
   const { roles, saveSuccess, error } = useSelector((state) => state.roles);
   const { menus } = useSelector((state) => state.menus);
 
@@ -128,22 +131,46 @@ const Admin = () => {
       color: '#6a1b9a'
     }
   ];
+       const initials = fullName ? fullName.split(' ').map(n => n[0]).join('').toUpperCase() : '';
+const greeting = fullName ? `Good morning, ${fullName.split(' ')[0]}!` : 'Good morning!';
+const today = new Date().toLocaleDateString();
 
   return (
     <Box sx={{ p: 3 }}>
 
       {/* Header */}
 
-      <Typography variant="h4" fontWeight={700}>
-        Customer Admin Dashboard
-      </Typography>
-
-      <Typography
-        color="text.secondary"
-        sx={{ mb: 4 }}
-      >
-        Manage users and roles from one place.
-      </Typography>
+      <Paper
+              elevation={0}
+              sx={{
+                p: { xs: 3, md: 4 },
+                mb: 4,
+                borderRadius: 3,
+                position: 'relative',
+                overflow: 'hidden',
+                border: '1px solid',
+                borderColor: 'divider',
+                borderLeft: (t) => `6px solid ${t.palette.primary.main}`,
+                boxShadow: (t) => `0 6px 20px ${alpha(t.palette.primary.main, 0.12)}`,
+                bgcolor: 'background.default'
+              }}
+            >
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2.5, flexWrap: 'wrap' }}>
+                <Avatar sx={{ width: 60, height: 60, bgcolor: 'primary.main', color: '#fff', fontWeight: 700, fontSize: 22 }}>{initials}</Avatar>
+                <Box sx={{ flex: 1, minWidth: 220 }}>
+                  <Typography variant="h2" sx={{ fontWeight: 700, lineHeight: 1.15 }}>
+                    {greeting}, {fullName}!
+                  </Typography>
+                  <Typography color="text.secondary" sx={{ mt: 0.5 }}>
+                    {today} &nbsp;·&nbsp; Here&apos;s what needs your attention.
+                  </Typography>
+                </Box>
+                <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap' }}>
+                  <Button label="Pending" value={loading ? null : '26'} color="primary" />
+      
+                </Box>
+              </Box>
+            </Paper>
 
       {/* Summary Cards */}
 

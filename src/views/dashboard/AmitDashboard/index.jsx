@@ -16,7 +16,10 @@ import {
   TableHead,
   TableRow,
   Typography, Divider,
-  CircularProgress
+  CircularProgress,
+  Avatar,
+  Button,
+  alpha
 } from '@mui/material';
 import {
   Chip,
@@ -128,19 +131,45 @@ useEffect(() => {
   { docNum: 105, project: "CIV 180", requester: "Sudharsan", days: 1, },];
   const pieData = [{ name: "Received", value: 18200 }, { name: "Balance", value: 6800 },];
   const COLORS = ["#1976d2", "#ff9800"];
-
-
+      const initials = fullName ? fullName.split(' ').map(n => n[0]).join('').toUpperCase() : '';
+const greeting = fullName ? `Good morning, ${fullName.split(' ')[0]}!` : 'Good morning!';
+const today = new Date().toLocaleDateString();
   return (
     <>
 {console.log("salesordercount",salesordercount,salesquotationcount,prCount,purchaseQuotationCount)}
-      <Box sx={{ p: 3, color: 'bg-blue-500', minHeight: '90vh' }}>
-        <Typography variant="h4" fontWeight={700}>
-          SAP Procurement Dashboard
-        </Typography>
 
-        <Typography color="text.secondary" mb={4}>
-         Sales Order, Sales Quotation, Purchase Request and Purchase Quotatioin Overview
-        </Typography>
+      <Box sx={{ p: 3, color: 'bg-blue-500', minHeight: '90vh' }}>
+        <Paper
+        elevation={0}
+        sx={{
+          p: { xs: 3, md: 4 },
+          mb: 4,
+          borderRadius: 3,
+          position: 'relative',
+          overflow: 'hidden',
+          border: '1px solid',
+          borderColor: 'divider',
+          borderLeft: (t) => `6px solid ${t.palette.primary.main}`,
+          boxShadow: (t) => `0 6px 20px ${alpha(t.palette.primary.main, 0.12)}`,
+          bgcolor: 'background.default'
+        }}
+      >
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2.5, flexWrap: 'wrap' }}>
+          <Avatar sx={{ width: 60, height: 60, bgcolor: 'primary.main', color: '#fff', fontWeight: 700, fontSize: 22 }}>{initials}</Avatar>
+          <Box sx={{ flex: 1, minWidth: 220 }}>
+            <Typography variant="h2" sx={{ fontWeight: 700, lineHeight: 1.15 }}>
+              {greeting}, {fullName}!
+            </Typography>
+            <Typography color="text.secondary" sx={{ mt: 0.5 }}>
+              {today} &nbsp;·&nbsp; Here&apos;s what needs your attention.
+            </Typography>
+          </Box>
+          <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap' }}>
+            <Button label="Pending" value={loading ? null : '26'} color="primary" />
+
+          </Box>
+        </Box>
+      </Paper>
 
         {/* KPI Cards */}
         <Grid container spacing={3} mb={3}>
