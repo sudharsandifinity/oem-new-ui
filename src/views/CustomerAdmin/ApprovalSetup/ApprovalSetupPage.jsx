@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   Alert,
+  Autocomplete,
   Box,
   Breadcrumbs,
   Button,
@@ -20,38 +21,55 @@ import HomeIcon from '@mui/icons-material/Home';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
-import PersonAddAltIcon from '@mui/icons-material/PersonAddAlt';
 
 import MainCard from 'ui-component/cards/MainCard';
-import ApproverSelectModal from './ApproverSelectModal';
-import { getApprovalFlow, saveApprovalFlow, getadminUsers, resetApprovalFlowState } from '../../../store/slices/commonCustomerSlice';
+import {
+  getApprovalFlow,
+  saveApprovalFlow,
+  getadminUsers,
+  getCompanyProjects,
+  resetApprovalFlowState
+} from '../../../store/slices/commonCustomerSlice';
 
 const DOC_TYPE = 'MR';
-const emptyStage = () => ({ name: '', approverUserIds: [] });
+const emptyStage = () => ({ name: '', approverUserId: null, delegatorUserId: null });
 
 export default function ApprovalSetupPage() {
   const dispatch = useDispatch();
-  const { approvalFlow, approvalFlowLoading, approvalFlowSaving, approvalFlowSaveSuccess, users, usersLoading, error } = useSelector(
-    (s) => s.commonCustomer
-  );
+  const {
+    approvalFlow,
+    approvalFlowLoading,
+    approvalFlowSaving,
+    approvalFlowSaveSuccess,
+    users,
+    usersLoading,
+    companyProjects,
+    companyProjectsLoading,
+    error
+  } = useSelector((s) => s.commonCustomer);
 
+  const [projectId, setProjectId] = useState(null);
   const [stages, setStages] = useState([emptyStage()]);
   const [snackbar, setSnackbar] = useState({ open: false, severity: 'success', message: '' });
-  const [approverModal, setApproverModal] = useState({ open: false, index: -1 });
 
   useEffect(() => {
-    dispatch(getApprovalFlow(DOC_TYPE));
     if (!users.length) dispatch(getadminUsers());
+    if (!companyProjects.length) dispatch(getCompanyProjects());
     return () => {
       dispatch(resetApprovalFlowState());
     };
   }, [dispatch]);
 
   useEffect(() => {
+    if (projectId) dispatch(getApprovalFlow({ docType: DOC_TYPE, projectId }));
+  }, [dispatch, projectId]);
+
+  useEffect(() => {
     if (!approvalFlow) return;
     const loaded = (approvalFlow.stages || []).map((s) => ({
       name: s.name || '',
-      approverUserIds: (s.approvers || []).map((a) => a.userId)
+      approverUserId: s.approver?.userId ?? null,
+      delegatorUserId: s.delegator?.userId ?? null
     }));
     setStages(loaded.length ? loaded : [emptyStage()]);
   }, [approvalFlow]);
@@ -75,39 +93,39 @@ export default function ApprovalSetupPage() {
       })),
     [users]
   );
-  const userLabel = (id) => userOptions.find((o) => o.id === id)?.label || id;
+
+  const projectOptions = useMemo(
+    () =>
+      (Array.isArray(companyProjects) ? companyProjects : []).map((p) => ({
+        id: p.id,
+        label: [p.Code, p.Name].filter(Boolean).join(' - ') || p.Code || p.id
+      })),
+    [companyProjects]
+  );
+
+  const optionOf = (id) => userOptions.find((o) => o.id === id) || null;
 
   const updateStage = (index, field, value) => {
     setStages((prev) => prev.map((s, i) => (i === index ? { ...s, [field]: value } : s)));
   };
 
   const addStage = () => setStages((prev) => [...prev, emptyStage()]);
-
   const removeStage = (index) => setStages((prev) => (prev.length <= 1 ? prev : prev.filter((_, i) => i !== index)));
 
-  const openApproverModal = (index) => setApproverModal({ open: true, index });
-  const closeApproverModal = () => setApproverModal({ open: false, index: -1 });
-  const confirmApprovers = (ids) => {
-    if (approverModal.index < 0) return;
-    updateStage(approverModal.index, 'approverUserIds', ids);
-  };
-  const removeApprover = (index, id) =>
-    updateStage(
-      index,
-      'approverUserIds',
-      stages[index].approverUserIds.filter((x) => x !== id)
-    );
-
   const handleSave = () => {
+    if (!projectId) {
+      setSnackbar({ open: true, severity: 'error', message: 'Select a project first' });
+      return;
+    }
     const payloadStages = stages
-      .filter((s) => (s.name || '').trim() && s.approverUserIds.length)
-      .map((s) => ({ name: s.name.trim(), approverUserIds: s.approverUserIds }));
+      .filter((s) => (s.name || '').trim() && s.approverUserId)
+      .map((s) => ({ name: s.name.trim(), approverUserId: s.approverUserId, delegatorUserId: s.delegatorUserId || null }));
 
     if (!payloadStages.length) {
       setSnackbar({ open: true, severity: 'error', message: 'Add at least one stage with a name and approver' });
       return;
     }
-    dispatch(saveApprovalFlow({ docType: DOC_TYPE, stages: payloadStages }));
+    dispatch(saveApprovalFlow({ docType: DOC_TYPE, projectId, stages: payloadStages }));
   };
 
   return (
@@ -139,7 +157,19 @@ export default function ApprovalSetupPage() {
 
       <MainCard content={false}>
         <Box sx={{ p: 3 }}>
-          {approvalFlowLoading ? (
+          <Autocomplete
+            options={projectOptions}
+            loading={companyProjectsLoading}
+            value={projectOptions.find((o) => o.id === projectId) || null}
+            onChange={(_, val) => setProjectId(val?.id ?? null)}
+            isOptionEqualToValue={(o, v) => o.id === v.id}
+            sx={{ maxWidth: 420, mb: 3 }}
+            renderInput={(params) => <TextField {...params} label="Project" size="small" />}
+          />
+
+          {!projectId ? (
+            <Typography color="text.secondary">Select a project to configure its approval flow.</Typography>
+          ) : approvalFlowLoading ? (
             <Typography color="text.secondary">Loading…</Typography>
           ) : (
             <Stack spacing={2}>
@@ -161,33 +191,30 @@ export default function ApprovalSetupPage() {
                     <TextField
                       label="Stage Name"
                       size="small"
-                      sx={{ flex: 1, minWidth: 220 }}
+                      sx={{ flex: 1, minWidth: 200 }}
                       value={stage.name}
                       onChange={(e) => updateStage(index, 'name', e.target.value)}
                     />
 
-                    <Box sx={{ flex: 2, minWidth: 280 }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                        <Button
-                          variant="outlined"
-                          color="secondary"
-                          size="small"
-                          startIcon={<PersonAddAltIcon />}
-                          onClick={() => openApproverModal(index)}
-                          disabled={usersLoading}
-                        >
-                          Select Approvers
-                        </Button>
-                        <Typography variant="caption" color="text.secondary">
-                          {stage.approverUserIds.length ? `${stage.approverUserIds.length} selected` : 'None selected'}
-                        </Typography>
-                      </Box>
-                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                        {stage.approverUserIds.map((id) => (
-                          <Chip key={id} label={userLabel(id)} size="small" onDelete={() => removeApprover(index, id)} />
-                        ))}
-                      </Box>
-                    </Box>
+                    <Autocomplete
+                      options={userOptions}
+                      loading={usersLoading}
+                      value={optionOf(stage.approverUserId)}
+                      onChange={(_, val) => updateStage(index, 'approverUserId', val?.id ?? null)}
+                      isOptionEqualToValue={(o, v) => o.id === v.id}
+                      sx={{ flex: 1, minWidth: 220 }}
+                      renderInput={(params) => <TextField {...params} label="Approver" size="small" />}
+                    />
+
+                    <Autocomplete
+                      options={userOptions}
+                      loading={usersLoading}
+                      value={optionOf(stage.delegatorUserId)}
+                      onChange={(_, val) => updateStage(index, 'delegatorUserId', val?.id ?? null)}
+                      isOptionEqualToValue={(o, v) => o.id === v.id}
+                      sx={{ flex: 1, minWidth: 220 }}
+                      renderInput={(params) => <TextField {...params} label="Delegator (optional)" size="small" />}
+                    />
                   </Box>
                 </Paper>
               ))}
@@ -203,21 +230,17 @@ export default function ApprovalSetupPage() {
           <Divider sx={{ my: 3 }} />
 
           <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <Button variant="contained" color="secondary" onClick={handleSave} disabled={approvalFlowSaving || approvalFlowLoading}>
+            <Button
+              variant="contained"
+              color="secondary"
+              onClick={handleSave}
+              disabled={approvalFlowSaving || approvalFlowLoading || !projectId}
+            >
               {approvalFlowSaving ? 'Saving…' : 'Save'}
             </Button>
           </Box>
         </Box>
       </MainCard>
-
-      <ApproverSelectModal
-        open={approverModal.open}
-        onClose={closeApproverModal}
-        users={userOptions}
-        loading={usersLoading}
-        initialSelected={approverModal.index >= 0 ? stages[approverModal.index].approverUserIds : []}
-        onConfirm={confirmApprovers}
-      />
 
       <Snackbar
         open={snackbar.open}

@@ -82,9 +82,10 @@ export const syncCompanyProjects = createAsyncThunk('commonCustomer/syncCompanyP
   }
 });
 
-export const getApprovalFlow = createAsyncThunk('commonCustomer/getApprovalFlow', async (docType = 'MR', thunkAPI) => {
+export const getApprovalFlow = createAsyncThunk('commonCustomer/getApprovalFlow', async (params = {}, thunkAPI) => {
   try {
-    const response = await API.get('/company-admin/approval-flows', { params: { docType } });
+    const { docType = 'MR', projectId } = typeof params === 'string' ? { docType: params } : params;
+    const response = await API.get('/company-admin/approval-flows', { params: { docType, projectId } });
     return response.data;
   } catch (error) {
     return thunkAPI.rejectWithValue(error.response?.data?.message || 'Failed to fetch approval flow');
