@@ -21,8 +21,10 @@ import HomeIcon from '@mui/icons-material/Home';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
+import PersonAddAltIcon from '@mui/icons-material/PersonAddAlt';
 
 import MainCard from 'ui-component/cards/MainCard';
+import ApproverSelectModal from './ApproverSelectModal';
 import {
   getApprovalFlow,
   saveApprovalFlow,
@@ -51,6 +53,7 @@ export default function ApprovalSetupPage() {
   const [projectId, setProjectId] = useState(null);
   const [stages, setStages] = useState([emptyStage()]);
   const [snackbar, setSnackbar] = useState({ open: false, severity: 'success', message: '' });
+  const [picker, setPicker] = useState({ open: false, index: -1, role: null });
 
   useEffect(() => {
     if (!users.length) dispatch(getadminUsers());
@@ -103,7 +106,7 @@ export default function ApprovalSetupPage() {
     [companyProjects]
   );
 
-  const optionOf = (id) => userOptions.find((o) => o.id === id) || null;
+  const userLabel = (id) => userOptions.find((o) => o.id === id)?.label || id;
 
   const updateStage = (index, field, value) => {
     setStages((prev) => prev.map((s, i) => (i === index ? { ...s, [field]: value } : s)));
@@ -111,6 +114,13 @@ export default function ApprovalSetupPage() {
 
   const addStage = () => setStages((prev) => [...prev, emptyStage()]);
   const removeStage = (index) => setStages((prev) => (prev.length <= 1 ? prev : prev.filter((_, i) => i !== index)));
+
+  const openPicker = (index, role) => setPicker({ open: true, index, role });
+  const closePicker = () => setPicker({ open: false, index: -1, role: null });
+  const confirmPicker = (id) => {
+    if (picker.index < 0 || !picker.role) return;
+    updateStage(picker.index, picker.role, id);
+  };
 
   const handleSave = () => {
     if (!projectId) {
@@ -196,25 +206,59 @@ export default function ApprovalSetupPage() {
                       onChange={(e) => updateStage(index, 'name', e.target.value)}
                     />
 
-                    <Autocomplete
-                      options={userOptions}
-                      loading={usersLoading}
-                      value={optionOf(stage.approverUserId)}
-                      onChange={(_, val) => updateStage(index, 'approverUserId', val?.id ?? null)}
-                      isOptionEqualToValue={(o, v) => o.id === v.id}
-                      sx={{ flex: 1, minWidth: 220 }}
-                      renderInput={(params) => <TextField {...params} label="Approver" size="small" />}
-                    />
+                    <Box sx={{ flex: 1, minWidth: 240 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                        <Button
+                          variant="outlined"
+                          color="secondary"
+                          size="small"
+                          startIcon={<PersonAddAltIcon />}
+                          onClick={() => openPicker(index, 'approverUserId')}
+                          disabled={usersLoading}
+                        >
+                          Select Approver
+                        </Button>
+                        {!stage.approverUserId && (
+                          <Typography variant="caption" color="text.secondary">
+                            None selected
+                          </Typography>
+                        )}
+                      </Box>
+                      {stage.approverUserId && (
+                        <Chip
+                          label={userLabel(stage.approverUserId)}
+                          size="small"
+                          onDelete={() => updateStage(index, 'approverUserId', null)}
+                        />
+                      )}
+                    </Box>
 
-                    <Autocomplete
-                      options={userOptions}
-                      loading={usersLoading}
-                      value={optionOf(stage.delegatorUserId)}
-                      onChange={(_, val) => updateStage(index, 'delegatorUserId', val?.id ?? null)}
-                      isOptionEqualToValue={(o, v) => o.id === v.id}
-                      sx={{ flex: 1, minWidth: 220 }}
-                      renderInput={(params) => <TextField {...params} label="Delegator (optional)" size="small" />}
-                    />
+                    <Box sx={{ flex: 1, minWidth: 240 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                        <Button
+                          variant="outlined"
+                          color="secondary"
+                          size="small"
+                          startIcon={<PersonAddAltIcon />}
+                          onClick={() => openPicker(index, 'delegatorUserId')}
+                          disabled={usersLoading}
+                        >
+                          Select Delegator
+                        </Button>
+                        {!stage.delegatorUserId && (
+                          <Typography variant="caption" color="text.secondary">
+                            Optional
+                          </Typography>
+                        )}
+                      </Box>
+                      {stage.delegatorUserId && (
+                        <Chip
+                          label={userLabel(stage.delegatorUserId)}
+                          size="small"
+                          onDelete={() => updateStage(index, 'delegatorUserId', null)}
+                        />
+                      )}
+                    </Box>
                   </Box>
                 </Paper>
               ))}
@@ -241,6 +285,16 @@ export default function ApprovalSetupPage() {
           </Box>
         </Box>
       </MainCard>
+
+      <ApproverSelectModal
+        open={picker.open}
+        onClose={closePicker}
+        users={userOptions}
+        loading={usersLoading}
+        title={picker.role === 'delegatorUserId' ? 'Select Delegator' : 'Select Approver'}
+        initialSelected={picker.index >= 0 && picker.role ? stages[picker.index][picker.role] : null}
+        onConfirm={confirmPicker}
+      />
 
       <Snackbar
         open={snackbar.open}

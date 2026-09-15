@@ -1,8 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import {
-  Box,
   Button,
-  Checkbox,
   CircularProgress,
   Dialog,
   DialogActions,
@@ -11,6 +9,7 @@ import {
   Grid,
   IconButton,
   Paper,
+  Radio,
   Table,
   TableBody,
   TableCell,
@@ -22,13 +21,21 @@ import {
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 
-export default function ApproverSelectModal({ open, onClose, onConfirm, users = [], loading = false, initialSelected = [] }) {
-  const [selectedIds, setSelectedIds] = useState([]);
+export default function ApproverSelectModal({
+  open,
+  onClose,
+  onConfirm,
+  users = [],
+  loading = false,
+  initialSelected = null,
+  title = 'Select Approver'
+}) {
+  const [selectedId, setSelectedId] = useState(null);
   const [filters, setFilters] = useState({ name: '', email: '' });
 
   useEffect(() => {
     if (!open) return;
-    setSelectedIds(initialSelected);
+    setSelectedId(initialSelected ?? null);
     setFilters({ name: '', email: '' });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
@@ -46,10 +53,10 @@ export default function ApproverSelectModal({ open, onClose, onConfirm, users = 
     });
   }, [users, filters]);
 
-  const toggle = (id) => setSelectedIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
+  const pick = (id) => setSelectedId((prev) => (prev === id ? null : id));
 
   const handleConfirm = () => {
-    onConfirm(selectedIds);
+    onConfirm(selectedId);
     onClose();
   };
 
@@ -57,7 +64,7 @@ export default function ApproverSelectModal({ open, onClose, onConfirm, users = 
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
       <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Typography variant="h5" component="div">
-          Select Approvers
+          {title}
         </Typography>
         <IconButton onClick={onClose}>
           <CloseIcon />
@@ -104,9 +111,9 @@ export default function ApproverSelectModal({ open, onClose, onConfirm, users = 
 
               {!loading &&
                 filtered.map((u, index) => (
-                  <TableRow key={u.id} hover selected={selectedIds.includes(u.id)} onClick={() => toggle(u.id)} sx={{ cursor: 'pointer' }}>
+                  <TableRow key={u.id} hover selected={selectedId === u.id} onClick={() => pick(u.id)} sx={{ cursor: 'pointer' }}>
                     <TableCell padding="checkbox">
-                      <Checkbox checked={selectedIds.includes(u.id)} />
+                      <Radio size="small" checked={selectedId === u.id} />
                     </TableCell>
                     <TableCell>{index + 1}</TableCell>
                     <TableCell sx={{ whiteSpace: 'nowrap' }}>{u.label}</TableCell>
@@ -131,7 +138,7 @@ export default function ApproverSelectModal({ open, onClose, onConfirm, users = 
           Close
         </Button>
         <Button variant="contained" color="secondary" onClick={handleConfirm}>
-          Choose{selectedIds.length ? ` (${selectedIds.length})` : ''}
+          Choose
         </Button>
       </DialogActions>
     </Dialog>
