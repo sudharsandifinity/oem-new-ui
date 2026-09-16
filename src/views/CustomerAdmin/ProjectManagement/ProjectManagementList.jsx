@@ -185,10 +185,8 @@ export default function ProjectManagementList() {
             '& .MuiDataGrid-cell .MuiTypography-root': { width: '100%' },
             '& .MuiDataGrid-footerContainer': {
               borderTop: '1px solid #e0e0e0',
-              backgroundColor: '#fafafa',
-              overflow: 'hidden'
-            },
-            '& .MuiDataGrid-scrollbarFiller': { display: 'none' }
+              backgroundColor: '#fafafa'
+            }
           }}
         />
       </Paper>
