@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Box, Breadcrumbs, Button, IconButton, Paper, Stack, TextField, Typography } from '@mui/material';
+import { Box, Breadcrumbs, Button, Chip, IconButton, Paper, Stack, TextField, Typography } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 
 import HomeIcon from '@mui/icons-material/Home';
@@ -13,109 +13,108 @@ import ClearIcon from '@mui/icons-material/Clear';
 import MainCard from 'ui-component/cards/MainCard';
 import { useNavigate } from 'react-router-dom';
 import { getadminUsers } from '../../../store/slices/commonCustomerSlice';
+import { renderNoWrapCell } from 'utils/dataGridFormatters';
 
-const emptyFilters = () => ({ name: '', email: '', companies: '' });
+const emptyFilters = () => ({ name: '', email: '' });
 
 export default function UserManagementList() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { users, usersLoading } = useSelector((s) => s.commonCustomer);
-const [filterModel, setFilterModel] = useState({
-  items: [],
-});
 
   const [filters, setFilters] = useState(emptyFilters());
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 25 });
 
   useEffect(() => {
-    dispatch(
-      getadminUsers()
-    );
-  }, [paginationModel, dispatch]);
+    dispatch(getadminUsers());
+  }, [dispatch]);
 
-  
+  const filteredRows = useMemo(() => {
+    const { name, email } = filters;
+    const rows = (Array.isArray(users) ? users : []).filter((r) => r && r.id != null);
+    return rows.filter((r) => {
+      const fullName = `${r.first_name || ''} ${r.last_name || ''}`.trim().toLowerCase();
+      if (name && !fullName.includes(name.trim().toLowerCase())) return false;
+      if (
+        email &&
+        !String(r.email ?? '')
+          .toLowerCase()
+          .includes(email.trim().toLowerCase())
+      )
+        return false;
+      return true;
+    });
+  }, [users, filters]);
 
+  const clearFilters = () => setFilters(emptyFilters());
 
-const columns = [
-  {
-    field: "name",
-    headerName: "Name",
-    flex: 1,
-    minWidth: 100,
-    valueGetter: (_, row) =>
-    `${row.first_name || ""} ${row.last_name || ""}`.trim(),
-    // renderCell: (params) => (
-    //   <Stack>
-    //     {`${params.row.first_name || ""} ${params.row.last_name || ""}`}
-    //   </Stack>
-    // )
-  },
-  {
-    field: "email",
-    headerName: "Email",
-    flex: 1,
-    minWidth: 150
-  },
-  {
-    field: "companies",
-    headerName: "Companies",
-    flex: 1.5,
-    minWidth: 200,
-      valueGetter: (_, row) =>
-    row.Companies?.map((c) => c.name).join(", ") || "-",
-  },
-  {
-    field: "project",
-    headerName: "Projects",
-    flex: 1,
-    minWidth: 150,
-    valueGetter: (_, row) =>
-    row.Projects?.map((p) => p.Name).join(", ") || "-",
-  },
-  
-  {
-    field: "status",
-    headerName: "Status",
-    flex: 1,
-    minWidth: 150,
-    valueGetter: (_, row) =>
-    row.status === 1 ? "Active" : "Inactive",
-  },
-  {
-    field: "action",
-    headerName: "Action",
-    sortable: false,
-    filterable: false,
-    minWidth: 120,
-    renderCell: (params) => (
-      <Stack direction="row" height="100%" spacing={1}>{console.log("params.row",params.row)}
-        <IconButton
-          size="small"
-          color="primary"
-          onClick={() =>
-            navigate(`/UserManagement/view/${params.row.id}`)
-          }
-        >
-          <VisibilityIcon fontSize="small" />
-        </IconButton>
-
-        <IconButton
-          size="small"
-          color="secondary"
-          onClick={() =>
-            navigate(`/UserManagement/edit/${params.row.id}`) 
-          }
-        >
-          <EditIcon fontSize="small" />
-        </IconButton>
-      </Stack>
-    )
-  }
-];
+  const columns = [
+    {
+      field: 'sno',
+      headerName: '#',
+      width: 60,
+      sortable: false,
+      filterable: false,
+      renderCell: (params) => filteredRows.findIndex((r) => r.id === params.id) + 1
+    },
+    {
+      field: 'name',
+      headerName: 'Name',
+      flex: 1,
+      minWidth: 160,
+      valueGetter: (_, row) => `${row.first_name || ''} ${row.last_name || ''}`.trim(),
+      renderCell: renderNoWrapCell
+    },
+    { field: 'email', headerName: 'Email', flex: 1.2, minWidth: 200, renderCell: renderNoWrapCell },
+    {
+      field: 'companies',
+      headerName: 'Companies',
+      flex: 1.5,
+      minWidth: 200,
+      valueGetter: (_, row) => row.Companies?.map((c) => c.name).join(', ') || '-',
+      renderCell: renderNoWrapCell
+    },
+    {
+      field: 'project',
+      headerName: 'Projects',
+      flex: 1.5,
+      minWidth: 180,
+      valueGetter: (_, row) => row.Projects?.map((p) => p.Name).join(', ') || '-',
+      renderCell: renderNoWrapCell
+    },
+    {
+      field: 'status',
+      headerName: 'Status',
+      width: 120,
+      sortable: false,
+      renderCell: (params) =>
+        params.row.status === 1 ? (
+          <Chip size="small" label="Active" color="success" variant="outlined" />
+        ) : (
+          <Chip size="small" label="Inactive" color="default" variant="outlined" />
+        )
+    },
+    {
+      field: 'action',
+      headerName: 'Action',
+      sortable: false,
+      filterable: false,
+      minWidth: 120,
+      renderCell: (params) => (
+        <Stack direction="row" height="100%" spacing={1}>
+          <IconButton size="small" color="primary" onClick={() => navigate(`/UserManagement/view/${params.row.id}`)}>
+            <VisibilityIcon fontSize="small" />
+          </IconButton>
+          <IconButton size="small" color="secondary" onClick={() => navigate(`/UserManagement/edit/${params.row.id}`)}>
+            <EditIcon fontSize="small" />
+          </IconButton>
+        </Stack>
+      )
+    }
+  ];
 
   return (
-    <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', height: 'calc(100vh - 176px)' }}>
-      {/* Header */}
+    <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', height: '100%' }}>
       <MainCard content={false} sx={{ mb: 3, flexShrink: 0 }}>
         <Box
           sx={{
@@ -128,20 +127,20 @@ const columns = [
             gap: 2
           }}
         >
-          <Typography variant="h4">User management </Typography>
+          <Typography variant="h4">User Management</Typography>
           <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />}>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <HomeIcon sx={{ fontSize: 18, color: 'secondary.main' }} />
             </Box>
-            <Typography variant="body2">User Management </Typography>
+            <Typography variant="body2">User Management</Typography>
             <Typography variant="body2" color="secondary" fontWeight={600}>
               List
             </Typography>
           </Breadcrumbs>
-          
         </Box>
       </MainCard>
-<Paper variant="outlined" sx={{ p: 2, mb: 3, borderRadius: 2, flexShrink: 0 }}>
+
+      <Paper variant="outlined" sx={{ p: 2, mb: 3, borderRadius: 2, flexShrink: 0 }}>
         <Box
           sx={{
             display: 'flex',
@@ -152,9 +151,23 @@ const columns = [
           }}
         >
           <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', flex: 1 }}>
-            
+            <TextField
+              size="small"
+              label="Name"
+              value={filters.name}
+              onChange={(e) => setFilters((p) => ({ ...p, name: e.target.value }))}
+            />
+            <TextField
+              size="small"
+              label="Email"
+              value={filters.email}
+              onChange={(e) => setFilters((p) => ({ ...p, email: e.target.value }))}
+            />
+            <Button variant="outlined" color="error" startIcon={<ClearIcon />} onClick={clearFilters}>
+              Clear
+            </Button>
           </Box>
-             <Button
+          <Button
             variant="contained"
             color="secondary"
             startIcon={<AddIcon />}
@@ -165,22 +178,17 @@ const columns = [
           </Button>
         </Box>
       </Paper>
-      {/* Filters */}
-     
-          {console.log("first",users)}
+
       <Paper variant="outlined" sx={{ flex: 1, minHeight: 0, width: '100%', borderRadius: 2, overflow: 'hidden' }}>
         <DataGrid
-          rows={users}
+          rows={filteredRows}
           columns={columns}
           getRowId={(row) => row.id}
           loading={usersLoading}
-          paginationMode="server"
-          rowCount={users.length}
           paginationModel={paginationModel}
           onPaginationModelChange={setPaginationModel}
           pageSizeOptions={[10, 25, 50, 100]}
           disableRowSelectionOnClick
-     
           sx={{
             border: 0,
             height: '100%',

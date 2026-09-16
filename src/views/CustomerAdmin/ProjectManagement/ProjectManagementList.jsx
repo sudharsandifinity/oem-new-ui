@@ -1,14 +1,18 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Alert, Box, Breadcrumbs, Button, Chip, Paper, Snackbar, Typography } from '@mui/material';
+import { Alert, Box, Breadcrumbs, Button, Chip, Paper, Snackbar, TextField, Typography } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 
 import HomeIcon from '@mui/icons-material/Home';
 import SyncIcon from '@mui/icons-material/Sync';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
+import ClearIcon from '@mui/icons-material/Clear';
 
 import MainCard from 'ui-component/cards/MainCard';
 import { getCompanyProjects, syncCompanyProjects } from '../../../store/slices/commonCustomerSlice';
+import { renderNoWrapCell } from 'utils/dataGridFormatters';
+
+const emptyFilters = () => ({ Code: '', Name: '' });
 
 const renderActiveCell = (params) => {
   const active = params.value === 'tYES' || params.value === 'Y' || params.value === true;
@@ -19,6 +23,7 @@ export default function ProjectManagementList() {
   const dispatch = useDispatch();
   const { companyProjects, companyProjectsLoading, syncLoading } = useSelector((s) => s.commonCustomer);
 
+  const [filters, setFilters] = useState(emptyFilters());
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 25 });
   const [snackbar, setSnackbar] = useState({ open: false, severity: 'success', message: '' });
 
@@ -44,7 +49,29 @@ export default function ProjectManagementList() {
     }
   };
 
-  const rows = Array.isArray(companyProjects) ? companyProjects : [];
+  const filteredRows = useMemo(() => {
+    const { Code, Name } = filters;
+    const rows = (Array.isArray(companyProjects) ? companyProjects : []).filter((r) => r && r.id != null);
+    return rows.filter((r) => {
+      if (
+        Code &&
+        !String(r.Code ?? '')
+          .toLowerCase()
+          .includes(Code.trim().toLowerCase())
+      )
+        return false;
+      if (
+        Name &&
+        !String(r.Name ?? '')
+          .toLowerCase()
+          .includes(Name.trim().toLowerCase())
+      )
+        return false;
+      return true;
+    });
+  }, [companyProjects, filters]);
+
+  const clearFilters = () => setFilters(emptyFilters());
 
   const columns = [
     {
@@ -53,15 +80,15 @@ export default function ProjectManagementList() {
       width: 60,
       sortable: false,
       filterable: false,
-      renderCell: (params) => rows.findIndex((r) => r.id === params.id) + 1
+      renderCell: (params) => filteredRows.findIndex((r) => r.id === params.id) + 1
     },
-    { field: 'Code', headerName: 'Code', flex: 1, minWidth: 120 },
-    { field: 'Name', headerName: 'Name', flex: 2, minWidth: 220 },
+    { field: 'Code', headerName: 'Code', flex: 1, minWidth: 120, renderCell: renderNoWrapCell },
+    { field: 'Name', headerName: 'Name', flex: 2, minWidth: 220, renderCell: renderNoWrapCell },
     { field: 'Active', headerName: 'Status', width: 120, sortable: false, renderCell: renderActiveCell }
   ];
 
   return (
-    <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', height: 'calc(100vh - 176px)' }}>
+    <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', height: '100%' }}>
       <MainCard content={false} sx={{ mb: 3, flexShrink: 0 }}>
         <Box
           sx={{
@@ -91,12 +118,29 @@ export default function ProjectManagementList() {
         <Box
           sx={{
             display: 'flex',
-            justifyContent: 'flex-end',
+            justifyContent: 'space-between',
             alignItems: { xs: 'flex-start', md: 'center' },
             flexDirection: { xs: 'column', md: 'row' },
             gap: 2
           }}
         >
+          <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', flex: 1 }}>
+            <TextField
+              size="small"
+              label="Code"
+              value={filters.Code}
+              onChange={(e) => setFilters((p) => ({ ...p, Code: e.target.value }))}
+            />
+            <TextField
+              size="small"
+              label="Name"
+              value={filters.Name}
+              onChange={(e) => setFilters((p) => ({ ...p, Name: e.target.value }))}
+            />
+            <Button variant="outlined" color="error" startIcon={<ClearIcon />} onClick={clearFilters}>
+              Clear
+            </Button>
+          </Box>
           <Button
             variant="contained"
             color="secondary"
@@ -112,7 +156,7 @@ export default function ProjectManagementList() {
 
       <Paper variant="outlined" sx={{ flex: 1, minHeight: 0, width: '100%', borderRadius: 2, overflow: 'hidden' }}>
         <DataGrid
-          rows={rows}
+          rows={filteredRows}
           columns={columns}
           getRowId={(row) => row.id}
           loading={companyProjectsLoading}

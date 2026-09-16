@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Box, Breadcrumbs, Button, IconButton, Paper, Stack, TextField, Typography } from '@mui/material';
+import { Box, Breadcrumbs, Button, Chip, IconButton, Paper, Stack, TextField, Typography } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 
 import HomeIcon from '@mui/icons-material/Home';
@@ -12,10 +12,11 @@ import ClearIcon from '@mui/icons-material/Clear';
 
 import MainCard from 'ui-component/cards/MainCard';
 import { useNavigate } from 'react-router-dom';
-import {  getadminRoles } from '../../../store/slices/roleSlice';
+import { getadminRoles } from '../../../store/slices/roleSlice';
 import { getadminCompanies } from '../../../store/slices/commonCustomerSlice';
+import { renderNoWrapCell } from 'utils/dataGridFormatters';
 
-const emptyFilters = () => ({ DocEntry: '', ProjectCode: '', ProjectName: '' });
+const emptyFilters = () => ({ name: '', company: '' });
 
 export default function RoleManagementList() {
   const navigate = useNavigate();
@@ -23,81 +24,86 @@ export default function RoleManagementList() {
   const { companies } = useSelector((s) => s.commonCustomer);
   const { roles, rolesLoading } = useSelector((s) => s.role);
 
-
-
   const [filters, setFilters] = useState(emptyFilters());
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 25 });
-{console.log("companies",companies)}
+
   useEffect(() => {
-    dispatch(
-      getadminRoles()
-      
-    );
-    dispatch(getadminCompanies())
-  }, [paginationModel, dispatch]);
+    dispatch(getadminRoles());
+    dispatch(getadminCompanies());
+  }, [dispatch]);
 
-  
+  const companyName = (companyId) => companies?.find((com) => com.id === companyId)?.name || '-';
 
+  const filteredRows = useMemo(() => {
+    const { name, company } = filters;
+    const rows = (Array.isArray(roles) ? roles : []).filter((r) => r && r.id != null);
+    return rows.filter((r) => {
+      if (
+        name &&
+        !String(r.name ?? '')
+          .toLowerCase()
+          .includes(name.trim().toLowerCase())
+      )
+        return false;
+      if (company && !companyName(r.companyId).toLowerCase().includes(company.trim().toLowerCase())) return false;
+      return true;
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [roles, filters, companies]);
 
-const columns = [
-  {
-    field: "name",
-    headerName: "Name",
-    flex: 1,
-    minWidth: 120,
-   
-  },
-  
-  {
-    field: "companies",
-    headerName: "companyId",
-    flex: 1.5,
-    minWidth: 200,
-    valueGetter: (_, row) =>
-    companies?.find((com) => com.id===row.companyId)?.name|| "-"
-  },
-  {
-    field: "status",
-    headerName: "Status",
-    flex: 1,
-    minWidth: 150,
-    valueGetter: (_, row) =>row.status==1?"Active":"In Active"
-  },
-  {
-    field: "action",
-    headerName: "Action",
-    sortable: false,
-    filterable: false,
-    minWidth: 120,
-    renderCell: (params) => (
-      <Stack direction="row" height="100%" spacing={1}>
-        <IconButton
-          size="small"
-          color="primary"
-          onClick={() =>
-            navigate(`/RoleManagement/view/${params.row.id}`)
-          }
-        >
-          <VisibilityIcon fontSize="small" />
-        </IconButton>
+  const clearFilters = () => setFilters(emptyFilters());
 
-        <IconButton
-          size="small"
-          color="secondary"
-          onClick={() =>
-            navigate(`/RoleManagement/edit/${params.row.id}`) 
-          }
-        >
-          <EditIcon fontSize="small" />
-        </IconButton>
-      </Stack>
-    )
-  }
-];
+  const columns = [
+    {
+      field: 'sno',
+      headerName: '#',
+      width: 60,
+      sortable: false,
+      filterable: false,
+      renderCell: (params) => filteredRows.findIndex((r) => r.id === params.id) + 1
+    },
+    { field: 'name', headerName: 'Name', flex: 1, minWidth: 160, renderCell: renderNoWrapCell },
+    {
+      field: 'companies',
+      headerName: 'Company',
+      flex: 1.5,
+      minWidth: 200,
+      valueGetter: (_, row) => companyName(row.companyId),
+      renderCell: renderNoWrapCell
+    },
+    {
+      field: 'status',
+      headerName: 'Status',
+      width: 120,
+      sortable: false,
+      renderCell: (params) =>
+        Number(params.row.status) === 1 ? (
+          <Chip size="small" label="Active" color="success" variant="outlined" />
+        ) : (
+          <Chip size="small" label="Inactive" color="default" variant="outlined" />
+        )
+    },
+    {
+      field: 'action',
+      headerName: 'Action',
+      sortable: false,
+      filterable: false,
+      minWidth: 120,
+      renderCell: (params) => (
+        <Stack direction="row" height="100%" spacing={1}>
+          <IconButton size="small" color="primary" onClick={() => navigate(`/RoleManagement/view/${params.row.id}`)}>
+            <VisibilityIcon fontSize="small" />
+          </IconButton>
+          <IconButton size="small" color="secondary" onClick={() => navigate(`/RoleManagement/edit/${params.row.id}`)}>
+            <EditIcon fontSize="small" />
+          </IconButton>
+        </Stack>
+      )
+    }
+  ];
 
   return (
-    <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', height: 'calc(100vh - 176px)' }}>
-      {/* Header */}
+    <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', height: '100%' }}>
       <MainCard content={false} sx={{ mb: 3, flexShrink: 0 }}>
         <Box
           sx={{
@@ -110,20 +116,20 @@ const columns = [
             gap: 2
           }}
         >
-          <Typography variant="h4">Role management </Typography>
+          <Typography variant="h4">Role Management</Typography>
           <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />}>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <HomeIcon sx={{ fontSize: 18, color: 'secondary.main' }} />
             </Box>
-            <Typography variant="body2">Role Management </Typography>
+            <Typography variant="body2">Role Management</Typography>
             <Typography variant="body2" color="secondary" fontWeight={600}>
               List
             </Typography>
           </Breadcrumbs>
-          
         </Box>
       </MainCard>
-<Paper variant="outlined" sx={{ p: 2, mb: 3, borderRadius: 2, flexShrink: 0 }}>
+
+      <Paper variant="outlined" sx={{ p: 2, mb: 3, borderRadius: 2, flexShrink: 0 }}>
         <Box
           sx={{
             display: 'flex',
@@ -134,9 +140,23 @@ const columns = [
           }}
         >
           <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', flex: 1 }}>
-            
+            <TextField
+              size="small"
+              label="Name"
+              value={filters.name}
+              onChange={(e) => setFilters((p) => ({ ...p, name: e.target.value }))}
+            />
+            <TextField
+              size="small"
+              label="Company"
+              value={filters.company}
+              onChange={(e) => setFilters((p) => ({ ...p, company: e.target.value }))}
+            />
+            <Button variant="outlined" color="error" startIcon={<ClearIcon />} onClick={clearFilters}>
+              Clear
+            </Button>
           </Box>
-             <Button
+          <Button
             variant="contained"
             color="secondary"
             startIcon={<AddIcon />}
@@ -147,17 +167,13 @@ const columns = [
           </Button>
         </Box>
       </Paper>
-      {/* Filters */}
-     
-          {console.log("first",roles)}
+
       <Paper variant="outlined" sx={{ flex: 1, minHeight: 0, width: '100%', borderRadius: 2, overflow: 'hidden' }}>
         <DataGrid
-          rows={roles}
+          rows={filteredRows}
           columns={columns}
           getRowId={(row) => row.id}
           loading={rolesLoading}
-          paginationMode="server"
-          rowCount={roles?.length}
           paginationModel={paginationModel}
           onPaginationModelChange={setPaginationModel}
           pageSizeOptions={[10, 25, 50, 100]}
