@@ -57,6 +57,8 @@ export default function RoleManagementList() {
     {
       field: 'sno',
       headerName: '#',
+      align: 'center',
+      headerAlign: 'center',
       width: 60,
       sortable: false,
       filterable: false,

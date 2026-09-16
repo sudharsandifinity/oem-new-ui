@@ -77,6 +77,8 @@ export default function ProjectManagementList() {
     {
       field: 'sno',
       headerName: '#',
+      align: 'center',
+      headerAlign: 'center',
       width: 60,
       sortable: false,
       filterable: false,
