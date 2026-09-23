@@ -254,7 +254,7 @@ const handleSubmitasDraft=()=>{
             <MRGeneralTab data={form} setData={setForm} showRequisitionNo={false} />
           </Box>
           <Box sx={{ display: tabValue === 1 ? 'block' : 'none' }}>
-            <MRContentTab data={form} setData={setForm} rows={lines} setRows={setLines} isBOM={isBOM} allowBomRowDelete />
+            <MRContentTab data={form} setData={setForm} rows={lines} setRows={setLines} isBOM={isBOM} allowBomRowDelete netBomOpenQty />
           </Box>
 
           <Divider sx={{ my: 4 }} />

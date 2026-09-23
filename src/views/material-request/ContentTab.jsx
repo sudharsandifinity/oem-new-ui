@@ -68,7 +68,8 @@ export default function MRContentTab({
   readOnly = false,
   canEditApprovedQty = false,
   isBOM = false,
-  allowBomRowDelete = false
+  allowBomRowDelete = false,
+  netBomOpenQty = false
 }) {
   const dispatch = useDispatch();
   const { openLookup } = useLookup();
@@ -195,9 +196,22 @@ export default function MRContentTab({
     setData((prev) => ({ ...prev, ReqCode: code, RequestorName: name, DeptId: deptId, Department: deptName }));
   };
 
+  const liveBomOpenQty = (row) => {
+    const available = row.BOMAvailable === '' || row.BOMAvailable == null ? NaN : Number(row.BOMAvailable);
+    if (!Number.isFinite(available)) return row.BOMOpenQty ?? '';
+    const requested = Number(row.Quantity);
+    return available - (Number.isFinite(requested) ? requested : 0);
+  };
+
   const renderCell = (row, col) => {
     const approvedQtyEditable = col.key === 'ApprovedQuantity' && canEditApprovedQty;
     const isDisabled = approvedQtyEditable ? false : readOnly || DISABLED_COLS.has(col.key);
+
+    if (netBomOpenQty && col.key === 'BOMOpenQty') {
+      const remaining = liveBomOpenQty(row);
+      const isNegative = remaining !== '' && Number(remaining) < 0;
+      return <TextField size="small" fullWidth value={remaining} disabled error={isNegative} sx={{ minWidth: col.width - 20 }} />;
+    }
 
     if (col.key === 'Quantity') {
       return (

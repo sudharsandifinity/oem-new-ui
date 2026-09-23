@@ -180,7 +180,7 @@ export default function BOMItemSelectModal({ open, onClose, onConfirm, bomLines 
                       </TableCell>
                     ))}
                     <TableCell sx={{ whiteSpace: 'nowrap', fontWeight: 700, color: !canSelect ? 'error.main' : 'text.primary' }}>
-                      {info.bomOpenQty == null ? '—' : info.bomOpenQty}
+                      {info.tempAvailable == null ? '—' : info.tempAvailable}
                     </TableCell>
                     <TableCell sx={{ whiteSpace: 'nowrap', color: info.mrOpenQty ? 'warning.dark' : 'text.secondary' }}>
                       {info.mrOpenQty == null ? '—' : info.mrOpenQty}
