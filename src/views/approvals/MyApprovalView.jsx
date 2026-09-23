@@ -90,6 +90,21 @@ export default function MyApprovalView() {
   const handleDecision = async () => {
     const isApprove = confirm.type === 'approve';
     const action = isApprove ? approveApprovalRequest : rejectApprovalRequest;
+
+    if (isApprove && current?.mr?.DocEntry) {
+      const invalidQty = lines.filter((r) => String(r.ItemCode || '').trim() && !(Number(r.ApprovedQuantity) > 0));
+      if (invalidQty.length) {
+        setConfirm({ open: false, type: null });
+        setSnackbar({
+          open: true,
+          severity: 'error',
+          message: `Approved quantity must be greater than 0 for: ${invalidQty.map((r) => r.ItemCode).join(', ')}`
+        });
+        setTabValue(1);
+        return;
+      }
+    }
+
     try {
       if (isApprove && current?.mr?.DocEntry) {
         // eslint-disable-next-line no-unused-vars

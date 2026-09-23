@@ -160,6 +160,8 @@ export const mapApiToForm = (mr) => ({
 
 const APPROVED_QTY_STATUSES = new Set(['O', 'C']);
 
+const hideApprovedQty = (docStatus) => typeof docStatus === 'string' && docStatus !== '' && !APPROVED_QTY_STATUSES.has(docStatus);
+
 export const mapApiLineToRow = (line, index, docStatus) => ({
   id: line.LineId ?? Date.now() + index,
   LineId: line.LineId ?? null,
@@ -169,7 +171,7 @@ export const mapApiLineToRow = (line, index, docStatus) => ({
   ItemDescription: line.U_ItemDesc ?? '',
   FullDescription: line.U_SerDesc ?? '',
   Quantity: line.U_MRQty ?? line.U_ReqQty ?? '',
-  ApprovedQuantity: docStatus && !APPROVED_QTY_STATUSES.has(docStatus) ? 0 : (line.U_ReqQty ?? ''),
+  ApprovedQuantity: hideApprovedQty(docStatus) ? 0 : (line.U_ReqQty ?? ''),
   UoMCode: line.U_UOM ?? '',
   BOMQty: line.U_BOMQty ?? '',
   BOMOpenQty: line.U_BOMOpenQty ?? '',
