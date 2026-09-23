@@ -27,7 +27,7 @@ const TABLE_COLUMNS = [
   { key: 'BOMQty', label: 'BOM Qty', width: 100, editable: false },
   { key: 'BOMOpenQty', label: 'BOM Open Qty', width: 120, editable: false },
   { key: 'MROpenQty', label: 'MR Open Qty', width: 120, editable: false },
-  { key: 'PROpenQty', label: 'PR Open Qty', width: 120, editable: false },
+  // { key: 'PROpenQty', label: 'PR Open Qty', width: 120, editable: false },
   { key: 'WarehouseCode', label: 'Warehouse', width: 130, editable: false },
   { key: 'RequiredDate', label: 'Required Date', width: 150, editable: true, type: 'date' },
   { key: 'Remark', label: 'Remark', width: 160, editable: true }
