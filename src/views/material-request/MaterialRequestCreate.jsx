@@ -153,7 +153,7 @@ export default function MaterialRequestCreate() {
         BOMAvailable: info.tempAvailable,
         BOMOpenQty: info.bomOpenQty ?? 0,
         MROpenQty: info.mrOpenQty ?? 0,
-        Quantity: info.tempAvailable ?? (Number(l.U_PQty) || 0)
+        Quantity: ''
       };
     });
 
@@ -194,6 +194,15 @@ export default function MaterialRequestCreate() {
   };
 
   const handleSubmit = () => {
+    const missingQty = lines.filter((r) => String(r.ItemCode || '').trim() && !String(r.Quantity || '').trim());
+    if (missingQty.length) {
+      setSnackbar({
+        open: true,
+        severity: 'error',
+        message: `Enter a required quantity for: ${missingQty.map((r) => r.ItemCode).join(', ')}`
+      });
+      return;
+    }
     const overQty = lines.filter((r) => r.ItemCode && r.BOMAvailable != null && Number(r.Quantity) > Number(r.BOMAvailable));
     if (overQty.length) {
       setSnackbar({

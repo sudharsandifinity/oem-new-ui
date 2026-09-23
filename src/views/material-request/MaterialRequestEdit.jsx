@@ -59,7 +59,7 @@ export default function MaterialRequestEdit() {
     const f = mapApiToForm(currentMR);
     setForm(f);
 
-    const baseRows = (currentMR.HLB_MRQ1Collection || []).map(mapApiLineToRow);
+    const baseRows = (currentMR.HLB_MRQ1Collection || []).map((line, i) => mapApiLineToRow(line, i, currentMR.U_DocStatus));
 
     if (!f.BOMNo) {
       setLines(baseRows);

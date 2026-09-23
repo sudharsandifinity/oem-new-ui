@@ -103,7 +103,7 @@ const handlePrint = () => {
   useEffect(() => {
     if (!currentMR) return;
     setForm(mapApiToForm(currentMR));
-    setLines((currentMR.HLB_MRQ1Collection || []).map(mapApiLineToRow));
+    setLines((currentMR.HLB_MRQ1Collection || []).map((line, i) => mapApiLineToRow(line, i, currentMR.U_DocStatus)));
   }, [currentMR]);
 
   useEffect(() => {

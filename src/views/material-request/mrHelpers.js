@@ -151,7 +151,9 @@ export const mapApiToForm = (mr) => ({
   AprRemark: mr.U_Apr_remark ?? ''
 });
 
-export const mapApiLineToRow = (line, index) => ({
+const APPROVED_QTY_STATUSES = new Set(['O', 'C']);
+
+export const mapApiLineToRow = (line, index, docStatus) => ({
   id: line.LineId ?? Date.now() + index,
   LineId: line.LineId ?? null,
   Title: line.U_Title ?? '',
@@ -160,7 +162,7 @@ export const mapApiLineToRow = (line, index) => ({
   ItemDescription: line.U_ItemDesc ?? '',
   FullDescription: line.U_SerDesc ?? '',
   Quantity: line.U_MRQty ?? line.U_ReqQty ?? '',
-  ApprovedQuantity: line.U_ReqQty ?? '',
+  ApprovedQuantity: docStatus && !APPROVED_QTY_STATUSES.has(docStatus) ? 0 : (line.U_ReqQty ?? ''),
   UoMCode: line.U_UOM ?? '',
   BOMQty: line.U_BOMQty ?? '',
   BOMOpenQty: line.U_BOMOpenQty ?? '',
