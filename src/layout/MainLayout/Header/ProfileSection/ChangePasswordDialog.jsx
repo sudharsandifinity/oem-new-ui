@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import {
   Alert,
+  Box,
   Button,
   Dialog,
   DialogActions,
@@ -118,17 +119,19 @@ export default function ChangePasswordDialog({ open, onClose, onSuccess }) {
         </IconButton>
       </DialogTitle>
 
-      <DialogContent sx={{ p: 3 }}>
-        <Grid container spacing={2}>
-          {passwordError && (
-            <Grid item xs={12}>
-              <Alert severity="error">{passwordError}</Alert>
-            </Grid>
-          )}
-          {field('currentPassword', 'Current Password', 'current-password')}
-          {field('newPassword', 'New Password', 'new-password')}
-          {field('confirmPassword', 'Confirm New Password', 'new-password')}
-        </Grid>
+      <DialogContent sx={{ px: 3, pb: 3 }}>
+        <Box sx={{ pt: 1 }}>
+          <Grid container spacing={2}>
+            {passwordError && (
+              <Grid item xs={12}>
+                <Alert severity="error">{passwordError}</Alert>
+              </Grid>
+            )}
+            {field('currentPassword', 'Current Password', 'current-password')}
+            {field('newPassword', 'New Password', 'new-password')}
+            {field('confirmPassword', 'Confirm New Password', 'new-password')}
+          </Grid>
+        </Box>
       </DialogContent>
 
       <DialogActions sx={{ px: 3, pb: 2, gap: 1 }}>
