@@ -1,18 +1,22 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import Alert from '@mui/material/Alert';
-import Button from '@mui/material/Button';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogTitle from '@mui/material/DialogTitle';
-import IconButton from '@mui/material/IconButton';
-import InputAdornment from '@mui/material/InputAdornment';
-import Stack from '@mui/material/Stack';
-import TextField from '@mui/material/TextField';
-
-import { IconEye, IconEyeOff } from '@tabler/icons-react';
+import {
+  Alert,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Grid,
+  IconButton,
+  InputAdornment,
+  TextField,
+  Typography
+} from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 
 import { changePassword, clearPasswordState } from '../../../../store/slices/authSlice';
 
@@ -39,77 +43,99 @@ export default function ChangePasswordDialog({ open, onClose, onSuccess }) {
   const errors = {};
   if (!values.currentPassword) errors.currentPassword = 'Current password is required';
   if (!values.newPassword) errors.newPassword = 'New password is required';
-  else if (values.newPassword.length < MIN_LENGTH) errors.newPassword = `Must be at least ${MIN_LENGTH} characters`;
+  else if (values.newPassword.length < MIN_LENGTH) errors.newPassword = `New password must be at least ${MIN_LENGTH} characters long`;
   else if (values.newPassword === values.currentPassword) errors.newPassword = 'New password must be different from the current one';
-  if (!values.confirmPassword) errors.confirmPassword = 'Please confirm the new password';
-  else if (values.confirmPassword !== values.newPassword) errors.confirmPassword = 'Passwords do not match';
+  if (!values.confirmPassword) errors.confirmPassword = 'Confirm password is required';
+  else if (values.confirmPassword !== values.newPassword) errors.confirmPassword = 'Confirm password must match new password';
 
   const isValid = Object.keys(errors).length === 0;
 
   const setField = (field) => (e) => {
     setValues((prev) => ({ ...prev, [field]: e.target.value }));
-    dispatch(clearPasswordState());
+    if (passwordError) dispatch(clearPasswordState());
   };
 
   const markTouched = (field) => () => setTouched((prev) => ({ ...prev, [field]: true }));
-
   const toggleVisible = (field) => () => setVisible((prev) => ({ ...prev, [field]: !prev[field] }));
+
+  const handleClose = () => {
+    if (passwordLoading) return;
+    setValues(EMPTY);
+    setTouched({});
+    dispatch(clearPasswordState());
+    onClose();
+  };
 
   const handleSubmit = async () => {
     setTouched({ currentPassword: true, newPassword: true, confirmPassword: true });
     if (!isValid) return;
     try {
-      await dispatch(changePassword({ currentPassword: values.currentPassword, newPassword: values.newPassword })).unwrap();
+      await dispatch(changePassword(values)).unwrap();
       onSuccess('Password updated successfully');
       onClose();
     } catch {
-      // the slice holds the message; it is rendered in the Alert below
+      return;
     }
   };
 
   const field = (name, label, autoComplete) => (
-    <TextField
-      fullWidth
-      size="small"
-      label={label}
-      type={visible[name] ? 'text' : 'password'}
-      value={values[name]}
-      onChange={setField(name)}
-      onBlur={markTouched(name)}
-      error={Boolean(touched[name] && errors[name])}
-      helperText={(touched[name] && errors[name]) || ' '}
-      disabled={passwordLoading}
-      autoComplete={autoComplete}
-      slotProps={{
-        input: {
-          endAdornment: (
-            <InputAdornment position="end">
-              <IconButton size="small" onClick={toggleVisible(name)} edge="end" tabIndex={-1}>
-                {visible[name] ? <IconEyeOff size={18} stroke={1.5} /> : <IconEye size={18} stroke={1.5} />}
-              </IconButton>
-            </InputAdornment>
-          )
-        }
-      }}
-    />
+    <Grid item xs={12}>
+      <TextField
+        fullWidth
+        size="small"
+        label={label}
+        type={visible[name] ? 'text' : 'password'}
+        value={values[name]}
+        onChange={setField(name)}
+        onBlur={markTouched(name)}
+        error={Boolean(touched[name] && errors[name])}
+        helperText={touched[name] && errors[name] ? errors[name] : ''}
+        disabled={passwordLoading}
+        autoComplete={autoComplete}
+        slotProps={{
+          input: {
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton size="small" onClick={toggleVisible(name)} edge="end" tabIndex={-1}>
+                  {visible[name] ? <VisibilityOffIcon sx={{ fontSize: 18 }} /> : <VisibilityIcon sx={{ fontSize: 18 }} />}
+                </IconButton>
+              </InputAdornment>
+            )
+          }
+        }}
+      />
+    </Grid>
   );
 
   return (
-    <Dialog open={open} onClose={passwordLoading ? undefined : onClose} maxWidth="xs" fullWidth>
-      <DialogTitle>Change Password</DialogTitle>
-      <DialogContent>
-        <Stack spacing={1} sx={{ mt: 0.5 }}>
-          {passwordError && <Alert severity="error">{passwordError}</Alert>}
+    <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
+      <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Typography variant="h5" component="div">
+          Change Password
+        </Typography>
+        <IconButton onClick={handleClose} disabled={passwordLoading}>
+          <CloseIcon />
+        </IconButton>
+      </DialogTitle>
+
+      <DialogContent sx={{ p: 3 }}>
+        <Grid container spacing={2}>
+          {passwordError && (
+            <Grid item xs={12}>
+              <Alert severity="error">{passwordError}</Alert>
+            </Grid>
+          )}
           {field('currentPassword', 'Current Password', 'current-password')}
           {field('newPassword', 'New Password', 'new-password')}
           {field('confirmPassword', 'Confirm New Password', 'new-password')}
-        </Stack>
+        </Grid>
       </DialogContent>
-      <DialogActions sx={{ px: 3, pb: 2 }}>
-        <Button variant="outlined" onClick={onClose} disabled={passwordLoading}>
-          Cancel
+
+      <DialogActions sx={{ px: 3, pb: 2, gap: 1 }}>
+        <Button variant="outlined" onClick={handleClose} disabled={passwordLoading}>
+          Close
         </Button>
-        <Button variant="contained" onClick={handleSubmit} disabled={passwordLoading || !isValid}>
+        <Button variant="contained" color="secondary" onClick={handleSubmit} disabled={passwordLoading || !isValid}>
           {passwordLoading ? 'Updating...' : 'Update Password'}
         </Button>
       </DialogActions>

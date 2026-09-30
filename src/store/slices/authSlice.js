@@ -37,9 +37,9 @@ export const loginUser = createAsyncThunk(
 export const changePassword = createAsyncThunk(
   'auth/changePassword',
 
-  async ({ currentPassword, newPassword }, thunkAPI) => {
+  async ({ currentPassword, newPassword, confirmPassword }, thunkAPI) => {
     try {
-      const response = await API.post('/auth/change-password', { currentPassword, newPassword });
+      const response = await API.post('/auth/change-password', { currentPassword, newPassword, confirmPassword });
       return response.data;
     } catch (error) {
       const data = error.response?.data;
