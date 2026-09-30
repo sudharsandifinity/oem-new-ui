@@ -10,6 +10,10 @@ const initialState = {
   loading: false,
   error: null,
 
+  passwordLoading: false,
+  passwordError: null,
+  passwordSuccess: false,
+
   isAuthenticated: !!token
 };
 
@@ -30,10 +34,30 @@ export const loginUser = createAsyncThunk(
   }
 );
 
+export const changePassword = createAsyncThunk(
+  'auth/changePassword',
+
+  async ({ currentPassword, newPassword }, thunkAPI) => {
+    try {
+      const response = await API.post('/auth/change-password', { currentPassword, newPassword });
+      return response.data;
+    } catch (error) {
+      const data = error.response?.data;
+      const message = data?.message || data?.error || (Array.isArray(data?.errors) ? data.errors[0]?.message : null) || 'Failed to change password';
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
 const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
+    clearPasswordState: (state) => {
+      state.passwordLoading = false;
+      state.passwordError = null;
+      state.passwordSuccess = false;
+    },
     logout: (state) => {
       state.user = null;
       state.token = null;
@@ -71,10 +95,23 @@ const authSlice = createSlice({
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+      })
+      .addCase(changePassword.pending, (state) => {
+        state.passwordLoading = true;
+        state.passwordError = null;
+        state.passwordSuccess = false;
+      })
+      .addCase(changePassword.fulfilled, (state) => {
+        state.passwordLoading = false;
+        state.passwordSuccess = true;
+      })
+      .addCase(changePassword.rejected, (state, action) => {
+        state.passwordLoading = false;
+        state.passwordError = action.payload;
       });
   }
 });
 
-export const { logout, sessionExpired } = authSlice.actions;
+export const { logout, sessionExpired, clearPasswordState } = authSlice.actions;
 
 export default authSlice.reducer;

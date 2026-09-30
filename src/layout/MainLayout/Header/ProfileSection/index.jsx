@@ -28,7 +28,10 @@ import MainCard from 'ui-component/cards/MainCard';
 import Transitions from 'ui-component/extended/Transitions';
 import useConfig from 'hooks/useConfig';
 
-import { IconLogout, IconSettings } from '@tabler/icons-react';
+import { IconLogout, IconSettings, IconKey } from '@tabler/icons-react';
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
+import ChangePasswordDialog from './ChangePasswordDialog';
 
 export default function ProfileSection() {
   const theme = useTheme();
@@ -45,6 +48,8 @@ export default function ProfileSection() {
 
   const [open, setOpen] = useState(false);
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
+  const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
+  const [snackbar, setSnackbar] = useState({ open: false, message: '' });
   const anchorRef = useRef(null);
 
   const handleToggle = () => setOpen((prev) => !prev);
@@ -68,6 +73,11 @@ export default function ProfileSection() {
   const handleLogoutClick = () => {
     setOpen(false);
     setLogoutDialogOpen(true);
+  };
+
+  const handleChangePasswordClick = () => {
+    setOpen(false);
+    setPasswordDialogOpen(true);
   };
 
   return (
@@ -122,6 +132,13 @@ export default function ProfileSection() {
 
                     {/* Actions */}
                     <List component="nav" sx={{ p: 1 }}>
+                      <ListItemButton sx={{ borderRadius: `${borderRadius}px`, py: 1 }} onClick={handleChangePasswordClick}>
+                        <ListItemIcon sx={{ minWidth: 36 }}>
+                          <IconKey stroke={1.5} size="18px" />
+                        </ListItemIcon>
+                        <ListItemText primary={<Typography variant="body2">Change Password</Typography>} />
+                      </ListItemButton>
+
                       <ListItemButton sx={{ borderRadius: `${borderRadius}px`, py: 1 }} onClick={handleLogoutClick}>
                         <ListItemIcon sx={{ minWidth: 36 }}>
                           <IconLogout stroke={1.5} size="18px" color={theme.palette.error.main} />
@@ -157,6 +174,23 @@ export default function ProfileSection() {
           </Button>
         </DialogActions>
       </Dialog>
+
+      <ChangePasswordDialog
+        open={passwordDialogOpen}
+        onClose={() => setPasswordDialogOpen(false)}
+        onSuccess={(message) => setSnackbar({ open: true, message })}
+      />
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={() => setSnackbar({ open: false, message: '' })}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+      >
+        <Alert severity="success" onClose={() => setSnackbar({ open: false, message: '' })} sx={{ width: '100%' }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </>
   );
 }
