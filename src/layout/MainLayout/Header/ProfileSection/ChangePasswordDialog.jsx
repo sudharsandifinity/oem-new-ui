@@ -3,15 +3,14 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import {
   Alert,
-  Box,
   Button,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-  Grid,
   IconButton,
   InputAdornment,
+  Stack,
   TextField,
   Typography
 } from '@mui/material';
@@ -80,32 +79,30 @@ export default function ChangePasswordDialog({ open, onClose, onSuccess }) {
   };
 
   const field = (name, label, autoComplete) => (
-    <Grid item xs={12}>
-      <TextField
-        fullWidth
-        size="small"
-        label={label}
-        type={visible[name] ? 'text' : 'password'}
-        value={values[name]}
-        onChange={setField(name)}
-        onBlur={markTouched(name)}
-        error={Boolean(touched[name] && errors[name])}
-        helperText={touched[name] && errors[name] ? errors[name] : ''}
-        disabled={passwordLoading}
-        autoComplete={autoComplete}
-        slotProps={{
-          input: {
-            endAdornment: (
-              <InputAdornment position="end">
-                <IconButton size="small" onClick={toggleVisible(name)} edge="end" tabIndex={-1}>
-                  {visible[name] ? <VisibilityOffIcon sx={{ fontSize: 18 }} /> : <VisibilityIcon sx={{ fontSize: 18 }} />}
-                </IconButton>
-              </InputAdornment>
-            )
-          }
-        }}
-      />
-    </Grid>
+    <TextField
+      fullWidth
+      size="small"
+      label={label}
+      type={visible[name] ? 'text' : 'password'}
+      value={values[name]}
+      onChange={setField(name)}
+      onBlur={markTouched(name)}
+      error={Boolean(touched[name] && errors[name])}
+      helperText={touched[name] && errors[name] ? errors[name] : ''}
+      disabled={passwordLoading}
+      autoComplete={autoComplete}
+      slotProps={{
+        input: {
+          endAdornment: (
+            <InputAdornment position="end">
+              <IconButton size="small" onClick={toggleVisible(name)} edge="end" tabIndex={-1}>
+                {visible[name] ? <VisibilityOffIcon sx={{ fontSize: 18 }} /> : <VisibilityIcon sx={{ fontSize: 18 }} />}
+              </IconButton>
+            </InputAdornment>
+          )
+        }
+      }}
+    />
   );
 
   return (
@@ -120,18 +117,12 @@ export default function ChangePasswordDialog({ open, onClose, onSuccess }) {
       </DialogTitle>
 
       <DialogContent sx={{ px: 3, pb: 3 }}>
-        <Box sx={{ pt: 1 }}>
-          <Grid container spacing={2}>
-            {passwordError && (
-              <Grid item xs={12}>
-                <Alert severity="error">{passwordError}</Alert>
-              </Grid>
-            )}
-            {field('currentPassword', 'Current Password', 'current-password')}
-            {field('newPassword', 'New Password', 'new-password')}
-            {field('confirmPassword', 'Confirm New Password', 'new-password')}
-          </Grid>
-        </Box>
+        <Stack spacing={2} sx={{ pt: 1 }}>
+          {passwordError && <Alert severity="error">{passwordError}</Alert>}
+          {field('currentPassword', 'Current Password', 'current-password')}
+          {field('newPassword', 'New Password', 'new-password')}
+          {field('confirmPassword', 'Confirm New Password', 'new-password')}
+        </Stack>
       </DialogContent>
 
       <DialogActions sx={{ px: 3, pb: 2, gap: 1 }}>
