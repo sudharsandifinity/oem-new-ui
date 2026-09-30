@@ -16,7 +16,7 @@ import BOMSelectModal from './BOMSelectModal';
 import BOMItemSelectModal from './BOMItemSelectModal';
 import { createMR, resetMRState, getBOQOpenQty } from '../../store/slices/materialRequestSlice';
 import { createDraft } from '../../store/slices/draftSlice';
-import { buildPayload, buildBomChildPicker, fetchHasChildren, defaultRequiredQty } from './mrHelpers';
+import { buildPayload, buildBomChildPicker, fetchHasChildren } from './mrHelpers';
 
 const today = new Date().toISOString().split('T')[0];
 const nowTime = new Date().toTimeString().slice(0, 5);
@@ -153,7 +153,7 @@ export default function MaterialRequestCreate() {
         BOMAvailable: info.tempAvailable,
         BOMOpenQty: info.bomOpenQty ?? 0,
         MROpenQty: info.mrOpenQty ?? 0,
-        Quantity: defaultRequiredQty(info.tempAvailable)
+        Quantity: info.tempAvailable ?? (Number(l.U_PQty) || 0)
       };
     });
 

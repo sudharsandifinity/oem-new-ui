@@ -7,13 +7,6 @@ export const MR_STATUS_META = {
   R: { label: 'Rejected', color: 'error' }
 };
 
-export const defaultRequiredQty = (openQty) => {
-  const available = Number(openQty);
-  if (!Number.isFinite(available) || available <= 0) return '';
-  const half = Math.floor(available / 2);
-  return half > 0 ? half : '';
-};
-
 export const emptyRow = () => ({
   id: Date.now() + Math.random(),
   LineId: null,
