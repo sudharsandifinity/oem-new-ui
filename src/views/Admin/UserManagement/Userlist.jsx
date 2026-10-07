@@ -46,21 +46,19 @@ const Userlist = () => {
     Cell: ({ row }) => row.index + 1,
   },
       {
-        accessorKey: 'name',
+        id: 'name',
         header: 'Users Name',
-        Cell:({cell})=>`${cell.row.original.first_name} ${cell.row.original.last_name}`,
+        accessorFn: (row) => [row?.first_name, row?.last_name].filter(Boolean).join(' ')
       },
       {
-        accessorKey: 'branch',
+        id: 'branch',
         header: 'Branch',
-        Cell:({cell})=>`${cell.row.original.Branches.map(b=>b.name).join(", ")}`,
-
+        accessorFn: (row) => (Array.isArray(row?.Branches) ? row.Branches.map((b) => b?.name).filter(Boolean).join(', ') : '')
       },
-{
-        accessorKey: 'roles',
+      {
+        id: 'roles',
         header: 'Roles',
-        Cell:({cell})=>`${cell.row.original.Roles.map(b=>b.name).join(", ")}`,
-
+        accessorFn: (row) => (Array.isArray(row?.Roles) ? row.Roles.map((r) => r?.name).filter(Boolean).join(', ') : '')
       },
       {
         accessorKey: 'status',
@@ -152,7 +150,7 @@ const Userlist = () => {
         <CardContent>
           <MaterialReactTable
             columns={columns}
-            data={adminusers}
+            data={Array.isArray(adminusers) ? adminusers : []}
             enableColumnResizing={true}
             columnResizeMode={onchange}
             layoutMode={'grid'}
