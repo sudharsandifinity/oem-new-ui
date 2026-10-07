@@ -35,7 +35,8 @@ const menuIcons = {
   'Approvals': IconChecklist,
   'My Approvals': IconClipboardCheck,
   'Pending Approvals': IconChecks,
-  'Pending Delivery': IconTruckDelivery
+  'Pending Delivery': IconTruckDelivery,
+  'Document Status': IconTruckDelivery
 };
 
 // ==============================|| SIDEBAR MENU LIST ||============================== //

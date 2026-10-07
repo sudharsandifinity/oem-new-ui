@@ -87,14 +87,14 @@ export default function PendingDeliveryReport() {
             gap: 2
           }}
         >
-          <Typography variant="h4">Delivery Report</Typography>
+          <Typography variant="h4">Document Status</Typography>
           <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />}>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <HomeIcon sx={{ fontSize: 18, color: 'secondary.main' }} />
             </Box>
             <Typography variant="body2">Reports</Typography>
             <Typography variant="body2" color="secondary" fontWeight={600}>
-              Delivery
+              Document Status
             </Typography>
           </Breadcrumbs>
         </Box>

@@ -13,7 +13,7 @@ export default function PrivateRoute({ children }) {
     user?.is_com_admin &&
     location.pathname === "/"
   ) {
-    return <Navigate to="/CustomerAdmin" replace />;
+    return <Navigate to="/dashboard" replace />;
   }
 
   return children;

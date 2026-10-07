@@ -7,7 +7,6 @@ import PrivateRoute from './PrivateRoute';
 
 // dashboard routing
 const DashboardDefault = Loadable(lazy(() => import('views/dashboard/Default')));
-const CusDashboard = Loadable(lazy(() => import('views/CustomerAdmin/dashboard/CusDashboard')));
 
 //Role management routing
 const RoleManagementList = Loadable(lazy(()=>import('views/CustomerAdmin/RoleManagement/RoleManagementList')));
@@ -83,11 +82,6 @@ const MainRoutes = {
     {
       path: 'dashboard',
       element: <DashboardDefault />
-    },
-    {
-      path: 'CustomerAdmin',
-      element: <CusDashboard />,
-      
     },
     {
       path: 'UserManagement',
@@ -181,6 +175,10 @@ const MainRoutes = {
     {
       path: 'Pending-Approvals',
       children: [{ path: 'list', element: <PendingApprovalReports /> }]
+    },
+    {
+      path: 'Document-Status',
+      children: [{ path: 'list', element: <PendingDeliveryReport /> }]
     },
     {
       path: 'Pending-Delivery',
