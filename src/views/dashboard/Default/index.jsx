@@ -1,7 +1,20 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { Avatar, Box, Chip, CircularProgress, Divider, Grid, IconButton, Paper, Tooltip, Typography } from '@mui/material';
+import {
+  Avatar,
+  Box,
+  Button,
+  Chip,
+  CircularProgress,
+  Collapse,
+  Divider,
+  Grid,
+  IconButton,
+  Paper,
+  Tooltip,
+  Typography
+} from '@mui/material';
 import { alpha } from '@mui/material/styles';
 
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
@@ -9,14 +22,39 @@ import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import FactCheckIcon from '@mui/icons-material/FactCheck';
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
+import AssignmentIcon from '@mui/icons-material/Assignment';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import RefreshIcon from '@mui/icons-material/Refresh';
 
 import { getPendingCounts } from '../../../store/slices/dashboardSlice';
 import { getMyApprovals } from '../../../store/slices/approvalSlice';
+import { getPendingDeliveryReport } from '../../../store/slices/materialRequestSlice';
+
+const DOC_STATUS_MENUS = ['Document Status', 'Pending Delivery'];
+const DOC_STATUS_PREVIEW = 5;
+
+const DOC_STATUS_COLORS = {
+  'PR Pending': 'warning',
+  'PO Pending': 'warning',
+  'Delivery Pending': 'info',
+  'Partially Delivered': 'secondary'
+};
 
 const TILE_REGISTRY = {
-  'Material Request': { count: 'mr', label: 'Material Requests Pending', color: 'secondary', icon: <ShoppingCartIcon />, to: '/material-request/list' },
-  'Purchase Request': { count: 'pr', label: 'Purchase Requests Pending', color: 'primary', icon: <ReceiptLongIcon />, to: '/purchase-request/list' },
+  'Material Request': {
+    count: 'mr',
+    label: 'Material Requests Pending',
+    color: 'secondary',
+    icon: <ShoppingCartIcon />,
+    to: '/material-request/list'
+  },
+  'Purchase Request': {
+    count: 'pr',
+    label: 'Purchase Requests Pending',
+    color: 'primary',
+    icon: <ReceiptLongIcon />,
+    to: '/purchase-request/list'
+  },
   GRPO: { count: 'grpo', label: 'Goods Receipt PO Pending', color: 'warning', icon: <LocalShippingIcon />, to: '/GRPO/list' },
   'My Approvals': { count: 'approvals', label: 'Approvals Pending', color: 'success', icon: <FactCheckIcon />, to: '/my-approvals/list' }
 };
@@ -97,10 +135,17 @@ export default function Dashboard() {
   const { user } = useSelector((s) => s.auth);
   const { counts, loading } = useSelector((s) => s.dashboard);
   const { count: approvalsCount, listLoading: approvalsLoading } = useSelector((s) => s.approval);
+  const { pendingDelivery, pendingDeliveryLoading } = useSelector((s) => s.materialRequest);
+  const [projectsOpen, setProjectsOpen] = useState(false);
 
   const fullName = [user?.first_name, user?.last_name].filter(Boolean).join(' ') || 'there';
   const projects = Array.isArray(user?.Projects) ? user.Projects : [];
-  const initials = ([user?.first_name, user?.last_name].filter(Boolean).map((s) => s[0]).join('') || 'U').toUpperCase();
+  const initials = (
+    [user?.first_name, user?.last_name]
+      .filter(Boolean)
+      .map((s) => s[0])
+      .join('') || 'U'
+  ).toUpperCase();
   const hour = new Date().getHours();
   const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
   const today = new Date().toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
@@ -133,9 +178,14 @@ export default function Dashboard() {
   const hasApprovalsTile = tiles.some((t) => t.key === 'approvals');
   const totalPending = tiles.reduce((sum, t) => sum + (t.value || 0), 0);
 
+  const docStatusMenu = DOC_STATUS_MENUS.find((name) => menuNames.has(name));
+  const docStatusUrl = docStatusMenu ? `/${docStatusMenu.replace(/\s+/g, '-')}/list` : null;
+  const docStatusRows = (Array.isArray(pendingDelivery) ? pendingDelivery : []).filter((r) => r && r.mrDocEntry != null);
+
   const load = () => {
     dispatch(getPendingCounts({ email: user?.email || '' }));
     if (hasApprovalsTile) dispatch(getMyApprovals({ docType: 'MR', status: 'pending', top: 1 }));
+    if (docStatusUrl) dispatch(getPendingDeliveryReport());
   };
 
   useEffect(() => {
@@ -200,55 +250,140 @@ export default function Dashboard() {
         </Grid>
       )}
 
-      <Grid container spacing={3}>
-        <Grid item xs={12} md={7} lg={6}>
+      <Grid container spacing={3} alignItems="flex-start">
+        <Grid size={{ xs: 12, md: 6 }}>
           <Paper variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden' }}>
-            <Box sx={{ px: 2.5, py: 1.75, display: 'flex', alignItems: 'center', gap: 1.5 }}>
+            <Box
+              role="button"
+              tabIndex={0}
+              aria-expanded={projectsOpen}
+              onClick={() => setProjectsOpen((open) => !open)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  setProjectsOpen((open) => !open);
+                }
+              }}
+              sx={{
+                px: 2.5,
+                py: 1.75,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1.5,
+                cursor: 'pointer',
+                userSelect: 'none',
+                '&:hover': { bgcolor: 'action.hover' }
+              }}
+            >
               <AccountTreeIcon color="secondary" fontSize="small" />
               <Typography variant="h4" sx={{ flex: 1 }}>
                 Projects
               </Typography>
               <Chip size="small" color="secondary" label={projects.length} />
+              <ExpandMoreIcon
+                fontSize="small"
+                sx={{ color: 'text.secondary', transition: 'transform 0.2s', transform: projectsOpen ? 'rotate(180deg)' : 'none' }}
+              />
             </Box>
-            <Divider />
-            <Box sx={{ maxHeight: 340, overflowY: 'auto' }}>
-              {projects.length === 0 ? (
+            <Collapse in={projectsOpen} timeout="auto" unmountOnExit>
+              <Divider />
+              <Box sx={{ maxHeight: 340, overflowY: 'auto' }}>
+                {projects.length === 0 ? (
+                  <Box sx={{ p: 4, textAlign: 'center' }}>
+                    <Typography color="text.secondary">No projects assigned.</Typography>
+                  </Box>
+                ) : (
+                  projects.map((p, i) => (
+                    <Box
+                      key={p.id ?? p.Code ?? i}
+                      sx={{
+                        px: 2.5,
+                        py: 1.25,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 2,
+                        borderBottom: i < projects.length - 1 ? '1px solid' : 'none',
+                        borderColor: 'divider'
+                      }}
+                    >
+                      <Typography variant="body2" sx={{ color: 'text.disabled', width: 24, textAlign: 'right' }}>
+                        {i + 1}
+                      </Typography>
+                      <Box sx={{ minWidth: 0, flex: 1 }}>
+                        <Typography variant="body1" sx={{ fontWeight: 600 }} noWrap>
+                          {p.Code || '—'}
+                        </Typography>
+                        {p.Name && (
+                          <Typography variant="body2" color="text.secondary" noWrap>
+                            {p.Name}
+                          </Typography>
+                        )}
+                      </Box>
+                    </Box>
+                  ))
+                )}
+              </Box>
+            </Collapse>
+          </Paper>
+        </Grid>
+
+        {docStatusUrl && (
+          <Grid size={{ xs: 12, md: 6 }}>
+            <Paper variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden' }}>
+              <Box sx={{ px: 2.5, py: 1.75, display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                <AssignmentIcon color="primary" fontSize="small" />
+                <Typography variant="h4" sx={{ flex: 1 }}>
+                  Document Status
+                </Typography>
+                <Chip size="small" color="primary" label={pendingDeliveryLoading ? '…' : docStatusRows.length} />
+              </Box>
+              <Divider />
+              {pendingDeliveryLoading && docStatusRows.length === 0 ? (
+                <Box sx={{ p: 4, display: 'flex', justifyContent: 'center' }}>
+                  <CircularProgress size={24} />
+                </Box>
+              ) : docStatusRows.length === 0 ? (
                 <Box sx={{ p: 4, textAlign: 'center' }}>
-                  <Typography color="text.secondary">No projects assigned.</Typography>
+                  <Typography color="text.secondary">No open documents.</Typography>
                 </Box>
               ) : (
-                projects.map((p, i) => (
+                docStatusRows.slice(0, DOC_STATUS_PREVIEW).map((r, i, shown) => (
                   <Box
-                    key={p.id ?? p.Code ?? i}
+                    key={r.mrDocEntry}
                     sx={{
                       px: 2.5,
                       py: 1.25,
                       display: 'flex',
                       alignItems: 'center',
                       gap: 2,
-                      borderBottom: i < projects.length - 1 ? '1px solid' : 'none',
+                      borderBottom: i < shown.length - 1 ? '1px solid' : 'none',
                       borderColor: 'divider'
                     }}
                   >
-                    <Typography variant="body2" sx={{ color: 'text.disabled', width: 24, textAlign: 'right' }}>
-                      {i + 1}
-                    </Typography>
                     <Box sx={{ minWidth: 0, flex: 1 }}>
                       <Typography variant="body1" sx={{ fontWeight: 600 }} noWrap>
-                        {p.Code || '—'}
+                        MR {r.mrDocEntry}
                       </Typography>
-                      {p.Name && (
-                        <Typography variant="body2" color="text.secondary" noWrap>
-                          {p.Name}
-                        </Typography>
-                      )}
+                      <Typography variant="body2" color="text.secondary" noWrap>
+                        {[r.projectCode, r.projectName].filter(Boolean).join(' - ') || '—'}
+                      </Typography>
                     </Box>
+                    <Chip size="small" variant="outlined" color={DOC_STATUS_COLORS[r.status] || 'default'} label={r.status || '—'} />
                   </Box>
                 ))
               )}
-            </Box>
-          </Paper>
-        </Grid>
+              <Divider />
+              <Box sx={{ px: 1.5, py: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <Typography variant="caption" color="text.secondary" sx={{ pl: 1 }}>
+                  {docStatusRows.length > DOC_STATUS_PREVIEW ? `Showing ${DOC_STATUS_PREVIEW} of ${docStatusRows.length}` : ''}
+                </Typography>
+                <Button size="small" onClick={() => navigate(docStatusUrl)}>
+                  View All
+                </Button>
+              </Box>
+            </Paper>
+          </Grid>
+        )}
       </Grid>
     </Box>
   );
