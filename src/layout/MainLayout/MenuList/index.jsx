@@ -29,12 +29,13 @@ import AssignmentIcon from '@mui/icons-material/Assignment';
 import TextSnippetIcon from '@mui/icons-material/TextSnippet';
 import ArticleIcon from '@mui/icons-material/Article';
 import DescriptionIcon from '@mui/icons-material/Description';
+import ListAltIcon from '@mui/icons-material/ListAlt';
 
 const menuIcons = {
   Dashboard: IconDashboard,
   '': IconUsers,
   'Material Request': IconShoppingCart,
-  'Purchase Request': IconFileInvoice,
+  // 'Purchase Request': IconFileInvoice,
   'GRPO': IconBriefcase,
   'Contracting Management': IconBuilding,
   'Approvals': IconClipboardCheck,
@@ -42,7 +43,7 @@ const menuIcons = {
   'Sales Order':EditDocumentIcon,
   'A/R Invoice':AssignmentIcon,
   'Purchase Quotation':TextSnippetIcon,
-  'Purchase Order':ArticleIcon,
+  'Purchase Order':ListAltIcon,
   'Purchase Request':DescriptionIcon,
   'A/P Invoice':AssignmentIcon,
 };
@@ -63,12 +64,11 @@ function MenuList() {
  const isSuperUser = Number(user?.is_super_user) === 1;
 const isCompanyAdmin = Number(user?.is_com_admin) === 1;
 const isSapUser = Number(user?.is_sap_user) === 1;
-
 let menuItems;
 
 if (isCompanyAdmin) {
   menuItems = cusmenuItems;
-} else if (isSapUser) {
+} else if (isSuperUser) {
   menuItems = AdminMenu;
 } else {
   menuItems = {
@@ -82,12 +82,27 @@ if (isCompanyAdmin) {
             id: 'dashboard-item',
             title: 'Dashboard',
             type: 'item',
-            url: '/dashboard',
+            url: '/amitdashboard',
             icon: IconDashboard,
             breadcrumbs: false
           }
         ]
       },
+      // {
+      //   id: 'workflow',
+      //   title: 'Workflow',
+      //   type: 'group',
+      //   children: [
+      //     {
+      //       id: 'workflow-item',
+      //       title: 'Workflow',
+      //       type: 'item',
+      //       url: '/workflow',
+      //       icon: IconDashboard,
+      //       breadcrumbs: false
+      //     }
+      //   ]
+      // },
 
       ...authUserMenus
         .filter((menu) => menu.status === 1)

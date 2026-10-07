@@ -2,6 +2,14 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import API from 'api/axios';
 
 
+export const getPermissions =createAsyncThunk('common/getPermission', async (_, thunkAPI) => {
+  try {
+    const response = await API.get('/admin/permissions');
+    return response.data.value ?? response.data;
+  } catch (error) {
+    return thunkAPI.rejectWithValue(error.response?.data?.message || 'Failed to fetch permissions');
+  }
+});
 
 export const getUsers = createAsyncThunk('common/getUsers', async (_, thunkAPI) => {
   try {
@@ -54,6 +62,9 @@ const commonSlice = createSlice({
     users: [],
     usersLoading: false,
 
+    permissions: [],
+    permissionsLoading: false,
+
     employees: [],
     employeesLoading: false,
 
@@ -69,6 +80,17 @@ const commonSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
+    .addCase(getPermissions.pending, (state) => {
+        state.permissionsLoading = true;
+      })
+      .addCase(getPermissions.fulfilled, (state, action) => {
+        state.permissionsLoading = false;
+        state.permissions = action.payload;
+      })
+      .addCase(getPermissions.rejected, (state) => {
+        state.permissionsLoading = false;
+      })
+
       .addCase(getUsers.pending, (state) => {
         state.usersLoading = true;
       })

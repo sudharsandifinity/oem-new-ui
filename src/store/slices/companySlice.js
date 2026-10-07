@@ -42,7 +42,7 @@ export const getCompanyId = createAsyncThunk('companies/getById', async (id, thu
 
 export const updateCompany = createAsyncThunk('companies/update', async ({ id, payload }, thunkAPI) => {
   try {
-    const response = await axios.patch(`/admin/companies/${id}`, payload);
+    const response = await axios.put(`/admin/companies/${id}`, payload);
     return response.data;
   } catch (error) {
     const d = error.response?.data;

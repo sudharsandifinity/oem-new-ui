@@ -1,0 +1,198 @@
+/* ===========================
+   PAGE
+=========================== */
+
+@page {
+  size: A4 portrait;
+  margin: 10mm;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background: #fff;
+}
+
+.mr-page {
+  width: 190mm;
+  min-height: 277mm;
+  margin: auto;
+  background: white;
+  color: #000;
+}
+
+/* ===========================
+   HEADER
+=========================== */
+
+.mr-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.header-left {
+  width: 30%;
+}
+
+.header-center {
+  width: 35%;
+  text-align: center;
+}
+
+.header-right {
+  width: 30%;
+  text-align: right;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.company-logo {
+  width: 90px;
+  margin-bottom: 5px;
+}
+
+.center-logo {
+  width: 70px;
+  margin-bottom: 8px;
+}
+
+.company-name {
+  font-size: 28px;
+  font-weight: bold;
+  letter-spacing: 2px;
+}
+
+.company-sub {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.header-center h2 {
+  margin-top: 15px;
+  text-decoration: underline;
+  font-size: 22px;
+}
+
+/* ===========================
+   INFO SECTION
+=========================== */
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.left-info {
+  width: 60%;
+}
+
+.right-info {
+  width: 35%;
+}
+
+.field {
+  display: flex;
+  margin-bottom: 18px;
+}
+
+.field span:first-child {
+  width: 120px;
+  font-weight: bold;
+}
+
+.line {
+  flex: 1;
+  border-bottom: 1px dotted #000;
+  padding-left: 8px;
+}
+
+.mr-number {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 25px;
+}
+
+.mr-red {
+  color: #b30000;
+  margin-left: 8px;
+  font-size: 34px;
+}
+
+/* ===========================
+   TABLE
+=========================== */
+
+.mr-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.mr-table th {
+  border: 2px solid #000;
+  text-align: center;
+  padding: 8px;
+  font-size: 16px;
+}
+
+.mr-table td {
+  border: 1px solid #000;
+  height: 32px;
+  padding: 4px 8px;
+  font-size: 14px;
+}
+
+.mr-table td:nth-child(1),
+.mr-table td:nth-child(3),
+.mr-table td:nth-child(4),
+.mr-table td:nth-child(5) {
+  text-align: center;
+}
+
+.mr-table tbody tr {
+  height: 32px;
+}
+
+/* ===========================
+   FOOTER
+=========================== */
+
+.mr-footer {
+  margin-top: 35px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.mr-footer div {
+  width: 220px;
+  text-align: center;
+  padding-top: 15px;
+}
+
+/* ===========================
+   PRINT
+=========================== */
+
+@media print {
+
+  body {
+    margin: 0;
+    padding: 0;
+  }
+
+  .mr-page {
+    width: 100%;
+    margin: 0;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+}

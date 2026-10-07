@@ -76,7 +76,7 @@ export default function MenuEdit() {
     if (saveSuccess) {
       setSnackbar({ open: true, severity: 'success', message: 'Menu updated successfully!' });
       dispatch(resetMenuState());
-      setTimeout(() => navigate(`/Menus/view/${id}`), 1500);
+      setTimeout(() => navigate(`/Menu/view/${id}`), 1500);
     }
     if (error) {
       setSnackbar({ open: true, severity: 'error', message: error });
@@ -111,8 +111,8 @@ export default function MenuEdit() {
         >
           <Typography variant="h4">Menu management </Typography>
           <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />}>
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <HomeIcon sx={{ fontSize: 18, color: 'secondary.main' }} />
+            <Box sx={{ display: 'flex', alignItems: 'center' }} onClick={() => navigate('/')}>
+              <HomeIcon sx={{ fontSize: 18, color: 'secondary.main', cursor: 'pointer'  }} />
             </Box>
             <Typography variant="body2" color="text.primary">
               Menu Management 
@@ -164,7 +164,7 @@ export default function MenuEdit() {
                 variant="contained"
                 color="secondary"
                 onClick={handleSubmit}
-                disabled={loading || updateLoading}
+                disabled={currentMenuloading || updateLoading}
                 startIcon={updateLoading ? <CircularProgress size={16} color="inherit" /> : null}
               >
                 Update

@@ -40,19 +40,19 @@ export default function VendorSelectPopup({ open, onClose, onSelectVendor }) {
   }, [open]);
 
   const [filters, setFilters] = useState({
-    VendorCode: '',
-    VendorName: '',
+    CardCode: '',
+    CardName: '',
     ContactPerson: '',
     type: ''
   });
 
   // ================= FILTER LOGIC ================= //
-
+{console.log("vendor",vendor)}
   const filteredData = useMemo(() => {
     return (vendor || []).filter((c) => {
       return (
-        (!filters.VendorCode || c.VendorCode.toLowerCase().includes(filters.VendorCode.toLowerCase())) &&
-        (!filters.VendorName || c.VendorName.toLowerCase().includes(filters.VendorName.toLowerCase())) &&
+        (!filters.CardCode || c.CardCode.toLowerCase().includes(filters.CardCode.toLowerCase())) &&
+        (!filters.CardName || c.CardName.toLowerCase().includes(filters.CardName.toLowerCase())) &&
         (!filters.ContactPerson || c.ContactPerson.toLowerCase().includes(filters.ContactPerson.toLowerCase())) &&
         (!filters.type || c.type === filters.type)
       );
@@ -63,8 +63,8 @@ export default function VendorSelectPopup({ open, onClose, onSelectVendor }) {
 
   const clearFilters = () => {
     setFilters({
-      VendorCode: '',
-      VendorName: '',
+      CardCode: '',
+      CardName: '',
       ContactPerson: '',
       type: ''
     });

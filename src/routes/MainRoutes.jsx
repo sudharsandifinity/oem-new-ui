@@ -4,11 +4,16 @@ import { lazy } from 'react';
 import MainLayout from 'layout/MainLayout';
 import Loadable from 'ui-component/Loadable';
 import PrivateRoute from './PrivateRoute';
-import Admin from '../views/Admin/Admin';
+import Admin from '../views/Admin/Admin'; 
+
 
 // dashboard routing
 const DashboardDefault = Loadable(lazy(() => import('views/dashboard/Default')));
+const AmitDashboard = Loadable(lazy(() => import('views/dashboard/AmitDashboard')));
 const CusDashboard = Loadable(lazy(() => import('views/CustomerAdmin/dashboard/CusDashboard')));
+
+//Workflow routing
+//const Workflow = Loadable(lazy(() => import('views/dashboard/Workflow/FlowBuilder/WorlflowBuilder.jsx')));
 
 //Admin routing
 const AdminDashboard = Loadable(lazy(() => import('views/Admin/Admin.jsx')));
@@ -83,10 +88,29 @@ const PurchaseQuotationsCreate = Loadable(lazy(() => import('views/purchase-quot
 const PurchaseQuotationsView = Loadable(lazy(() => import('views/purchase-quotation/PurchaseQuotationView.jsx')));
 const PurchaseQuotationsEdit = Loadable(lazy(() => import('views/purchase-quotation/PurchaseQuotationEdit.jsx')));
 
+//purchase Order routing
+const PurchaseOrderList = Loadable(lazy(() => import('views/purchase-order/PurchaseOrderList.jsx')));
+const PurchaseOrdersCreate = Loadable(lazy(() => import( '../views/purchase-order/PurchaseOrderCreate')));
+const PurchaseOrdersView = Loadable(lazy(() => import( '../views/purchase-order/PurchaseOrderView')));
+const PurchaseOrdersEdit = Loadable(lazy(() => import( '../views/purchase-order/PurchaseOrderEdit')));
+
+
 // Goods Receipt PO routing
 const GoodsReceiptPOList = Loadable(lazy(() => import('views/goods-receipt-po/GoodsReceiptPOList')));
 const GoodsReceiptPOCreate = Loadable(lazy(() => import('views/goods-receipt-po/GoodsReceiptPOCreate')));
 const GoodsReceiptPOView = Loadable(lazy(() => import('views/goods-receipt-po/GoodsReceiptPOView')));
+
+//A/R Invoice routing
+const ARInvoicesList = Loadable(lazy(() => import('views/ARInvoice/ARInvoiceList.jsx')));
+const ARInvoicesCreate = Loadable(lazy(() => import('views/ARInvoice/ARInvoiceCreate.jsx')));
+const ARInvoicesView = Loadable(lazy(() => import('views/ARInvoice/ARInvoiceView.jsx')));
+const ARInvoicesEdit = Loadable(lazy(() => import('views/ARInvoice/ARInvoiceEdit.jsx')));
+
+//A/P Invoice routing
+const APInvoicesList = Loadable(lazy(() => import('views/APInvoice/APInvoiceList.jsx')));
+const APInvoicesCreate = Loadable(lazy(() => import('views/APInvoice/APInvoiceCreate.jsx')));
+const APInvoicesView = Loadable(lazy(() => import('views/APInvoice/APInvoiceView.jsx')));
+const APInvoicesEdit = Loadable(lazy(() => import('views/APInvoice/APInvoiceEdit.jsx')));
 
 //sales order routing
 const SalesOrdersList = Loadable(lazy(() => import('views/sales-order/SalesOrdersList.jsx')));
@@ -127,10 +151,18 @@ const MainRoutes = {
       element: <DashboardDefault />
     },
     {
+      path: 'amitdashboard',
+      element: <AmitDashboard />
+    },
+    {
       path: 'CustomerAdmin',
       element: <CusDashboard />,
       
     },
+    // {
+    //   path:'Workflow',
+    //   element:<Workflow />
+    // },
     //Admin
     {
       path: 'admin',
@@ -382,6 +414,24 @@ const MainRoutes = {
         { path: 'view/:id', element: <GoodsReceiptPOView /> }
       ]
     },
+     {
+      path: 'A/R-Invoice',
+      children: [
+        { path: 'list', element: <ARInvoicesList /> },
+        { path: 'create', element: <ARInvoicesCreate /> },
+        { path: 'view/:id', element: <ARInvoicesView /> },
+        { path: 'edit/:id', element: <ARInvoicesEdit /> }
+      ]
+    },
+    {
+      path: 'A/P-Invoice',
+      children: [
+        { path: 'list', element: <APInvoicesList /> },
+        { path: 'create', element: <APInvoicesCreate /> },
+        { path: 'view/:id', element: <APInvoicesView /> },
+        { path: 'edit/:id', element: <APInvoicesEdit /> }
+      ]
+    },
     {
       path: 'Sales-Order',
       children: [
@@ -401,6 +451,15 @@ const MainRoutes = {
       ]
     },
     {
+      path: 'Purchase-Order',
+      children: [
+        { path: 'list', element: <PurchaseOrderList /> },
+        { path: 'create', element: <PurchaseOrdersCreate /> },
+         { path: 'view/:id', element: <PurchaseOrdersView /> },
+         { path: 'edit/:id', element: <PurchaseOrdersEdit /> },
+      ]
+    },
+    {
       path: 'typography',
       element: <UtilsTypography />
     },
@@ -416,6 +475,7 @@ const MainRoutes = {
       path: '/sample-page',
       element: <SamplePage />
     }
+    
   ]
 };
 

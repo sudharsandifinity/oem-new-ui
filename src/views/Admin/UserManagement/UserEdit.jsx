@@ -41,7 +41,7 @@ export default function UserEdit() {
   const navigate = useNavigate();
 
     const { currentUser, currentUserloading, currentUserError, updateLoading, saveSuccess, error } = useSelector((s) => s.users);
-  
+  const { companies, listLoading } = useSelector((state) => state.companies);
 
 
   const [tabValue, setTabValue] = useState(0);
@@ -61,7 +61,7 @@ export default function UserEdit() {
   useEffect(() => {
     if (!currentUser) return;
     console.log("currentuser",currentUser)
-    setForm(mapApiToForm(currentUser));
+    setForm(mapApiToForm(currentUser, companies));
   }, [currentUser]);
 
   useEffect(() => {
@@ -103,8 +103,8 @@ export default function UserEdit() {
         >
           <Typography variant="h4">User management </Typography>
           <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />}>
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <HomeIcon sx={{ fontSize: 18, color: 'secondary.main' }} />
+            <Box sx={{ display: 'flex', alignItems: 'center' }} onClick={() => navigate('/')}>
+              <HomeIcon sx={{ fontSize: 18, color: 'secondary.main', cursor: 'pointer', cursor: 'pointer'   }} />
             </Box>
             <Typography variant="body2" color="text.primary">
               User Management 
@@ -136,7 +136,7 @@ export default function UserEdit() {
             <>
               {/* Always mounted — CSS show/hide avoids unmount errors on tab switch */}
               <Box sx={{ display: tabValue === 0 ? 'block' : 'none' }}>
-                <UserForm data={form} setData={setForm}  />
+                <UserForm data={form} setData={setForm}  lockUserPassword/>
               </Box>
              
             </>
@@ -156,7 +156,7 @@ export default function UserEdit() {
                 variant="contained"
                 color="secondary"
                 onClick={handleSubmit}
-                disabled={loading || updateLoading}
+                disabled={currentUserloading || updateLoading}
                 startIcon={updateLoading ? <CircularProgress size={16} color="inherit" /> : null}
               >
                 Update

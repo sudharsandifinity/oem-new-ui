@@ -39,7 +39,7 @@ export default function MenuCreate() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-    const { currentMenu, currentMenuloading, currentMenuError, updateLoading, saveSuccess, error } = useSelector((s) => s.companies);
+    const { currentMenu, currentMenuloading, currentMenuError, updateLoading, saveSuccess, error } = useSelector((s) => s.menus);
   
 
 
@@ -55,7 +55,7 @@ export default function MenuCreate() {
   useEffect(() => {
     console.log("saveSuccess",saveSuccess)
     if (saveSuccess) {
-      setSnackbar({ open: true, severity: 'success', message: 'Menu updated successfully!' });
+      setSnackbar({ open: true, severity: 'success', message: 'Menu Created successfully!' });
       dispatch(resetMenuState());
       setTimeout(() => navigate(`/Menu/list`), 1500);
     }
@@ -93,8 +93,8 @@ export default function MenuCreate() {
         >
           <Typography variant="h4">Menu management </Typography>
           <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />}>
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <HomeIcon sx={{ fontSize: 18, color: 'secondary.main' }} />
+            <Box sx={{ display: 'flex', alignItems: 'center' }} onClick={() => navigate('/')}>
+              <HomeIcon sx={{ fontSize: 18, color: 'secondary.main', cursor: 'pointer'  }} />
             </Box>
             <Typography variant="body2" color="text.primary">
               Menu Management 

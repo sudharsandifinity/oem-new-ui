@@ -24,7 +24,9 @@ import {
 } from '@mui/material';
 import ItemSelectPopup from '../modules/master-data/ItemLookupModal';
 import ServiceSelectPopup from '../modules/master-data/ServiceLookupModal';
-import FreightPopup from './FreightPopup';
+// import FreightPopup from './FreightPopup';
+import FreightPopup from '../modules/freight/FreightPopup';
+
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
 import SearchIcon from '@mui/icons-material/Search';

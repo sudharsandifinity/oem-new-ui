@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams, useNavigate } from 'react-router-dom';
-import { mapApiToForm, mapApiLineToRow, buildPayload, updatebuildPayload } from './CompanyHelpers';
+import { mapApiToForm, buildPayload, updatebuildPayload } from './CompanyHelpers';
 
 import { Alert, Box, Breadcrumbs, Button, CircularProgress, Divider, Skeleton, Snackbar, Tab, Tabs, Typography } from '@mui/material';
 
@@ -103,8 +103,8 @@ export default function CompaniesEdit() {
         >
           <Typography variant="h4">Company management </Typography>
           <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />}>
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <HomeIcon sx={{ fontSize: 18, color: 'secondary.main' }} />
+            <Box sx={{ display: 'flex', alignItems: 'center' }} onClick={() => navigate('/')}>
+              <HomeIcon sx={{ fontSize: 18, color: 'secondary.main', cursor: 'pointer'  }} />
             </Box>
             <Typography variant="body2" color="text.primary">
               Company Management 
@@ -156,7 +156,7 @@ export default function CompaniesEdit() {
                 variant="contained"
                 color="secondary"
                 onClick={handleSubmit}
-                disabled={loading || updateLoading}
+                disabled={currentCompanyloading || updateLoading}
                 startIcon={updateLoading ? <CircularProgress size={16} color="inherit" /> : null}
               >
                 Update

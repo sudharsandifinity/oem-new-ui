@@ -1,9 +1,13 @@
 import { useDispatch, useSelector } from 'react-redux';
+import React, { Fragment } from "react";
 import {
   Box,
   Card,
   CardContent,
   Grid,
+  List,
+  ListItem,
+  ListItemText,
   Paper,
   Table,
   TableBody,
@@ -11,28 +15,46 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Typography
+  Typography, Divider
 } from '@mui/material';
+import {
+  Chip,
+  LinearProgress,
+} from '@mui/material';
+import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, FunnelChart, Funnel, LabelList, PieChart, Pie, Cell, } from "recharts";
 import { useEffect, useMemo, useState } from 'react';
-import { ResponsiveContainer, BarChart, Bar, CartesianGrid, XAxis, YAxis, Tooltip, Legend } from 'recharts';
-import { PieChart, Pie, Cell } from 'recharts';
+import { CartesianGrid, Tooltip, Legend } from 'recharts';
 import { getMyMRList } from '../../../store/slices/materialRequestSlice';
 import { getMyGRPOList } from '../../../store/slices/goodsReceiptPOSlice';
+import { getMyPRList } from '../../../store/slices/purchaseRequestSlice';
 
 
 const COLORS = ['#4caf50', '#ff9800'];
 
 export default function Dashboard() {
-    const dispatch = useDispatch();
+  const dispatch = useDispatch();
   const { user } = useSelector((s) => s.auth);
   const fullName = [user?.first_name, user?.last_name].filter(Boolean).join(' ') || 'there';
-   const { list, totalCount, listLoading } = useSelector((s) => s.materialRequest);
-    
-   
-     
-     const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 25 });
- 
- useEffect(() => {
+  const {
+    list: materialRequestList,
+    totalCount: materialRequestTotal,
+    listLoading: materialRequestLoading
+  } = useSelector((state) => state.materialRequest);
+
+  const {
+    list: goodsReceiptList,
+    totalCount: goodsReceiptTotal,
+    listLoading: goodsReceiptLoading
+  } = useSelector((state) => state.goodsReceiptPO);
+
+  const {
+    list: purchaseRequestList,
+    totalCount: purchaseRequestTotal,
+    listLoading: purchaseRequestLoading
+  } = useSelector((state) => state.purchaseRequest);
+  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 25 });
+
+  useEffect(() => {
     dispatch(
       getMyMRList({
         top: paginationModel.pageSize,
@@ -41,226 +63,409 @@ export default function Dashboard() {
       })
     );
     dispatch(
-        getMyGRPOList({
-          top: paginationModel.pageSize,
-          skip: paginationModel.page * paginationModel.pageSize,
-          email: user?.email || ''
-        })
-      );
+      getMyGRPOList({
+        top: paginationModel.pageSize,
+        skip: paginationModel.page * paginationModel.pageSize,
+        email: user?.email || ''
+      })
+    );
+    dispatch(
+      getMyPRList({
+        top: paginationModel.pageSize,
+        skip: paginationModel.page * paginationModel.pageSize,
+        email: user?.email || ''
+      })
+    );
   }, [paginationModel, user?.email, dispatch]);
-  
-   const {
-    list: goodsReceiptList,
-    totalCount: goodsReceiptTotak,
-    listLoading: goodsReceiptLoading
-  } = useSelector((state) => state.goodsReceiptPO);
-  const {
-    list: materialRequestList,
-    totalCount: materialRequestTotal,
-    listLoading: materialRequestLoading
-  } = useSelector((state) => state.materialRequest);
 
-  const {
-    list: purchaseRequestList,
-    totalCount: purchaseRequestTotal,
-    listLoading: purchaseRequestLoading
-  } = useSelector((state) => state.purchaseRequest);
 
-  const dashboard = useMemo(() => {
-    
-    const totalMR = materialRequestList.length;
-     const totalPO = purchaseRequestList.length;
-     const totalGR = goodsReceiptList.length;
-    console.log("totalMR",totalGR)
 
-    const pendingMR = materialRequestList.filter((x) => x.status === 'Pending').length;
-
-    const approvedMR = materialRequestList.filter((x) => x.status === 'Approved').length;
-
-    const pendingPO = purchaseRequestList.filter((x) => x.status === 'Pending').length;
-
-    const approvedPO = purchaseRequestList.filter((x) => x.status === 'Approved').length;
-
-    const completedGR = goodsReceiptList.filter((x) => x.status === 'Completed').length;
-
-    return {
-      totalMR,
-      totalPO,
-      totalGR,
-      pendingMR,
-      approvedMR,
-      pendingPO,
-      approvedPO,
-      completedGR
-    };
-  }, [materialRequestList, purchaseRequestList, goodsReceiptList]);
-  const progressData = [
+  const stats = [
     {
-      name: 'MR',
-      count: dashboard.totalMR
+      title: 'Material Requests',
+      value: materialRequestList.length ?? 0,
+      color: '#1976d2'
     },
     {
-      name: 'PO',
-      count: dashboard.totalPO
+      title: 'Purchase Requests',
+      value: purchaseRequestList.length ?? 0,
+      color: '#fb8c00'
     },
     {
-      name: 'GR',
-      count: dashboard.totalGR
+      title: 'GRPO Posted',
+      value: goodsReceiptList.length ?? 0,
+      color: '#43a047'
+    },
+    {
+      title: 'Pending Approvals',
+      value: materialRequestList.filter(
+        (item) => item.U_DocStatus === 'D'
+      ).length,
+      color: '#e53935'
     }
   ];
-  const approvalData = [
-    {
-      name: 'Approved',
-      value: dashboard.approvedMR
-    },
-    {
-      name: 'Pending',
-      value: dashboard.pendingMR
-    }
-  ];
-  const projects = {};
+  const recentRequests = [{
+    id: 'MR-1001', type: 'Material Request',
+    requester: 'Warehouse', status: 'Pending'
+  },
+  { id: 'PR-2001', type: 'Purchase Request', requester: 'Production', status: 'Approved' },
+  { id: 'GRPO-3001', type: 'GRPO', requester: 'Supplier Receipt', status: 'Posted' },];
+  //
+  const completion = 62;
+  const progressData = [{ stage: "MR", qty: 1000, },
+  { stage: "PO", qty: 850, }, { stage: "GRPO", qty: 620, },];
+  const materialConsumption = [{ material: "Concrete", consumed: 650, },
+  { material: "Sand", consumed: 420, }, { material: "Steel", consumed: 310, },
+  { material: "Blocks", consumed: 180, },];
+  const funnelData = [{ value: 450, name: "MR", }, { value: 380, name: "PR", },
+  { value: 350, name: "PO", }, { value: 290, name: "GRPO", },];
+  const pendingMR = [{ docNum: 104, project: "CIV 731", requester: "AL Avon", days: 2, },
+  { docNum: 105, project: "CIV 180", requester: "Sudharsan", days: 1, },];
+  const pieData = [{ name: "Received", value: 18200 }, { name: "Balance", value: 6800 },];
+  const COLORS = ["#1976d2", "#ff9800"];
 
-  materialRequestList.forEach((mr) => {
-    if (!projects[mr.projectName]) {
-      projects[mr.projectName] = {
-        project: mr.projectName,
-        MR: 0,
-        PO: 0,
-        GR: 0
-      };
-    }
 
-    projects[mr.projectName].MR++;
-  });
-
-  purchaseRequestList.forEach((po) => {
-    if (!projects[po.projectName]) {
-      projects[po.projectName] = {
-        project: po.projectName,
-        MR: 0,
-        PO: 0,
-        GR: 0
-      };
-    }
-
-    projects[po.projectName].PO++;
-  });
-
-  goodsReceiptList.forEach((gr) => {
-    if (!projects[gr.projectName]) {
-      projects[gr.projectName] = {
-        project: gr.projectName,
-        MR: 0,
-        PO: 0,
-        GR: 0
-      };
-    }
-
-    projects[gr.projectName].GR++;
-  });
-
-  const projectData = Object.values(projects);
   return (
-    <>Dashboard
-      {/* <Grid container spacing={2}>
-        <Grid item xs={12} md={3}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6">Material Requests</Typography>
-              <Typography variant="h3">{dashboard.totalMR}</Typography>
-            </CardContent>
-          </Card>
+    <>
+      <Box sx={{ p: 3, color: 'bg-blue-500', minHeight: '90vh' }}>
+        <Typography variant="h4" fontWeight={700}>
+          SAP Procurement Dashboard
+        </Typography>
+
+        <Typography color="text.secondary" mb={4}>
+          Material Request, Purchase Request & GRPO Overview
+        </Typography>
+
+        {/* KPI Cards */}
+        <Grid container spacing={3} mb={3}>
+          {stats.map((item) => (
+            <Grid item xs={12} sm={6} md={3} key={item.title}>
+              <Card sx={{ borderRadius: 4 }}>
+                <CardContent>
+                  <Box
+                    sx={{
+                      width: 14,
+                      height: 14,
+                      bgcolor: item.color,
+                      borderRadius: '50%',
+                      mb: 2
+                    }}
+                  />
+
+                  <Typography color="text.secondary">
+                    {item.title}
+                  </Typography>
+
+                  <Typography variant="h4" fontWeight={700}>
+                    {item.value}
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+          ))}
         </Grid>
 
-        <Grid item xs={12} md={3}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6">Purchase Orders</Typography>
-              <Typography variant="h3">{dashboard.totalPO}</Typography>
-            </CardContent>
-          </Card>
-        </Grid>
+        {/* Progress */}
 
-        <Grid item xs={12} md={3}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6">Goods Receipt</Typography>
-              <Typography variant="h3">{dashboard.totalGR}</Typography>
-            </CardContent>
-          </Card>
-        </Grid>
+         <Grid container spacing={3} mb={3}>
+          <Grid item xs={12} md={6}>
+            <Card sx={{ borderRadius: 4 }}>
+              <CardContent>
 
-        <Grid item xs={12} md={3}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6">Pending MR</Typography>
-              <Typography variant="h3">{dashboard.pendingMR}</Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-      </Grid>
-      <ResponsiveContainer width="100%" height={300}>
-        <BarChart data={progressData}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="name" />
-          <YAxis />
-          <Tooltip />
-          <Bar dataKey="count" fill="#1976d2" />
-        </BarChart>
-      </ResponsiveContainer>
-      <ResponsiveContainer width="100%" height={300}>
-        <PieChart>
-          <Pie data={approvalData} dataKey="value" nameKey="name" outerRadius={100}>
-            {approvalData.map((entry, index) => (
-              <Cell key={index} fill={COLORS[index]} />
-            ))}
-          </Pie>
-          <Tooltip />
-        </PieChart>
-      </ResponsiveContainer>
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>MR No</TableCell>
-              <TableCell>Project</TableCell>
-              <TableCell>Status</TableCell>
-            </TableRow>
-          </TableHead>
+                <Typography variant="h6" mb={3}>
+                  Process Flow Status
+                </Typography>
 
-          <TableBody>
-            {materialRequestList
-              .filter((x) => x.status === 'Pending')
-              .slice(0, 5)
-              .map((row) => (
-                <TableRow key={row.id}>
-                  <TableCell>{row.documentNo}</TableCell>
-                  <TableCell>{row.projectName}</TableCell>
-                  <TableCell>{row.status}</TableCell>
-                </TableRow>
-              ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <ResponsiveContainer width="100%" height={350}>
-        <BarChart data={projectData}>
-          <CartesianGrid strokeDasharray="3 3" />
+                <Box mb={3}>
+                  <Box display="flex" justifyContent="space-between">
+                    <Typography>Material Request</Typography>
+                    <Typography>75%</Typography>
+                  </Box>
 
-          <XAxis dataKey="project" />
+                  <LinearProgress
+                    variant="determinate"
+                    value={75}
+                    sx={{ height: 10, borderRadius: 5 }}
+                  />
+                </Box>
 
-          <YAxis />
+                <Box mb={3}>
+                  <Box display="flex" justifyContent="space-between">
+                    <Typography>Purchase Request</Typography>
+                    <Typography>60%</Typography>
+                  </Box>
 
-          <Tooltip />
+                  <LinearProgress
+                    color="warning"
+                    variant="determinate"
+                    value={60}
+                    sx={{ height: 10, borderRadius: 5 }}
+                  />
+                </Box>
 
-          <Legend />
+                <Box>
+                  <Box display="flex" justifyContent="space-between">
+                    <Typography>GRPO Completion</Typography>
+                    <Typography>90%</Typography>
+                  </Box>
 
-          <Bar dataKey="MR" fill="#2196f3" />
+                  <LinearProgress
+                    color="success"
+                    variant="determinate"
+                    value={90}
+                    sx={{ height: 10, borderRadius: 5 }}
+                  />
+                </Box>
 
-          <Bar dataKey="PO" fill="#ff9800" />
+              </CardContent>
+            </Card>
+          </Grid>
 
-          <Bar dataKey="GR" fill="#4caf50" />
-        </BarChart>
-      </ResponsiveContainer> */}
+
+          <Grid item xs={12} md={6} direction="row">
+            <Card sx={{ borderRadius: 4 }}>
+              <CardContent>
+
+                <Typography variant="h6" mb={3}>
+                  Approval Summary
+                </Typography>
+
+                <Grid container spacing={2}>
+                  <Grid item xs={4}>
+                    <Paper
+                      sx={{
+                        bgcolor: '#fff8e1',
+                        textAlign: 'center',
+                        p: 3,
+                        borderRadius: 3
+                      }}
+                    >
+                      <Typography variant="h4">17</Typography>
+                      <Typography>Pending</Typography>
+                    </Paper>
+                  </Grid>
+
+                  <Grid item xs={4}>
+                    <Paper
+                      sx={{
+                        bgcolor: '#e8f5e9',
+                        textAlign: 'center',
+                        p: 3,
+                        borderRadius: 3
+                      }}
+                    >
+                      <Typography variant="h4">52</Typography>
+                      <Typography>Approved</Typography>
+                    </Paper>
+                  </Grid>
+
+                  <Grid item xs={4}>
+                    <Paper
+                      sx={{
+                        bgcolor: '#ffebee',
+                        textAlign: 'center',
+                        p: 3,
+                        borderRadius: 3
+                      }}
+                    >
+                      <Typography variant="h4">5</Typography>
+                      <Typography>Rejected</Typography>
+                    </Paper>
+                  </Grid>
+                </Grid>
+
+              </CardContent>
+            </Card>
+            {/*<Grid container spacing={3}>
+              <Grid container spacing={3} mt={1}> <Grid item xs={12} lg={8}>
+                <Card sx={{
+                  height: "100%",
+                  borderRadius: 3,
+                  boxShadow: 2,
+                }}>
+                  <CardContent>
+                    <Typography variant="h6" mb={3}> MR → PO → GRPO Progress </Typography>
+                    <ResponsiveContainer width="100%" height={300}>
+                      <BarChart data={progressData}> <XAxis dataKey="stage" /> <YAxis /> <Tooltip />
+                        <Bar dataKey="qty" fill="#1976d2" /> </BarChart> </ResponsiveContainer>
+                    <Typography mt={2}> Overall Completion : {completion}% </Typography>
+                    <LinearProgress variant="determinate" value={completion} sx={{ mt: 1, height: 10, borderRadius: 2 }} />
+                  </CardContent>
+                </Card>
+              </Grid>
+                <Grid item xs={12} lg={4}>
+                  <Card sx={{
+                    height: "100%",
+                    borderRadius: 3,
+                    boxShadow: 2,
+                  }}>
+                    <CardContent>
+                      <Typography variant="h6"> Quantity Balance </Typography>
+                      <ResponsiveContainer width="100%" height={300}>
+                        <PieChart>
+                          <Pie data={pieData} dataKey="value" outerRadius={100} label > {pieData.map((entry, index) => (<Cell key={index} fill={COLORS[index]} />))} </Pie>
+                        </PieChart>
+                      </ResponsiveContainer>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              </Grid>
+              <Grid container spacing={3} mt={1}> <Grid item xs={12} lg={6}>
+                <Card sx={{
+                  height: "100%",
+                  borderRadius: 3,
+                  boxShadow: 2,
+                }}> <CardContent> <Typography variant="h6" mb={2}> Procurement Funnel </Typography>
+                    <ResponsiveContainer width="100%" height={300}> <FunnelChart> <Tooltip />
+                      <Funnel dataKey="value" data={funnelData} isAnimationActive > <LabelList position="right" fill="#000" stroke="none" dataKey="name" /> </Funnel>
+                    </FunnelChart>
+                    </ResponsiveContainer>
+                  </CardContent>
+                </Card>
+              </Grid>
+                <Grid item xs={12} lg={6}>
+                  <Card sx={{
+                    height: "100%",
+                    borderRadius: 3,
+                    boxShadow: 2,
+                  }}>
+                    <CardContent>
+                      <Typography variant="h6" mb={2}> Material Consumption </Typography>
+                      <ResponsiveContainer width="100%" height={300}>
+                        <BarChart data={materialConsumption}> <XAxis dataKey="material" /> <YAxis />
+                          <Tooltip /> <Bar dataKey="consumed" fill="#2e7d32" />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              </Grid>
+            </Grid>*/}
+          </Grid>
+        </Grid> 
+
+
+        <Card sx={{ borderRadius: 4 }}>
+          <CardContent>
+
+            <Typography variant="h6" mb={2}>
+              Recent Transactions
+            </Typography>
+
+             <TableContainer>
+
+              <Table>
+
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Document No</TableCell>
+                    <TableCell>Type</TableCell>
+                    <TableCell>Requester</TableCell>
+                    <TableCell>Status</TableCell>
+                  </TableRow>
+                </TableHead>
+
+                <TableBody>
+
+                  {recentRequests.map((row) => (
+                    <TableRow key={row.id}>
+                      <TableCell>{row.id}</TableCell>
+                      <TableCell>{row.type}</TableCell>
+                      <TableCell>{row.requester}</TableCell>
+
+                      <TableCell>
+                        <Chip
+                          label={row.status}
+                          color={
+                            row.status === 'Pending'
+                              ? 'warning'
+                              : row.status === 'Approved'
+                                ? 'success'
+                                : 'primary'
+                          }
+                        />
+                      </TableCell>
+
+                    </TableRow>
+                  ))}
+
+                </TableBody>
+
+              </Table>
+
+            </TableContainer> 
+            {/* <Grid container spacing={3}>
+              <Grid container spacing={3} mt={1}> <Grid item xs={12} lg={8}>
+                <Card sx={{
+                  height: "100%",
+                  borderRadius: 3,
+                  boxShadow: 2,
+                }}>
+                  <CardContent>
+                    <Typography variant="h6" mb={3}> MR → PO → GRPO Progress </Typography>
+                    <ResponsiveContainer width="100%" height={300}>
+                      <BarChart data={progressData}> <XAxis dataKey="stage" /> <YAxis /> <Tooltip />
+                        <Bar dataKey="qty" fill="#1976d2" /> </BarChart> </ResponsiveContainer>
+                    <Typography mt={2}> Overall Completion : {completion}% </Typography>
+                    <LinearProgress variant="determinate" value={completion} sx={{ mt: 1, height: 10, borderRadius: 2 }} />
+                  </CardContent>
+                </Card>
+              </Grid>
+                <Grid item xs={12} lg={4}>
+                  <Card sx={{
+                    height: "100%",
+                    borderRadius: 3,
+                    boxShadow: 2,
+                  }}>
+                    <CardContent>
+                      <Typography variant="h6"> Quantity Balance </Typography>
+                      <ResponsiveContainer width="100%" height={300}>
+                        <PieChart>
+                          <Pie data={pieData} dataKey="value" outerRadius={100} label > {pieData.map((entry, index) => (<Cell key={index} fill={COLORS[index]} />))} </Pie>
+                        </PieChart>
+                      </ResponsiveContainer>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              </Grid>
+              <Grid container spacing={3} mt={1}> <Grid item xs={12} lg={6}>
+                <Card sx={{
+                  height: "100%",
+                  borderRadius: 3,
+                  boxShadow: 2,
+                }}> <CardContent> <Typography variant="h6" mb={2}> Procurement Funnel </Typography>
+                    <ResponsiveContainer width="100%" height={300}> <FunnelChart> <Tooltip />
+                      <Funnel dataKey="value" data={funnelData} isAnimationActive > <LabelList position="right" fill="#000" stroke="none" dataKey="name" /> </Funnel>
+                    </FunnelChart>
+                    </ResponsiveContainer>
+                  </CardContent>
+                </Card>
+              </Grid>
+                <Grid item xs={12} lg={6}>
+                  <Card sx={{
+                    height: "100%",
+                    borderRadius: 3,
+                    boxShadow: 2,
+                  }}>
+                    <CardContent>
+                      <Typography variant="h6" mb={2}> Material Consumption </Typography>
+                      <ResponsiveContainer width="100%" height={300}>
+                        <BarChart data={materialConsumption}> <XAxis dataKey="material" /> <YAxis />
+                          <Tooltip /> <Bar dataKey="consumed" fill="#2e7d32" />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              </Grid>
+            </Grid> */}
+          </CardContent>
+        </Card>
+
+        {/* Progress section */}
+
+
+      </Box>
     </>
   );
 }

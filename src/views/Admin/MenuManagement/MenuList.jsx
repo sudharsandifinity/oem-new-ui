@@ -52,11 +52,15 @@ const MenuList = () => {
         header: 'Display Name'
       },
       {
-        accessorKey: 'status',
+        accessorFn: (row) => (row.status === 1 ? 'Active' : 'Inactive'),
+        id: 'status',
         header: 'Status',
-        Cell: ({ cell }) => (
-          <Chip label={cell.getValue() === 1 ? 'Active' : 'Inactive'} color={cell.getValue() === 1 ? 'success' : 'error'} />
-        )
+        Cell: ({ row }) => (
+          <Chip
+            label={row.original.status === 1 ? 'Active' : 'Inactive'}
+            color={row.original.status === 1 ? 'success' : 'error'}
+          />
+        ),
       },
       {
         accessorKey: 'action',
@@ -97,8 +101,8 @@ const MenuList = () => {
         >
           <Typography variant="h4">Menus management </Typography>
           <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />}>
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <HomeIcon sx={{ fontSize: 18, color: 'secondary.main' }} />
+            <Box sx={{ display: 'flex', alignItems: 'center' }} onClick={() => navigate('/')}>
+              <HomeIcon sx={{ fontSize: 18, color: 'secondary.main', cursor: 'pointer'  }} />
             </Box>
             <Typography variant="body2" color="text.primary">
               Menu Management

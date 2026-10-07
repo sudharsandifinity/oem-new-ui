@@ -10,7 +10,7 @@ export default function PublicRoute({ children }) {
 
     return (
       <Navigate
-        to={isCompAdmin ? "/CustomerAdmin" :(isSuperUser?"/admin": "/dashboard")}
+        to={isCompAdmin ? "/CustomerAdmin" :(isSuperUser?"/admin": "/amitdashboard")}
         replace
       />
     );

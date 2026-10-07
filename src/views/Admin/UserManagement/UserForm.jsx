@@ -9,7 +9,8 @@ import {
   MenuItem,
   Select,
   Switch,
-  TextField
+  TextField,
+  Typography
 } from '@mui/material';
 import PersonSearchIcon from '@mui/icons-material/PersonSearch';
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
@@ -57,6 +58,64 @@ export default function UserForm({ data, setData, readOnly = false, lockUserPass
   const { openLookup } = useLookup();
   const [is_super_User, setIs_super_User] = useState('0');
   const [is_com_admin, setIs_com_admin] = useState('0');
+  const [errorMsg, setErrorMsg] = useState({
+    roleError: '',
+    projectError: ''
+  });
+
+  const [errors, setErrors] = useState({
+    first_name: '',
+    last_name: '',
+    email: '',
+    password: '',
+    companyNames: '',
+    roleNames: '',
+    projectNames: ''
+  });
+
+  const validateField = (field, value) => {
+    let message = '';
+
+    switch (field) {
+      case 'first_name':
+        if (!value.trim()) message = 'First Name is required';
+        break;
+
+      case 'last_name':
+        if (!value.trim()) message = 'Last Name is required';
+        break;
+
+      case 'email':
+        if (!value.trim()) message = 'Email is required';
+        break;
+
+      case 'password':
+        if (!value.trim()) message = 'Password is required';
+        break;
+
+      case 'companyNames':
+        if (!value.trim()) message = 'Company Names is required';
+        break;
+
+      case 'roleNames':
+        if (!value.trim()) message = 'Role Names is required';
+        break;
+
+      case 'projectNames':
+        if (!value.trim()) message = 'Project Names is required';
+        break;
+
+      default:
+        break;
+    }
+
+    setErrors((prev) => ({
+      ...prev,
+      [field]: message
+    }));
+
+    return message === '';
+  };
 
   const handleChange = (field, value) => {
     setData((prev) => ({ ...prev, [field]: value }));
@@ -69,7 +128,7 @@ export default function UserForm({ data, setData, readOnly = false, lockUserPass
     openLookup({
       type: 'User',
       multiSelect: true,
-       selectedIds: data?.UserIds || [],
+      selectedIds: data?.UserIds || [],
 
       onSelect: (companies) => {
         const User = Array.isArray(companies) ? companies : [companies];
@@ -85,10 +144,19 @@ export default function UserForm({ data, setData, readOnly = false, lockUserPass
   };
 
   const handleOpenRoleLookup = () => {
+    if (!data?.companyIds) {
+      setErrorMsg((prev) => ({ ...prev, roleError: 'Please select a company first' }));
+      return;
+    } else {
+      setErrorMsg((prev) => ({ ...prev, roleError: '' }));
+
+    }
+    console.log("Opening role lookup", data?.companyIds);
     openLookup({
       type: 'adminrole',
       multiSelect: true,
-       selectedIds: data?.roleIds || [],
+      selectedIds: data?.roleIds || [],
+      companyId: data?.companyIds,
       onSelect: (role) => {
         const roles = Array.isArray(role) ? role : [role];
         console.log('Selected Roles', roles);
@@ -103,10 +171,17 @@ export default function UserForm({ data, setData, readOnly = false, lockUserPass
   };
 
   const handleOpenProjectLookup = () => {
+    if (!data?.companyIds) {
+      setErrorMsg((prev) => ({ ...prev, projectError: 'Please select a company first' }));
+      return;
+    } else {
+      setErrorMsg((prev) => ({ ...prev, projectError: '' }));
+
+    }
     openLookup({
       type: 'project',
       multiSelect: true,
-       selectedIds: data?.projectIds || [],
+      selectedIds: data?.projectIds || [],
 
       onSelect: (projects) => {
         const project = Array.isArray(projects) ? projects : [projects];
@@ -120,11 +195,11 @@ export default function UserForm({ data, setData, readOnly = false, lockUserPass
       }
     });
   };
-   const handleOpenCompanyLookup = () => {
+  const handleOpenCompanyLookup = () => {
     openLookup({
       type: 'admincompany',
       multiSelect: true,
-       selectedIds: data?.companyIds || [],
+      selectedIds: data?.companyIds || [],
 
       onSelect: (companies) => {
         const company = Array.isArray(companies) ? companies : [companies];
@@ -133,25 +208,27 @@ export default function UserForm({ data, setData, readOnly = false, lockUserPass
           ...prev,
           //companies: companies,
           companyIds: company.map((c) => c.id),
-          companyNames: company.map((c) => c.name).join(', ')
+          companyNames:company.map((c) => c.name).join(', ')
         }));
+        setErrorMsg((prev) => ({ ...prev, roleError: '', projectError: '' }));
+
       }
     });
   };
-   
+
   const columns = useMemo(
     () => [
-       {
-    id: 'slNo',
-    header: 'Sl No',
-    size: 80,
-    Cell: ({ row }) => row.index + 1,
-  },
+      {
+        id: 'slNo',
+        header: 'Sl No',
+        size: 80,
+        Cell: ({ row }) => row.index + 1,
+      },
       {
         accessorKey: 'name',
         header: ' Name'
       },
-      
+
       {
         accessorKey: 'action',
         header: 'Action',
@@ -187,35 +264,51 @@ export default function UserForm({ data, setData, readOnly = false, lockUserPass
       >
         <TextField
           fullWidth
+          required
           label="First Name"
           disabled={idDisabled}
           value={data?.first_name || ''}
           onChange={(e) => setData((prev) => ({ ...prev, first_name: (e.target.value).trim() }))}
+          onBlur={(e) => validateField('first_name', e.target.value)}
+          error={!!errors.first_name}
+          helperText={errors.first_name}
         />
-    
+
         <TextField
           fullWidth
+          required
           label="Last Name"
           disabled={idDisabled}
           value={data?.last_name || ''}
           onChange={(e) => setData((prev) => ({ ...prev, last_name: (e.target.value).trim() }))}
+          onBlur={(e) => validateField('last_name', e.target.value)}
+          error={!!errors.last_name}
+          helperText={errors.last_name}
         />
 
         <TextField
           fullWidth
+          required
           disabled={passwordDisabled}
           label="Email"
           value={data?.email || ''}
           onChange={(e) => setData((prev) => ({ ...prev, email: (e.target.value).trim() }))}
+          onBlur={(e) => validateField('email', e.target.value)}
+          error={!!errors.email}
+          helperText={errors.email}
         />
 
-        {!passwordDisabled&&<TextField
+        {!passwordDisabled && <TextField
           fullWidth
+          required
           disabled={idDisabled}
           label="Password"
           type="password"
           value={data?.password || ''}
           onChange={(e) => setData((prev) => ({ ...prev, password: (e.target.value).trim() }))}
+          onBlur={(e) => validateField('password', e.target.value)}
+          error={!!errors.password}
+          helperText={errors.password}
         />}
       </Box>
 
@@ -232,6 +325,7 @@ export default function UserForm({ data, setData, readOnly = false, lockUserPass
         <TextField
           fullWidth
           label="Company"
+          required
           disabled={idDisabled}
           value={data?.companyNames || ''}
           InputProps={{
@@ -245,8 +339,17 @@ export default function UserForm({ data, setData, readOnly = false, lockUserPass
             )
           }}
         />
+        {errorMsg?.roleError ? (
+          <Typography
+            color="error"
+            sx={{ mb: 0.5, display: 'block' }}
+          >
+            {errorMsg.roleError}
+          </Typography>
+        ) : null}
         <TextField
           fullWidth
+          required
           label="Role"
           disabled={idDisabled}
           value={data?.roleNames || ''}
@@ -261,9 +364,17 @@ export default function UserForm({ data, setData, readOnly = false, lockUserPass
             )
           }}
         />
-
+        {/* {errorMsg?.projectError ? (
+          <Typography
+            color="error"
+            sx={{ mb: 0.5, display: 'block' }}
+          >
+            {errorMsg.projectError}
+          </Typography>
+        ) : null}
         <TextField
           fullWidth
+          required
           label="Project"
           disabled={idDisabled}
           value={data?.projectNames || ''}
@@ -277,20 +388,22 @@ export default function UserForm({ data, setData, readOnly = false, lockUserPass
               </InputAdornment>
             )
           }}
-        />
+        /> */}
 
         <Box
           sx={{
             height: 56,
             px: 2,
             display: 'flex',
-            gap: 60,
+            gap: 20,
             alignItems: 'center'
           }}
         >
-           <FormControlLabel
+          <FormControlLabel
             control={
               <Android12Switch
+                disabled={idDisabled}
+
                 checked={data?.status === 1}
                 onChange={(e) =>
                   setData((prev) => ({
@@ -301,6 +414,38 @@ export default function UserForm({ data, setData, readOnly = false, lockUserPass
               />
             }
             label="Status"
+          />
+          <FormControlLabel
+            control={
+              <Android12Switch
+                disabled={idDisabled}
+
+                checked={data?.is_super_user === 1}
+                onChange={(e) =>
+                  setData((prev) => ({
+                    ...prev,
+                    is_super_user: e.target.checked ? 1 : 0
+                  }))
+                }
+              />
+            }
+            label="Is Super User"
+          />
+          <FormControlLabel
+            control={
+              <Android12Switch
+                disabled={idDisabled}
+
+                checked={data?.is_com_admin === true}
+                onChange={(e) =>
+                  setData((prev) => ({
+                    ...prev,
+                    is_com_admin: e.target.checked ? true : false
+                  }))
+                }
+              />
+            }
+            label="Is Company Admin"
           />
         </Box>
       </Box>

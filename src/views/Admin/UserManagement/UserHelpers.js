@@ -6,6 +6,8 @@ export const mapApiToForm = (userData) => ({
     email: userData.email || '',
     status: userData.status,
     is_approver: userData.is_approver ?? false,
+    is_super_user:userData.is_super_user ?? false,
+    is_com_admin:userData.is_com_admin ?? false,
 
     // Company
     companies: userData.Companies || [],
@@ -48,9 +50,11 @@ export const buildPayload = (form) => ({
   password:form.password,
   email:form.email,
   roleIds: form.roleIds,
-  projectIds: form.projectIds,
+  //projectIds: form.projectIds,
   companyIds:form.companyIds,
-  is_approver:form.is_approver,
+ is_com_admin:Boolean(form.is_com_admin),
+  is_super_user:form.is_super_user,
+  //is_approver:form.is_approver,
   status: form.status,
  
 });
@@ -58,9 +62,12 @@ export const updatebuildPayload = (form) => ({
  first_name: form.first_name,
   last_name: form.last_name,
   roleIds: form.roleIds,
-  projectIds: form.projectIds,
+  //projectIds: form.projectIds,
   companyIds:form.companyIds,
-  is_approver:form.is_approver,
+  is_super_user:form.is_super_user,
+ is_com_admin:Boolean(form.is_com_admin),
+
+  //is_approver:form.is_approver,
   status: form.status,
  
 });

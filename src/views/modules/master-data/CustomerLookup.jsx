@@ -51,9 +51,9 @@ export default function CustomerSelectPopup({ open, onClose, onSelectCustomer })
   const filteredData = useMemo(() => {
     return (customers || []).filter((c) => {
       return (
-        (!filters.CardCode || c.CardCode.toLowerCase().includes(filters.CardCode.toLowerCase())) &&
-        (!filters.CardName || c.CardName.toLowerCase().includes(filters.CardName.toLowerCase())) &&
-        (!filters.ContactPerson || c.ContactPerson.toLowerCase().includes(filters.ContactPerson.toLowerCase())) &&
+        (!filters.CardCode || c.CardCode?.toLowerCase().includes(filters.CardCode?.toLowerCase())) &&
+        (!filters.CardName || c.CardName?.toLowerCase().includes(filters.CardName?.toLowerCase())) &&
+        (!filters.ContactPerson || c.ContactPerson?.toLowerCase().includes(filters.ContactPerson?.toLowerCase())) &&
         (!filters.type || c.type === filters.type)
       );
     });

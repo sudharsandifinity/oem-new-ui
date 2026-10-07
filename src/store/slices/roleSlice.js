@@ -1,7 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from '../../api/axios';
 
-
 export const getroles = createAsyncThunk('role/getroles', async (_, thunkAPI) => {
   try {
     const response = await axios.get('/admin/roles');
@@ -32,7 +31,7 @@ export const getRoleId = createAsyncThunk('role/getById', async (id, thunkAPI) =
     return thunkAPI.rejectWithValue(error.response?.data?.message || 'Failed to fetch Role');
   }
 });
-export const deleteRole=createAsyncThunk('role/delete', async (id, thunkAPI) => {
+export const deleteRole = createAsyncThunk('role/delete', async (id, thunkAPI) => {
   try {
     const response = await axios.delete(`/admin/roles/${id}`);
     return response.data;
@@ -41,10 +40,9 @@ export const deleteRole=createAsyncThunk('role/delete', async (id, thunkAPI) => 
   }
 });
 
-
 export const updateRole = createAsyncThunk('role/update', async ({ id, payload }, thunkAPI) => {
   try {
-    const response = await axios.patch(`/admin/roles/${id}`, payload);
+    const response = await axios.put(`/admin/roles/${id}`, payload);
     return response.data;
   } catch (error) {
     const d = error.response?.data;
@@ -58,15 +56,15 @@ export const updateRole = createAsyncThunk('role/update', async ({ id, payload }
 const initialState = {
   roles: [],
   listLoading: false,
-  createLoading:false,
-  updateloading:false,
-  savesuccess:false,
-  totalCount:0,
+  createLoading: false,
+  updateloading: false,
+  savesuccess: false,
+  totalCount: 0,
   error: null,
 
-  currentRole:null,
-  currentRoleloading:false,
-  currentRoleError:null,
+  currentRole: null,
+  currentRoleloading: false,
+  currentRoleError: null
 };
 
 const roleSlice = createSlice({
@@ -80,7 +78,7 @@ const roleSlice = createSlice({
       state.error = null;
       state.currentRole = null;
       state.currentRoleError = null;
-    },
+    }
   },
   extraReducers: (builder) => {
     builder
@@ -97,49 +95,50 @@ const roleSlice = createSlice({
         state.error = action.payload;
       })
       .addCase(getRoleId.pending, (state) => {
-              state.currentRoleloading = true;
-              state.currentRole = null;
-              state.currentRoleError = null;
-            })
-            .addCase(getRoleId.fulfilled, (state, action) => {
-              state.currentRoleloading = false;
-              state.currentRole = action.payload;
-            })
-            .addCase(getRoleId.rejected, (state, action) => {
-              state.currentRoleloading = false;
-              state.currentRoleError = action.payload || 'Failed to load';
-            })
-      
-            .addCase(createRole.pending, (state) => {
-              state.createLoading = true;
-              state.error = null;
-              state.saveSuccess = false;
-            })
-            .addCase(createRole.fulfilled, (state) => {
-              state.createLoading = false;
-              state.saveSuccess = true;
-            })
-            .addCase(createRole.rejected, (state, action) => {
-              state.createLoading = false;
-              state.error = action.payload?.message || action.payload;
-            })
-            .addCase(deleteRole.fulfilled, (state, action) => {
-        state.roles = state.roles.filter((r) => r.id !== action.payload);
+        state.currentRoleloading = true;
+        state.currentRole = null;
+        state.currentRoleError = null;
       })
-            .addCase(updateRole.pending, (state) => {
-              state.updateLoading = true;
-              state.error = null;
-              state.saveSuccess = false;
-            })
-            .addCase(updateRole.fulfilled, (state) => {
-              state.updateLoading = false;
-              state.saveSuccess = true;
-            })
-            .addCase(updateRole.rejected, (state, action) => {
-              state.updateLoading = false;
-              state.error = action.payload?.message || action.payload;
-            })
-          
+      .addCase(getRoleId.fulfilled, (state, action) => {
+        state.currentRoleloading = false;
+        state.currentRole = action.payload;
+      })
+      .addCase(getRoleId.rejected, (state, action) => {
+        state.currentRoleloading = false;
+        state.currentRoleError = action.payload || 'Failed to load';
+      })
+ 
+      .addCase(createRole.pending, (state) => {
+        state.createLoading = true;
+        state.error = null;
+        state.saveSuccess = false;
+      })
+      .addCase(createRole.fulfilled, (state) => {
+        state.createLoading = false;
+        state.saveSuccess = true;
+      })
+      .addCase(createRole.rejected, (state, action) => {
+        state.createLoading = false;
+        state.error = action.payload?.message || action.payload;
+      })
+      .addCase(deleteRole.fulfilled, (state, action) => {
+        const deletedId = action.meta.arg;
+        state.roles = state.roles.filter((role) => role.id !== deletedId);
+        
+      })
+      .addCase(updateRole.pending, (state) => {
+        state.updateLoading = true;
+        state.error = null;
+        state.saveSuccess = false;
+      })
+      .addCase(updateRole.fulfilled, (state) => {
+        state.updateLoading = false;
+        state.saveSuccess = true;
+      })
+      .addCase(updateRole.rejected, (state, action) => {
+        state.updateLoading = false;
+        state.error = action.payload?.message || action.payload;
+      });
   }
 });
 export const { resetRoleState } = roleSlice.actions;

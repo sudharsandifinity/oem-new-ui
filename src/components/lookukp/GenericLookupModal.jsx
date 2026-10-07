@@ -22,6 +22,7 @@ import {
 } from '@mui/material';
 import Checkbox from '@mui/material/Checkbox';
 import CloseIcon from '@mui/icons-material/Close';
+import { useLookup } from '../../context/LookupContext';
 
 export default function GenericLookupModal({
   open,
@@ -39,13 +40,15 @@ export default function GenericLookupModal({
   const [filterValues, setFilterValues] = useState({});
   const [selectedRows, setSelectedRows] = useState([]);
   // ================= LOAD DATA =================
+
+ 
   useEffect(() => {
     if (!open) return;
 
     setSelectedRows([]);
 
     const initialFilters = {};
-
+console.log("filtersuseeffect", filters);
     filters.forEach((f) => {
       initialFilters[f.key] = '';
     });
@@ -58,7 +61,8 @@ export default function GenericLookupModal({
     } else {
       setSelectedRows([]);
     }
-  }, [open, data, selectedIds, multiSelect]);
+  },[open]);
+  //}, [open, data, selectedIds, multiSelect]);
   const handleRowSelection = (row) => {
     console.log('handlerowselection', multiSelect);
     if (!multiSelect) {

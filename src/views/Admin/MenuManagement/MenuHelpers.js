@@ -1,9 +1,8 @@
-export const mapApiToForm = (menuData,company,menu,form) => ({
+export const mapApiToForm = (menuData,company,form,menu) => ({
   
     id: menuData.id,
     name: menuData.name || '',
     display_name: menuData.display_name || '',
-    scope: menuData.scope || '',
     status: menuData.status,
     order_number: menuData.order_number ?? false,
 
@@ -17,14 +16,13 @@ export const mapApiToForm = (menuData,company,menu,form) => ({
 
     // Project
     formId: menuData.formId,
-    formNames: form?.filter(f => String(menuData.formId)===String(f.id))?.map((p) => p.Name).join(', ') || ''
+    formNames: form?.filter(f => String(menuData.formId)===String(f.id))?.map((p) => p.name).join(', ') || ''
 });
 
 
 export const buildPayload = (form) => ({
     name: form.name || '',
     display_name: form.display_name || '',
-    scope: form.scope || '',
     status: form.status,
     order_number: form.order_number ?? false,
     companyId: form.companyId ||'',
@@ -35,7 +33,6 @@ export const updatebuildPayload = (form) => ({
 id: form.id,
     name: form.name || '',
     display_name: form.display_name || '',
-    scope: form.scope || '',
     status: form.status,
     order_number: form.order_number ?? false,
     companyId: form.companyId || [],

@@ -53,8 +53,8 @@ export default function PRGeneralTab({ data, setData, readOnly = false }) {
                 }))
               }
             >
-              <MenuItem value={12}>User</MenuItem>
-              <MenuItem value={171}>Employee</MenuItem>
+              <MenuItem value={'12'}>User</MenuItem>
+              <MenuItem value={'171'}>Employee</MenuItem>
             </Select>
           </FormControl>
 
@@ -96,7 +96,7 @@ export default function PRGeneralTab({ data, setData, readOnly = false }) {
         open={requestorModalOpen}
         onClose={() => setRequestorModalOpen(false)}
         onSelect={handleRequestorSelect}
-        requestorType={data?.RequestorType || 'User'}
+        requestorType={data?.RequestorType || '12'}
       />
     </Box>
   );

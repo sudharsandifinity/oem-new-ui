@@ -15,8 +15,7 @@ import GRPOContentTab from './ContentTab';
 import GRPOAttachmentTab from './AttachmentTab';
 
 import { useRef } from 'react';
-import { useReactToPrint } from 'react-to-print';
-import MRPrintTemplate from '../../utils/MRPrintTemplate';
+
 import logo from "../../assets/images/logo.png";
 
 const noop = () => {};
@@ -50,24 +49,7 @@ const { currentGRPO, currentGRPOLoading, currentGRPOError } = useSelector((s) =>
   const [tabValue, setTabValue] = useState(0);
   const [form, setForm] = useState(null);
   const [lines, setLines] = useState([]);
-  //print
-  const contentRef = useRef(null);
 
-  const handlePrint = () => {
-    const printWindow = window.open('', '_blank');
-
-    printWindow.document.write(MRPrintTemplate({form,lines}));
-    console.log('handleprintform', form, lines);
-
-    printWindow.document.close();
-
-    printWindow.onload = () => {
-      printWindow.focus();
-      printWindow.print();
-      printWindow.close();
-    };
-  };
-  //print
   
 
   useEffect(() => {
@@ -112,8 +94,8 @@ const { currentGRPO, currentGRPOLoading, currentGRPOError } = useSelector((s) =>
             <MRPrintTemplate data={form} />
           </div> */}
           <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />}>
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <HomeIcon sx={{ fontSize: 18, color: 'secondary.main' }} />
+            <Box sx={{ display: 'flex', alignItems: 'center' }} onClick={() => navigate('/')}>
+              <HomeIcon sx={{ fontSize: 18, color: 'secondary.main', cursor: 'pointer'  }} />
             </Box>
             <Typography variant="body2" color="text.primary">
               Goods Receipt PO
@@ -141,8 +123,6 @@ const { currentGRPO, currentGRPOLoading, currentGRPOError } = useSelector((s) =>
             <Tab label="Contents" />
             <Tab label="Attachments" />
           </Tabs>
-          <Button  variant="contained"
-    sx={{ ml: 2 }} onClick={handlePrint}>print</Button>
         </Box>
 
         <Box sx={{ p: 3 }}>

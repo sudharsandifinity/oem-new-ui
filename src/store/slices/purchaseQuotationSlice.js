@@ -16,7 +16,7 @@ export const getPurchaseQuotations = createAsyncThunk('purchaseQuotation/getAll'
     const response = await API.get('/sap/purchase-quotations', { params: { top, skip } });
     return {
       orders: response.data.value,
-      totalCount: response.data['odata.count'] || 0
+      totalCount: response.data['@odata.count'] || 0
     };
   } catch (error) {
     return thunkAPI.rejectWithValue(error.response?.data?.message || 'Failed to fetch purchase orders');

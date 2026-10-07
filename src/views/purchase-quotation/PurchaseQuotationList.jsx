@@ -190,12 +190,13 @@ export default function PurchaseQuotationList() {
                 display: 'flex',
                 alignItems: 'center'
               }}
+              onClick={() => navigate('/')}
             >
               <HomeIcon
                 sx={{
                   fontSize: 18,
                   color:
-                    'secondary.main'
+                    'secondary.main', cursor: 'pointer' 
                 }}
               />
             </Box>

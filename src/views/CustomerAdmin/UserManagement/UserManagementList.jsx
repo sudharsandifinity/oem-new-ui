@@ -97,7 +97,7 @@ const columns = [
     filterable: false,
     minWidth: 120,
     renderCell: (params) => (
-      <Stack direction="row" height="100%" spacing={1}>{console.log("params.row",params.row)}
+      <Stack direction="row" height="100%" spacing={1}>
         <IconButton
           size="small"
           color="primary"
@@ -139,8 +139,8 @@ const columns = [
         >
           <Typography variant="h4">User management </Typography>
           <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />}>
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <HomeIcon sx={{ fontSize: 18, color: 'secondary.main' }} />
+            <Box sx={{ display: 'flex', alignItems: 'center' }} onClick={() => navigate('/')}>
+              <HomeIcon sx={{ fontSize: 18, color: 'secondary.main', cursor: 'pointer'  }} />
             </Box>
             <Typography variant="body2">User Management </Typography>
             <Typography variant="body2" color="secondary" fontWeight={600}>

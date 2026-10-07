@@ -24,6 +24,8 @@ import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import SearchIcon from '@mui/icons-material/Search';
 import FreightLookupModal from '../master-data/FreightLookupModal';
 import TaxCodeLookupModal from '../master-data/TaxCodeLookup';
+import { useDispatch, useSelector } from 'react-redux';
+import { getFreights } from '../../../store/slices/freightSlice';
 
 const createRow = (id) => ({
   id,
@@ -38,7 +40,13 @@ const createRow = (id) => ({
 });
 
 export default function FreightPopup({open, onClose, onApply, initialExpenses,isPurchase}) {
-
+  const { freights = [], loading, error } = useSelector((state) => state.freight);
+  const dispatch = useDispatch();
+  useEffect(() => {
+    if (open && freights.length === 0) {
+      dispatch(getFreights());
+    }
+  }, [open, freights.length, dispatch]);
   const [rows, setRows] = useState([
     createRow(1)
   ]);
@@ -248,11 +256,11 @@ export default function FreightPopup({open, onClose, onApply, initialExpenses,is
                       sx={{
                         minWidth: 220
                       }}
-                    >
+                    >{console.log("freights",freights,   freights.find((expense) => Number(expense.ExpensCode) === Number(row.freightCode))?.Name )}
                       <TextField
                         size="small"
                         value={
-                          row.freightName
+                         freights?.find((expense) => Number(expense.ExpensCode) === Number(row.freightCode))?.Name 
                         }
                         onChange={(e) =>
                           updateRow(
