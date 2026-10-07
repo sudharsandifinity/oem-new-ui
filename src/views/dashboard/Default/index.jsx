@@ -1,20 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import {
-  Avatar,
-  Box,
-  Button,
-  Chip,
-  CircularProgress,
-  Collapse,
-  Divider,
-  Grid,
-  IconButton,
-  Paper,
-  Tooltip,
-  Typography
-} from '@mui/material';
+import { Avatar, Box, Button, Chip, CircularProgress, Divider, Grid, IconButton, Paper, Tooltip, Typography } from '@mui/material';
 import { alpha } from '@mui/material/styles';
 
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
@@ -23,7 +10,6 @@ import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import FactCheckIcon from '@mui/icons-material/FactCheck';
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import AssignmentIcon from '@mui/icons-material/Assignment';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import RefreshIcon from '@mui/icons-material/Refresh';
 
 import { getPendingCounts } from '../../../store/slices/dashboardSlice';
@@ -32,6 +18,12 @@ import { getPendingDeliveryReport } from '../../../store/slices/materialRequestS
 
 const DOC_STATUS_MENUS = ['Document Status', 'Pending Delivery'];
 const DOC_STATUS_PREVIEW = 5;
+const CARD_HEIGHT = 420;
+
+const cardSx = { borderRadius: 2, overflow: 'hidden', height: CARD_HEIGHT, display: 'flex', flexDirection: 'column' };
+const cardHeaderSx = { px: 2.5, py: 1.75, display: 'flex', alignItems: 'center', gap: 1.5, flexShrink: 0 };
+const cardBodySx = { flex: 1, minHeight: 0, overflowY: 'auto' };
+const cardEmptySx = { height: '100%', p: 4, display: 'flex', alignItems: 'center', justifyContent: 'center' };
 
 const DOC_STATUS_COLORS = {
   'PR Pending': 'warning',
@@ -136,7 +128,6 @@ export default function Dashboard() {
   const { counts, loading } = useSelector((s) => s.dashboard);
   const { count: approvalsCount, listLoading: approvalsLoading } = useSelector((s) => s.approval);
   const { pendingDelivery, pendingDeliveryLoading } = useSelector((s) => s.materialRequest);
-  const [projectsOpen, setProjectsOpen] = useState(false);
 
   const fullName = [user?.first_name, user?.last_name].filter(Boolean).join(' ') || 'there';
   const projects = Array.isArray(user?.Projects) ? user.Projects : [];
@@ -250,87 +241,60 @@ export default function Dashboard() {
         </Grid>
       )}
 
-      <Grid container spacing={3} alignItems="flex-start">
+      <Grid container spacing={3}>
         <Grid size={{ xs: 12, md: 6 }}>
-          <Paper variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden' }}>
-            <Box
-              role="button"
-              tabIndex={0}
-              aria-expanded={projectsOpen}
-              onClick={() => setProjectsOpen((open) => !open)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault();
-                  setProjectsOpen((open) => !open);
-                }
-              }}
-              sx={{
-                px: 2.5,
-                py: 1.75,
-                display: 'flex',
-                alignItems: 'center',
-                gap: 1.5,
-                cursor: 'pointer',
-                userSelect: 'none',
-                '&:hover': { bgcolor: 'action.hover' }
-              }}
-            >
+          <Paper variant="outlined" sx={cardSx}>
+            <Box sx={cardHeaderSx}>
               <AccountTreeIcon color="secondary" fontSize="small" />
               <Typography variant="h4" sx={{ flex: 1 }}>
                 Projects
               </Typography>
               <Chip size="small" color="secondary" label={projects.length} />
-              <ExpandMoreIcon
-                fontSize="small"
-                sx={{ color: 'text.secondary', transition: 'transform 0.2s', transform: projectsOpen ? 'rotate(180deg)' : 'none' }}
-              />
             </Box>
-            <Collapse in={projectsOpen} timeout="auto" unmountOnExit>
-              <Divider />
-              <Box sx={{ maxHeight: 340, overflowY: 'auto' }}>
-                {projects.length === 0 ? (
-                  <Box sx={{ p: 4, textAlign: 'center' }}>
-                    <Typography color="text.secondary">No projects assigned.</Typography>
-                  </Box>
-                ) : (
-                  projects.map((p, i) => (
-                    <Box
-                      key={p.id ?? p.Code ?? i}
-                      sx={{
-                        px: 2.5,
-                        py: 1.25,
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 2,
-                        borderBottom: i < projects.length - 1 ? '1px solid' : 'none',
-                        borderColor: 'divider'
-                      }}
-                    >
-                      <Typography variant="body2" sx={{ color: 'text.disabled', width: 24, textAlign: 'right' }}>
-                        {i + 1}
+            <Divider />
+            <Box sx={cardBodySx}>
+              {projects.length === 0 ? (
+                <Box sx={cardEmptySx}>
+                  <Typography color="text.secondary">No projects assigned.</Typography>
+                </Box>
+              ) : (
+                projects.map((p, i) => (
+                  <Box
+                    key={p.id ?? p.Code ?? i}
+                    sx={{
+                      px: 2.5,
+                      py: 1.25,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 2,
+                      borderBottom: i < projects.length - 1 ? '1px solid' : 'none',
+                      borderColor: 'divider'
+                    }}
+                  >
+                    <Typography variant="body2" sx={{ color: 'text.disabled', width: 24, textAlign: 'right' }}>
+                      {i + 1}
+                    </Typography>
+                    <Box sx={{ minWidth: 0, flex: 1 }}>
+                      <Typography variant="body1" sx={{ fontWeight: 600 }} noWrap>
+                        {p.Code || '—'}
                       </Typography>
-                      <Box sx={{ minWidth: 0, flex: 1 }}>
-                        <Typography variant="body1" sx={{ fontWeight: 600 }} noWrap>
-                          {p.Code || '—'}
+                      {p.Name && (
+                        <Typography variant="body2" color="text.secondary" noWrap>
+                          {p.Name}
                         </Typography>
-                        {p.Name && (
-                          <Typography variant="body2" color="text.secondary" noWrap>
-                            {p.Name}
-                          </Typography>
-                        )}
-                      </Box>
+                      )}
                     </Box>
-                  ))
-                )}
-              </Box>
-            </Collapse>
+                  </Box>
+                ))
+              )}
+            </Box>
           </Paper>
         </Grid>
 
         {docStatusUrl && (
           <Grid size={{ xs: 12, md: 6 }}>
-            <Paper variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden' }}>
-              <Box sx={{ px: 2.5, py: 1.75, display: 'flex', alignItems: 'center', gap: 1.5 }}>
+            <Paper variant="outlined" sx={cardSx}>
+              <Box sx={cardHeaderSx}>
                 <AssignmentIcon color="primary" fontSize="small" />
                 <Typography variant="h4" sx={{ flex: 1 }}>
                   Document Status
@@ -338,40 +302,42 @@ export default function Dashboard() {
                 <Chip size="small" color="primary" label={pendingDeliveryLoading ? '…' : docStatusRows.length} />
               </Box>
               <Divider />
-              {pendingDeliveryLoading && docStatusRows.length === 0 ? (
-                <Box sx={{ p: 4, display: 'flex', justifyContent: 'center' }}>
-                  <CircularProgress size={24} />
-                </Box>
-              ) : docStatusRows.length === 0 ? (
-                <Box sx={{ p: 4, textAlign: 'center' }}>
-                  <Typography color="text.secondary">No open documents.</Typography>
-                </Box>
-              ) : (
-                docStatusRows.slice(0, DOC_STATUS_PREVIEW).map((r, i, shown) => (
-                  <Box
-                    key={r.mrDocEntry}
-                    sx={{
-                      px: 2.5,
-                      py: 1.25,
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 2,
-                      borderBottom: i < shown.length - 1 ? '1px solid' : 'none',
-                      borderColor: 'divider'
-                    }}
-                  >
-                    <Box sx={{ minWidth: 0, flex: 1 }}>
-                      <Typography variant="body1" sx={{ fontWeight: 600 }} noWrap>
-                        MR {r.mrDocEntry}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary" noWrap>
-                        {[r.projectCode, r.projectName].filter(Boolean).join(' - ') || '—'}
-                      </Typography>
-                    </Box>
-                    <Chip size="small" variant="outlined" color={DOC_STATUS_COLORS[r.status] || 'default'} label={r.status || '—'} />
+              <Box sx={cardBodySx}>
+                {pendingDeliveryLoading && docStatusRows.length === 0 ? (
+                  <Box sx={cardEmptySx}>
+                    <CircularProgress size={24} />
                   </Box>
-                ))
-              )}
+                ) : docStatusRows.length === 0 ? (
+                  <Box sx={cardEmptySx}>
+                    <Typography color="text.secondary">No open documents.</Typography>
+                  </Box>
+                ) : (
+                  docStatusRows.slice(0, DOC_STATUS_PREVIEW).map((r, i, shown) => (
+                    <Box
+                      key={r.mrDocEntry}
+                      sx={{
+                        px: 2.5,
+                        py: 1.25,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 2,
+                        borderBottom: i < shown.length - 1 ? '1px solid' : 'none',
+                        borderColor: 'divider'
+                      }}
+                    >
+                      <Box sx={{ minWidth: 0, flex: 1 }}>
+                        <Typography variant="body1" sx={{ fontWeight: 600 }} noWrap>
+                          MR {r.mrDocEntry}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary" noWrap>
+                          {[r.projectCode, r.projectName].filter(Boolean).join(' - ') || '—'}
+                        </Typography>
+                      </Box>
+                      <Chip size="small" variant="outlined" color={DOC_STATUS_COLORS[r.status] || 'default'} label={r.status || '—'} />
+                    </Box>
+                  ))
+                )}
+              </Box>
               <Divider />
               <Box sx={{ px: 1.5, py: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <Typography variant="caption" color="text.secondary" sx={{ pl: 1 }}>
