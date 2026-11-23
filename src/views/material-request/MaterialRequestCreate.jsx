@@ -16,7 +16,7 @@ import BOMSelectModal from './BOMSelectModal';
 import BOMItemSelectModal from './BOMItemSelectModal';
 import { createMR, resetMRState, getBOQOpenQty } from '../../store/slices/materialRequestSlice';
 import { createDraft } from '../../store/slices/draftSlice';
-import { buildPayload, buildBomChildPicker, fetchHasChildren } from './mrHelpers';
+import { buildPayload, buildBomChildPicker, fetchHasChildren, resolveDefaultWarehouse } from './mrHelpers';
 
 const today = new Date().toISOString().split('T')[0];
 const nowTime = new Date().toTimeString().slice(0, 5);
@@ -40,7 +40,7 @@ const initialForm = () => ({
   Remark: ''
 });
 
-const boqLineToRow = (line, projectCode, bom = {}) => ({
+const boqLineToRow = (line, projectCode, bom = {}, defaultWarehouse = '') => ({
   ...emptyRow(),
   BOMLineNum: String(line.LineId ?? ''),
   BOMEntry: bom.DocEntry ?? '',
@@ -53,7 +53,7 @@ const boqLineToRow = (line, projectCode, bom = {}) => ({
   BOMQty: line.U_PQty ?? 0,
   BOMOpenQty: 0,
   IssuedQty: line.U_AQty ?? 0,
-  WarehouseCode: line.U_Whs || '03',
+  WarehouseCode: line.U_Whs || defaultWarehouse,
   ProjectCode: projectCode ?? '',
   Quantity: line.U_PQty ?? 0,
   ApprovedQuantity: 0,
@@ -67,6 +67,8 @@ export default function MaterialRequestCreate() {
   const dispatch = useDispatch();
   const { createLoading, saveSuccess, error } = useSelector((s) => s.materialRequest);
   const { user } = useSelector((s) => s.auth);
+  const { warehouses } = useSelector((s) => s.warehouse);
+  const defaultWarehouse = resolveDefaultWarehouse(warehouses);
 
   const [tabValue, setTabValue] = useState(0);
   const [form, setForm] = useState(initialForm());
@@ -148,7 +150,7 @@ export default function MaterialRequestCreate() {
     const mapped = selectedLines.map((l) => {
       const info = bomOpenMap[String(l.U_UniqueID)] || {};
       return {
-        ...boqLineToRow(l, projCode, pendingBOM),
+        ...boqLineToRow(l, projCode, pendingBOM, defaultWarehouse),
         Title: titleByLineId[l.LineId] || '',
         BOMAvailable: info.tempAvailable,
         BOMOpenQty: info.bomOpenQty ?? 0,

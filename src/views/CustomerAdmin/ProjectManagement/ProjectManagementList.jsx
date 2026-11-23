@@ -38,10 +38,11 @@ export default function ProjectManagementList() {
       const result = await dispatch(syncCompanyProjects()).unwrap();
       const inserted = result?.inserted ?? 0;
       const updated = result?.updated ?? 0;
+      const deactivated = result?.deactivated ?? 0;
       setSnackbar({
         open: true,
         severity: 'success',
-        message: `Projects synced — ${inserted} added, ${updated} updated.`
+        message: `Projects synced — ${inserted} added, ${updated} updated, ${deactivated} deactivated.`
       });
       loadProjects();
     } catch (err) {

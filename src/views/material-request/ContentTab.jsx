@@ -1,4 +1,4 @@
-import { Fragment, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   Box,
@@ -27,7 +27,16 @@ import { getItems } from '../../store/slices/itemSlice';
 import RequestorSelectModal from './RequestorSelectModal';
 import UoMSelectModal from './UoMSelectModal';
 import AppDatePicker from 'ui-component/AppDatePicker';
-import { buildChildRow, fetchHasChildren, emptyRow, withTrailingEmptyRow, withTrailingChildSlot, withTrailingBomChildPicker } from './mrHelpers';
+import { getWarehouses } from '../../store/slices/warehouseSlice';
+import {
+  buildChildRow,
+  fetchHasChildren,
+  emptyRow,
+  withTrailingEmptyRow,
+  withTrailingChildSlot,
+  withTrailingBomChildPicker,
+  resolveDefaultWarehouse
+} from './mrHelpers';
 
 const TABLE_COLUMNS = [
   { key: 'seq', label: '#', width: 50 },
@@ -75,7 +84,18 @@ export default function MRContentTab({
   const { openLookup } = useLookup();
   const { items, loading: itemsLoading } = useSelector((s) => s.item);
   const { user } = useSelector((s) => s.auth);
+  const { warehouses, loading: warehousesLoading } = useSelector((s) => s.warehouse);
+  const defaultWarehouse = resolveDefaultWarehouse(warehouses);
   const [requestorModalOpen, setRequestorModalOpen] = useState(false);
+
+  useEffect(() => {
+    if (!readOnly && !warehousesLoading && !(warehouses || []).length) dispatch(getWarehouses());
+  }, [dispatch, readOnly]);
+
+  const applyDefaultWarehouse = (rowId) => {
+    if (!defaultWarehouse) return;
+    setRows((prev) => prev.map((r) => (r.id === rowId && !String(r.WarehouseCode ?? '').trim() ? { ...r, WarehouseCode: defaultWarehouse } : r)));
+  };
   const [uomModalOpen, setUomModalOpen] = useState(false);
   const [activeUomRowId, setActiveUomRowId] = useState(null);
 
@@ -120,6 +140,7 @@ export default function MRContentTab({
             );
             return withTrailingBomChildPicker(updated);
           });
+          applyDefaultWarehouse(rowId);
         }
       });
       return;
@@ -132,6 +153,7 @@ export default function MRContentTab({
         onSelect: (item) => {
           updateRow(rowId, 'ItemCode', item.ItemCode || '');
           updateRow(rowId, 'ItemDescription', item.ItemName || item.ItemDescription || '');
+          applyDefaultWarehouse(rowId);
           setRows((prev) => withTrailingChildSlot(prev, rowId));
         }
       });
@@ -144,6 +166,7 @@ export default function MRContentTab({
       onSelect: async (item) => {
         updateRow(rowId, 'ItemCode', item.ItemCode || '');
         updateRow(rowId, 'ItemDescription', item.ItemName || item.ItemDescription || '');
+        applyDefaultWarehouse(rowId);
         setRows((prev) => prev.filter((r) => r.ParentRowId !== rowId));
         if (item.ItemCode && (await fetchHasChildren(dispatch, item.ItemCode))) {
           setRows((prev) => {

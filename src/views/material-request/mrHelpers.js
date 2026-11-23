@@ -7,6 +7,15 @@ export const MR_STATUS_META = {
   R: { label: 'Rejected', color: 'error' }
 };
 
+export const DEFAULT_MR_WAREHOUSE = '03';
+
+export const resolveDefaultWarehouse = (warehouses) => {
+  const match = (Array.isArray(warehouses) ? warehouses : []).find(
+    (w) => String(w?.WarehouseCode ?? w?.WhsCode ?? '').trim() === DEFAULT_MR_WAREHOUSE && w?.Inactive !== 'tYES'
+  );
+  return match ? DEFAULT_MR_WAREHOUSE : '';
+};
+
 export const emptyRow = () => ({
   id: Date.now() + Math.random(),
   LineId: null,

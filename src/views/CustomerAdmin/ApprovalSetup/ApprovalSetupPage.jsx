@@ -99,11 +99,13 @@ export default function ApprovalSetupPage() {
 
   const projectOptions = useMemo(
     () =>
-      (Array.isArray(companyProjects) ? companyProjects : []).map((p) => ({
-        id: p.id,
-        label: [p.Code, p.Name].filter(Boolean).join(' - ') || p.Code || p.id
-      })),
-    [companyProjects]
+      (Array.isArray(companyProjects) ? companyProjects : [])
+        .filter((p) => p.Active !== 'tNO' || p.id === projectId)
+        .map((p) => ({
+          id: p.id,
+          label: [p.Code, p.Name].filter(Boolean).join(' - ') || p.Code || p.id
+        })),
+    [companyProjects, projectId]
   );
 
   const userLabel = (id) => userOptions.find((o) => o.id === id)?.label || id;
