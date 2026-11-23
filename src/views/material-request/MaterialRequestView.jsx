@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getMRById, resetMRState } from '../../store/slices/materialRequestSlice';
+import { getApprovalByDoc, resetApprovalState } from '../../store/slices/approvalSlice';
+import { ApprovalStatusBanner, ApprovalStepper, ApprovalHistory } from '../approvals/ApprovalTimeline';
 import { getDepartments } from '../../store/slices/commonSlice';
 import { mapApiToForm, mapApiLineToRow, MR_STATUS_META } from './mrHelpers';
 import { resolveDepartmentName } from 'utils/department';
@@ -49,6 +51,7 @@ export default function MaterialRequestView() {
 
   const { currentMR, currentMRLoading, currentMRError } = useSelector((s) => s.materialRequest);
   const { departments } = useSelector((s) => s.common);
+  const { docApproval, docApprovalLoading, docApprovalError } = useSelector((s) => s.approval);
 
   const [tabValue, setTabValue] = useState(0);
   const [form, setForm] = useState(null);
@@ -93,10 +96,14 @@ const handlePrint = () => {
   //print
 
   useEffect(() => {
-    if (id) dispatch(getMRById(id));
+    if (id) {
+      dispatch(getMRById(id));
+      dispatch(getApprovalByDoc({ docType: 'MR', docEntry: id }));
+    }
     if (!departments.length) dispatch(getDepartments());
     return () => {
       dispatch(resetMRState());
+      dispatch(resetApprovalState());
     };
   }, [dispatch, id]);
 
@@ -194,6 +201,7 @@ const handlePrint = () => {
           >
             <Tab label="General" />
             <Tab label="Contents" />
+            <Tab label="Approval" />
           </Tabs>
           {docStatus==="O" && ( 
           <Button
@@ -223,6 +231,21 @@ const handlePrint = () => {
               </Box>
               <Box sx={{ display: tabValue === 1 ? 'block' : 'none' }}>
                 <MRContentTab data={form} setData={noop} rows={lines} setRows={noop} readOnly />
+              </Box>
+              <Box sx={{ display: tabValue === 2 ? 'block' : 'none' }}>
+                {docApprovalLoading ? (
+                  <Skeleton variant="rounded" height={120} />
+                ) : docApprovalError ? (
+                  <Alert severity="error">{docApprovalError}</Alert>
+                ) : (
+                  <>
+                    <Box sx={{ mb: 3 }}>
+                      <ApprovalStatusBanner approval={docApproval} />
+                    </Box>
+                    <ApprovalStepper approval={docApproval} />
+                    {docApproval?.status !== 'not_required' && <ApprovalHistory actions={docApproval?.actions || []} />}
+                  </>
+                )}
               </Box>
             </>
           )}

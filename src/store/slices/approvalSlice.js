@@ -30,6 +30,15 @@ export const getApprovalRequestById = createAsyncThunk('approval/getById', async
   }
 });
 
+export const getApprovalByDoc = createAsyncThunk('approval/getByDoc', async ({ docType = 'MR', docEntry }, thunkAPI) => {
+  try {
+    const response = await API.get('/approvals/by-doc', { params: { docType, docEntry } });
+    return response.data;
+  } catch (error) {
+    return thunkAPI.rejectWithValue(error.response?.data?.message || 'Failed to load approval status');
+  }
+});
+
 export const approveApprovalRequest = createAsyncThunk('approval/approve', async ({ id, remark = '' }, thunkAPI) => {
   try {
     const response = await API.post(`/approvals/requests/${id}/approve`, { remark });
@@ -71,6 +80,10 @@ const approvalSlice = createSlice({
     currentLoading: false,
     currentError: null,
 
+    docApproval: null,
+    docApprovalLoading: false,
+    docApprovalError: null,
+
     decisionLoading: false,
     error: null
   },
@@ -78,6 +91,8 @@ const approvalSlice = createSlice({
     resetApprovalState: (state) => {
       state.current = null;
       state.currentError = null;
+      state.docApproval = null;
+      state.docApprovalError = null;
       state.decisionLoading = false;
       state.error = null;
     }
@@ -121,6 +136,20 @@ const approvalSlice = createSlice({
       .addCase(getApprovalRequestById.rejected, (state, action) => {
         state.currentLoading = false;
         state.currentError = action.payload || 'Failed to load';
+      })
+
+      .addCase(getApprovalByDoc.pending, (state) => {
+        state.docApprovalLoading = true;
+        state.docApproval = null;
+        state.docApprovalError = null;
+      })
+      .addCase(getApprovalByDoc.fulfilled, (state, action) => {
+        state.docApprovalLoading = false;
+        state.docApproval = action.payload;
+      })
+      .addCase(getApprovalByDoc.rejected, (state, action) => {
+        state.docApprovalLoading = false;
+        state.docApprovalError = action.payload || 'Failed to load';
       })
 
       .addMatcher(

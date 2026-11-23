@@ -7,7 +7,6 @@ import {
   Box,
   Breadcrumbs,
   Button,
-  Chip,
   CircularProgress,
   Dialog,
   DialogActions,
@@ -15,11 +14,7 @@ import {
   DialogContentText,
   DialogTitle,
   Divider,
-  Paper,
   Snackbar,
-  Step,
-  StepLabel,
-  Stepper,
   Tab,
   Tabs,
   TextField,
@@ -40,7 +35,7 @@ import { getApprovalRequestById, approveApprovalRequest, rejectApprovalRequest, 
 import { updateMR, resetMRState } from '../../store/slices/materialRequestSlice';
 import { getDepartments } from '../../store/slices/commonSlice';
 import { resolveDepartmentName } from 'utils/department';
-import { formatDateDDMMYYYY } from 'utils/dataGridFormatters';
+import { ApprovalStepper, ApprovalHistory } from './ApprovalTimeline';
 
 const noop = () => {};
 
@@ -78,8 +73,6 @@ export default function MyApprovalView() {
   const form = current?.mr ? mapApiToForm(current.mr) : null;
   // Resolve the department id (e.g. -2) to its name, as the Create/Edit screens do.
   if (form) form.Department = resolveDepartmentName(departments, form.DeptId) || form.Department;
-  const stages = current?.stages || [];
-  const activeStep = (current?.currentStageOrder || 1) - 1;
   const isPending = current?.status === 'pending';
   const busy = decisionLoading || updateLoading;
 
@@ -178,25 +171,7 @@ export default function MyApprovalView() {
             <ContentSkeleton />
           ) : (
             <>
-              {stages.length > 0 && (
-                <Paper variant="outlined" sx={{ p: 3, mb: 3, borderRadius: 2 }}>
-                  <Stepper activeStep={activeStep} alternativeLabel>
-                    {stages.map((stage) => (
-                      <Step key={stage.stageOrder}>
-                        <StepLabel
-                          optional={
-                            <Typography variant="caption" color="text.secondary">
-                              {(stage.approvers || []).map((a) => a.name).join(', ')}
-                            </Typography>
-                          }
-                        >
-                          {stage.name}
-                        </StepLabel>
-                      </Step>
-                    ))}
-                  </Stepper>
-                </Paper>
-              )}
+              <ApprovalStepper approval={current} />
 
               <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 2 }}>
                 <Tabs value={tabValue} onChange={(_, v) => setTabValue(v)}>
@@ -211,37 +186,7 @@ export default function MyApprovalView() {
                 <MRContentTab data={form} setData={noop} rows={lines} setRows={setLines} readOnly canEditApprovedQty={isPending} />
               </Box>
               <Box sx={{ display: tabValue === 2 ? 'block' : 'none' }}>
-                {(current.actions || []).length === 0 ? (
-                  <Typography color="text.secondary">No actions yet.</Typography>
-                ) : (
-                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-                    {current.actions.map((a, i) => (
-                      <Paper key={i} variant="outlined" sx={{ p: 2, borderRadius: 2 }}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
-                          <Chip
-                            size="small"
-                            label={a.decision === 'approved' ? 'Approved' : 'Rejected'}
-                            color={a.decision === 'approved' ? 'success' : 'error'}
-                            variant="outlined"
-                          />
-                          <Typography variant="body2">Stage {a.stageOrder}</Typography>
-                          <Typography variant="body2" color="text.secondary">
-                            • {a.approver || '—'}
-                          </Typography>
-                          <Box sx={{ flex: 1 }} />
-                          <Typography variant="caption" color="text.secondary">
-                            {formatDateDDMMYYYY({ value: a.createdAt })}
-                          </Typography>
-                        </Box>
-                        {a.remark && (
-                          <Typography variant="body2" sx={{ mt: 1 }}>
-                            {a.remark}
-                          </Typography>
-                        )}
-                      </Paper>
-                    ))}
-                  </Box>
-                )}
+                <ApprovalHistory actions={current.actions || []} />
               </Box>
 
               <Divider sx={{ my: 4 }} />
